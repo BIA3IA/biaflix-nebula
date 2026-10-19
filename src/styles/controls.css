@@ -1,0 +1,493 @@
+/*
+ * Controlli glass: select, checkbox, toggle, radio.
+ * Restyling degli elementi Jellyfin esistenti (emby-checkbox, emby-toggle, emby-radio, emby-select),
+ * dei controlli MUI e degli input semplici usati da KefinTweaks/JE. La logica resta quella nativa:
+ * nessun elemento viene sostituito, cambiano solo aspetto e (per le select) il popup.
+ * Dashboard esclusa.
+ */
+
+/* --- Select chiusa: campo glass ------------------------------------------------ */
+body:not(.dashboardDocument) select:not([multiple], [size]:not([size='1'])) {
+  appearance: none;
+  min-height: var(--nebula-touch-target);
+  padding: 0 44px 0 var(--nebula-space-4);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-md);
+  background-color: rgb(14 19 37 / 60%);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23b16dff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-position: right 14px center;
+  background-repeat: no-repeat;
+  color: var(--nebula-text);
+  font: 500 var(--nebula-text-md) / 1.3 var(--nebula-font-body);
+  box-shadow: var(--nebula-inner-light);
+  cursor: pointer;
+  transition:
+    border-color var(--nebula-fast) var(--nebula-ease),
+    box-shadow var(--nebula-fast) var(--nebula-ease),
+    background-color var(--nebula-fast) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument) select:not([multiple]):hover {
+  border-color: var(--nebula-glass-border-strong);
+  background-color: rgb(22 28 52 / 70%);
+}
+
+body:not(.dashboardDocument) select:not([multiple]):focus-visible,
+body:not(.dashboardDocument) select[aria-expanded='true'] {
+  outline: none;
+  border-color: var(--nebula-primary);
+  box-shadow: 0 0 0 3px rgb(var(--nebula-primary-rgb) / 30%);
+}
+
+body:not(.dashboardDocument) select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* emby-select ha già la sua freccia (.selectArrowContainer): niente doppia freccia. */
+body:not(.dashboardDocument) select.emby-select {
+  background-image: none;
+}
+
+body:not(.dashboardDocument) .selectArrowContainer .selectArrow {
+  color: var(--nebula-primary-light);
+}
+
+/* Liste native residue (select multiple, fallback): colori leggibili. */
+body:not(.dashboardDocument) select option,
+body:not(.dashboardDocument) select optgroup {
+  background: var(--nebula-bg-elevated);
+  color: var(--nebula-text);
+}
+
+/* MUI Select (pagine React) */
+body:not(.dashboardDocument) .MuiOutlinedInput-root:has(.MuiSelect-select) {
+  border-radius: var(--nebula-radius-md);
+  background: rgb(14 19 37 / 60%);
+}
+
+body:not(.dashboardDocument) .MuiOutlinedInput-root:has(.MuiSelect-select) .MuiOutlinedInput-notchedOutline {
+  border-color: var(--nebula-glass-border);
+}
+
+/* --- Popup select Nebula -------------------------------------------------------- */
+.nebula-select-pop {
+  position: fixed;
+  z-index: var(--nebula-z-toast);
+  box-sizing: border-box;
+  min-width: 180px;
+  max-width: min(420px, calc(100vw - 24px));
+  padding: 6px;
+  overflow: hidden auto;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-md);
+  background: linear-gradient(160deg, rgb(var(--nebula-primary-rgb) / 12%) 0%, transparent 45%), rgb(12 16 32 / 78%);
+  box-shadow: var(--nebula-shadow-strong), var(--nebula-inner-light);
+  backdrop-filter: blur(28px) saturate(150%);
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  transform-origin: top center;
+  transition:
+    opacity var(--nebula-fast) var(--nebula-ease),
+    transform var(--nebula-fast) var(--nebula-ease);
+}
+
+.nebula-select-pop.is-open {
+  opacity: 1;
+  transform: none;
+}
+
+.nebula-select-pop:focus {
+  outline: none;
+}
+
+.nebula-select-pop__group {
+  padding: 10px 12px 4px;
+  color: var(--nebula-text-subtle);
+  font: 700 11px / 1.2 var(--nebula-font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.nebula-select-pop__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 10px;
+  color: var(--nebula-text);
+  font: 500 var(--nebula-text-md) / 1.3 var(--nebula-font-body);
+  cursor: pointer;
+  user-select: none;
+}
+
+.nebula-select-pop__option > span:first-child {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nebula-select-pop__option .nebula-icon {
+  color: var(--nebula-primary-light);
+  font-size: 18px;
+  visibility: hidden;
+}
+
+.nebula-select-pop__option[aria-selected='true'] {
+  background: rgb(var(--nebula-primary-rgb) / 20%);
+}
+
+.nebula-select-pop__option[aria-selected='true'] .nebula-icon {
+  visibility: visible;
+}
+
+.nebula-select-pop__option.is-active {
+  background: rgb(255 255 255 / 9%);
+  box-shadow: inset 0 0 0 1px rgb(var(--nebula-cyan-rgb) / 45%);
+}
+
+.nebula-select-pop__option[aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Su telefono: foglio dal basso, sopra la barra di navigazione. */
+@media (width < 600px) {
+  .nebula-select-pop.is-sheet {
+    inset: auto max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    width: auto;
+    max-width: none;
+    max-height: 60svh;
+    padding: 8px;
+    border-radius: var(--nebula-radius-xl);
+    transform: translateY(16px);
+  }
+
+  .nebula-select-pop.is-sheet.is-open {
+    transform: none;
+  }
+
+  .nebula-select-pop.is-sheet .nebula-select-pop__option {
+    min-height: 48px;
+  }
+
+  .nebula-select-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--nebula-z-toast) - 1);
+    background: rgb(4 6 14 / 50%);
+    backdrop-filter: blur(3px);
+  }
+}
+
+/* --- Checkbox (emby-checkbox) ----------------------------------------------------- */
+body:not(.dashboardDocument) .emby-checkbox-label .checkboxOutline {
+  top: 2px;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--nebula-glass-border-strong);
+  border-radius: 7px;
+  background: rgb(255 255 255 / 6%);
+  box-shadow: var(--nebula-inner-light);
+  transition:
+    background var(--nebula-fast) var(--nebula-ease),
+    border-color var(--nebula-fast) var(--nebula-ease),
+    box-shadow var(--nebula-fast) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument) .emby-checkbox-label .checkboxIcon {
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+body:not(.dashboardDocument) .emby-checkbox:checked + span + .checkboxOutline {
+  border-color: transparent;
+  background: var(--nebula-gradient);
+  box-shadow: 0 4px 14px rgb(var(--nebula-primary-rgb) / 35%);
+}
+
+body:not(.dashboardDocument) .emby-checkbox:checked + span + .checkboxOutline > .checkboxIcon {
+  background: none;
+}
+
+body:not(.dashboardDocument) .emby-checkbox-label:hover .checkboxOutline {
+  border-color: rgb(var(--nebula-primary-rgb) / 70%);
+}
+
+body:not(.dashboardDocument) .emby-checkbox:focus-visible + span + .checkboxOutline {
+  box-shadow: var(--nebula-focus-ring);
+}
+
+body:not(.dashboardDocument) .emby-checkbox[disabled] + span + .checkboxOutline {
+  opacity: 0.45;
+}
+
+/* --- Toggle (emby-toggle) ----------------------------------------------------------- */
+body:not(.dashboardDocument) .mdl-switch__trackContainer {
+  width: 46px;
+  height: 26px;
+}
+
+body:not(.dashboardDocument) .mdl-switch__track {
+  box-sizing: border-box;
+  height: 26px;
+  border: 1px solid var(--nebula-glass-border-strong);
+  border-radius: var(--nebula-radius-pill);
+  background: rgb(255 255 255 / 8%);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 35%);
+  transition:
+    background var(--nebula-normal) var(--nebula-ease),
+    border-color var(--nebula-normal) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument) .mdl-switch__thumb {
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: #e9eaf5;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 40%);
+  transition-property: left, background;
+}
+
+body:not(.dashboardDocument) .mdl-switch__input:checked + .mdl-switch__label + .mdl-switch__trackContainer > .mdl-switch__track {
+  border-color: transparent;
+  background: var(--nebula-gradient);
+}
+
+body:not(.dashboardDocument) .mdl-switch__input:checked + .mdl-switch__label + .mdl-switch__trackContainer > .mdl-switch__thumb {
+  left: 23px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(var(--nebula-primary-rgb) / 55%);
+}
+
+body:not(.dashboardDocument) .mdl-switch__input:focus-visible + .mdl-switch__label + .mdl-switch__trackContainer > .mdl-switch__track {
+  box-shadow: var(--nebula-focus-ring);
+}
+
+body:not(.dashboardDocument) .mdl-switch__input[disabled] + .mdl-switch__label + .mdl-switch__trackContainer {
+  opacity: 0.45;
+}
+
+/* --- Radio (emby-radio) --------------------------------------------------------------- */
+body:not(.dashboardDocument) .mdl-radio__circles {
+  width: 20px;
+  height: 20px;
+}
+
+body:not(.dashboardDocument) .mdl-radio__outer-circle {
+  stroke: var(--nebula-glass-border-strong);
+}
+
+body:not(.dashboardDocument) .mdl-radio__button:checked + .mdl-radio__circles .mdl-radio__outer-circle {
+  stroke: var(--nebula-primary-light);
+}
+
+body:not(.dashboardDocument) .mdl-radio__inner-circle {
+  fill: var(--nebula-primary-light);
+}
+
+/* --- Controlli MUI (pagine React) ----------------------------------------------------- */
+body:not(.dashboardDocument) .MuiSwitch-track {
+  border-radius: var(--nebula-radius-pill);
+  background: rgb(255 255 255 / 18%);
+  opacity: 1;
+}
+
+body:not(.dashboardDocument) .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
+  background: var(--nebula-gradient);
+  opacity: 1;
+}
+
+body:not(.dashboardDocument) .MuiSwitch-thumb {
+  background: #fff;
+}
+
+body:not(.dashboardDocument) .MuiCheckbox-root.Mui-checked,
+body:not(.dashboardDocument) .MuiRadio-root.Mui-checked {
+  color: var(--nebula-primary-light);
+}
+
+/* --- Input semplici (pannelli KefinTweaks/JE, dialog Nebula) ---------------------------- */
+body:not(.dashboardDocument) input[type='checkbox']:not(.emby-checkbox, .mdl-switch__input, .MuiSwitch-input, .PrivateSwitchBase-input),
+.nebula-check {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1px solid var(--nebula-glass-border-strong);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 6%);
+  cursor: pointer;
+  vertical-align: middle;
+  transition:
+    background var(--nebula-fast) var(--nebula-ease),
+    border-color var(--nebula-fast) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument) input[type='checkbox']:not(.emby-checkbox, .mdl-switch__input, .MuiSwitch-input, .PrivateSwitchBase-input):checked,
+.nebula-check:checked {
+  border-color: transparent;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+      center / 15px no-repeat,
+    var(--nebula-gradient);
+}
+
+body:not(.dashboardDocument) input[type='checkbox']:not(.emby-checkbox, .mdl-switch__input, .MuiSwitch-input, .PrivateSwitchBase-input):focus-visible,
+.nebula-check:focus-visible {
+  outline: none;
+  box-shadow: var(--nebula-focus-ring);
+}
+
+body:not(.dashboardDocument) input[type='checkbox']:not(.emby-checkbox, .mdl-switch__input, .MuiSwitch-input, .PrivateSwitchBase-input):disabled,
+.nebula-check:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Interruttore esplicito per le preferenze Nebula (role=switch) */
+body:not(.dashboardDocument) input[type='checkbox'][role='switch'],
+.nebula-toggle > .nebula-check {
+  width: 42px;
+  height: 24px;
+  border-radius: var(--nebula-radius-pill);
+  background: rgb(255 255 255 / 10%);
+}
+
+body:not(.dashboardDocument) input[type='checkbox'][role='switch']::after,
+.nebula-toggle > .nebula-check::after {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e9eaf5;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 40%);
+  transition: transform var(--nebula-normal) var(--nebula-ease);
+  content: '';
+}
+
+body:not(.dashboardDocument) input[type='checkbox'][role='switch']:checked,
+.nebula-toggle > .nebula-check:checked {
+  background: var(--nebula-gradient);
+}
+
+body:not(.dashboardDocument) input[type='checkbox'][role='switch']:checked::after,
+.nebula-toggle > .nebula-check:checked::after {
+  background: #fff;
+  transform: translateX(18px);
+}
+
+body:not(.dashboardDocument) input[type='radio']:not(.mdl-radio__button, .PrivateSwitchBase-input) {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1px solid var(--nebula-glass-border-strong);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 6%);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+body:not(.dashboardDocument) input[type='radio']:not(.mdl-radio__button, .PrivateSwitchBase-input):checked {
+  border: 6px solid var(--nebula-primary-light);
+  background: #fff;
+}
+
+/* --- Menu glass («Altre azioni») ---------------------------------------------------------------- */
+.nebula-menu {
+  position: fixed;
+  z-index: var(--nebula-z-toast);
+  box-sizing: border-box;
+  min-width: 220px;
+  max-width: min(360px, calc(100vw - 16px));
+  padding: 6px;
+  overflow: hidden auto;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-md);
+  background: linear-gradient(160deg, rgb(var(--nebula-primary-rgb) / 12%) 0%, transparent 45%), rgb(12 16 32 / 80%);
+  box-shadow: var(--nebula-shadow-strong), var(--nebula-inner-light);
+  backdrop-filter: blur(28px) saturate(150%);
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  transition:
+    opacity var(--nebula-fast) var(--nebula-ease),
+    transform var(--nebula-fast) var(--nebula-ease);
+}
+
+.nebula-menu.is-open {
+  opacity: 1;
+  transform: none;
+}
+
+.nebula-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--nebula-text);
+  font: 500 var(--nebula-text-md) / 1.25 var(--nebula-font-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.nebula-menu__item:is(:hover, :focus-visible) {
+  outline: none;
+  background: rgb(var(--nebula-primary-rgb) / 18%);
+}
+
+.nebula-menu__item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.nebula-menu__item .nebula-icon {
+  width: 22px;
+  color: var(--nebula-primary-light);
+  font-size: 20px;
+  text-align: center;
+}
+
+.nebula-menu__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.nebula-menu__check {
+  color: var(--nebula-cyan);
+}
+
+@media (width < 600px) {
+  .nebula-menu.is-sheet {
+    inset: auto max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    max-width: none;
+    max-height: 70svh;
+    padding: 8px;
+    border-radius: var(--nebula-radius-xl);
+    transform: translateY(16px);
+  }
+
+  .nebula-menu.is-sheet.is-open {
+    transform: none;
+  }
+
+  .nebula-menu.is-sheet .nebula-menu__item {
+    min-height: 50px;
+  }
+}

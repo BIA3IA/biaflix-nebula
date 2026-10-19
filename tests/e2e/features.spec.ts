@@ -24,7 +24,7 @@ test.describe('Watchlist (UserData.Likes)', () => {
 
     await installNebula(page, s);
     await page.goto(`/web/#/details?id=${id}&serverId=${s.serverId}`);
-    const btn = page.locator('#itemDetailPage:not(.hide) .mainDetailButtons .nebula-watchlist-btn');
+    const btn = page.locator('.nebula-detail-hero .ndh__actions .nebula-watchlist-btn');
     await expect(btn).toHaveAttribute('aria-pressed', 'false');
     await btn.click();
     await expect(btn).toHaveAttribute('aria-pressed', 'true');
@@ -32,13 +32,13 @@ test.describe('Watchlist (UserData.Likes)', () => {
     // Non è un Preferito: le due liste restano distinte.
     const fav = await apiCall<{ UserData?: { IsFavorite?: boolean } }>(s, 'GET', `/Items/${id}?userId=${s.userId}`);
     expect(fav.UserData?.IsFavorite).toBe(false);
-    await page.screenshot({ path: `docs/screenshots/details-${info.project.name}.png` });
+    await page.screenshot({ path: `test-results/screenshots/details-${info.project.name}.png` });
 
     await gotoHome(page);
     await expect(page.locator('.nebula-rail--watchlist .nebula-card', { hasText: 'Neon Halloween' })).toBeVisible();
 
     await page.goto(`/web/#/details?id=${id}&serverId=${s.serverId}`);
-    await page.locator('#itemDetailPage:not(.hide) .mainDetailButtons .nebula-watchlist-btn[aria-pressed="true"]').click();
+    await page.locator('.nebula-detail-hero .ndh__actions .nebula-watchlist-btn[aria-pressed="true"]').click();
     await expect.poll(() => likes(s, id)).toBe(false);
     expect(consoleErrors).toEqual([]);
   });
@@ -75,8 +75,12 @@ test.describe('Card native', () => {
     test.skip(isMobile, 'Su touch si usa il menu contestuale nativo');
     const s = await sessionFor('curator');
     await installNebula(page, s);
-    await gotoHome(page);
-    const card = page.locator('#homeTab .homeSectionsContainer .card[data-type="Movie"]').first();
+    // Pagina libreria Film: card native in qualunque configurazione della home (anche KefinTweaks).
+    const views = await apiCall<{ Items: { Id: string; CollectionType?: string }[] }>(s, 'GET', `/UserViews?userId=${s.userId}`);
+    const movies = views.Items.find((v) => v.CollectionType === 'movies')!;
+    await page.goto(`/web/#/movies?topParentId=${movies.Id}&collectionType=movies`);
+    await expect(page.locator('html.nebula-active')).toHaveCount(1, { timeout: 20_000 });
+    const card = page.locator('.page:not(.hide) .card[data-type="Movie"]').filter({ visible: true }).first();
     await card.scrollIntoViewIfNeeded();
     await card.hover();
     const actions = card.locator('.nebula-card-actions');
@@ -94,7 +98,7 @@ test.describe('Card native', () => {
 });
 
 test.describe('Layout', () => {
-  test('mobile: hero compatto, nessun overflow, max 2 CTA visibili', async ({ page, isMobile }, info) => {
+  test('mobile: hero con locandina nitida, nessun overflow, max 2 CTA visibili', async ({ page, isMobile }, info) => {
     test.skip(!isMobile, 'Solo mobile');
     const s = await sessionFor('viewer');
     await installNebula(page, s);
@@ -102,21 +106,29 @@ test.describe('Layout', () => {
     const hero = page.locator('.nebula-hero');
     await expect(hero).toBeVisible();
     const h = await hero.evaluate((el) => el.getBoundingClientRect().height / window.innerHeight);
-    expect(h).toBeGreaterThan(0.45);
-    expect(h).toBeLessThan(0.7);
+    expect(h).toBeGreaterThan(0.6);
+    expect(h).toBeLessThanOrEqual(0.95);
+    // Locandina nitida (nessun filtro), backdrop usato solo come luce ambientale.
+    const poster = page.locator('.nebula-hero__slide.is-active .nebula-hero__poster');
+    await expect(poster).toBeVisible();
+    expect(await poster.evaluate((el) => getComputedStyle(el).filter)).toBe('none');
     const visibleCtas = await page.locator('.nebula-hero__slide.is-active .nebula-hero__action-host > *:visible').count();
     expect(visibleCtas).toBeLessThanOrEqual(2);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(1);
-    await page.screenshot({ path: `docs/screenshots/home-${info.project.name}.png` });
+    await page.screenshot({ path: `test-results/screenshots/home-${info.project.name}.png` });
   });
 
   test('reduced motion: nessuna trasformazione al hover delle card', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Hover solo desktop');
     const s = await sessionFor('viewer');
     await installNebula(page, s, { reducedMotion: true });
-    await gotoHome(page);
-    const card = page.locator('#homeTab .homeSectionsContainer .card[data-type="Movie"]').first();
+    const views = await apiCall<{ Items: { Id: string; CollectionType?: string }[] }>(s, 'GET', `/UserViews?userId=${s.userId}`);
+    const movies = views.Items.find((v) => v.CollectionType === 'movies')!;
+    await page.goto(`/web/#/movies?topParentId=${movies.Id}&collectionType=movies`);
+    await expect(page.locator('html.nebula-active')).toHaveCount(1, { timeout: 20_000 });
+    const card = page.locator('.page:not(.hide) .card[data-type="Movie"]').filter({ visible: true }).first();
+    await card.scrollIntoViewIfNeeded();
     await card.hover();
     const transform = await card.locator('.cardScalable').evaluate((el) => getComputedStyle(el).transform);
     expect(['none', 'matrix(1, 0, 0, 1, 0, 0)']).toContain(transform);
@@ -129,5 +141,34 @@ test.describe('Layout', () => {
     await expect(page.locator('body.dashboardDocument')).toHaveCount(1, { timeout: 20_000 });
     const bg = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--jf-palette-primary-main').trim());
     expect(bg.toLowerCase()).not.toBe('#854bff');
+  });
+
+  test('mobile: barra in basso, header essenziale, drawer glass fluttuante', async ({ page, isMobile }, info) => {
+    test.skip(!isMobile, 'Solo mobile');
+    const s = await sessionFor('viewer');
+    await installNebula(page, s);
+    await gotoHome(page);
+    const nav = page.getByRole('navigation', { name: 'Navigazione principale' });
+    await expect(nav).toBeVisible();
+    await expect(nav.getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
+    // Header mobile: menu, logo, ricerca, profilo (SyncPlay/Trasmetti nascosti, raggiungibili dal player).
+    const bar = page.locator('header.MuiAppBar-root').first();
+    await expect(bar.locator('a[href^="#/search"]')).toBeVisible();
+    await expect(bar.locator('[aria-controls="app-sync-play-menu"]')).toBeHidden();
+    // Navigazione reale verso la libreria Film.
+    await nav.getByRole('link', { name: 'Film' }).click();
+    await expect(page).toHaveURL(/#\/movies\?topParentId=/);
+    await expect(nav.getByRole('link', { name: 'Film' })).toHaveAttribute('aria-current', 'page');
+    // Drawer: pannello staccato dai bordi e arrotondato.
+    await bar.locator('button').first().click();
+    const paper = page.locator('.MuiDrawer-paper').first();
+    await expect(paper).toBeVisible();
+    // Attende la fine dello slide-in, poi verifica che il pannello sia staccato dai bordi.
+    await expect.poll(async () => (await paper.boundingBox())?.x ?? -1).toBeGreaterThanOrEqual(8);
+    expect((await paper.boundingBox())!.y).toBeGreaterThanOrEqual(8);
+    expect(parseFloat(await paper.evaluate((el) => getComputedStyle(el).borderTopRightRadius))).toBeGreaterThanOrEqual(16);
+    await page.screenshot({ path: `test-results/screenshots/drawer-${info.project.name}.png` });
+    // Nel player la barra non compare.
+    await page.keyboard.press('Escape');
   });
 });

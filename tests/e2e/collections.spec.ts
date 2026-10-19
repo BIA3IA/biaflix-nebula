@@ -71,7 +71,7 @@ test.describe('Raccolte miste film + serie', () => {
       await dialog.locator('.nebula-picker__label', { hasText: title }).locator('input[type="checkbox"]').check();
     }
     await expect(dialog.locator('.nebula-picker__count')).toHaveText('4 selezionati');
-    await page.screenshot({ path: `docs/screenshots/create-collection-${info.project.name}.png` });
+    await page.screenshot({ path: `test-results/screenshots/create-collection-${info.project.name}.png` });
     await dialog.getByRole('button', { name: 'Crea raccolta' }).click();
 
     // Navigazione reale alla pagina dettagli della raccolta creata.
@@ -99,8 +99,9 @@ test.describe('Raccolte miste film + serie', () => {
     const movie = await libraryItem(curator, 'Il Faro Ciano');
     await installNebula(page, curator);
     await page.goto(`/web/#/details?id=${movie.Id}&serverId=${curator.serverId}`);
-    const addBtn = page.locator('#itemDetailPage:not(.hide) .mainDetailButtons .nebula-addto-btn');
-    await addBtn.click();
+    // «Aggiungi a…» vive nel menu «Altre azioni» dell'hero.
+    await page.getByRole('button', { name: 'Altre azioni' }).click();
+    await page.getByRole('menuitem', { name: 'Aggiungi a…' }).click();
     const dialog = page.getByRole('dialog', { name: /Aggiungi «Il Faro Ciano» a…/ });
     const box = dialog.getByRole('checkbox', { name: new RegExp(name) });
     await expect(box).not.toBeChecked();
@@ -114,7 +115,8 @@ test.describe('Raccolte miste film + serie', () => {
     const c = (await findCollection(curator, name))!;
     await installNebula(page, curator);
     await page.goto(`/web/#/details?id=${c.Id}&serverId=${curator.serverId}`);
-    await page.locator('#itemDetailPage:not(.hide) .nebula-manage-btn').click();
+    await page.getByRole('button', { name: 'Altre azioni' }).click();
+    await page.getByRole('menuitem', { name: 'Gestisci raccolta' }).click();
     const dialog = page.getByRole('dialog', { name: /Gestisci raccolta/ });
     await dialog.getByRole('button', { name: 'Rimuovi Orbita Viola' }).click();
     const confirm = page.getByRole('dialog', { name: 'Rimuovi' });
@@ -132,11 +134,14 @@ test.describe('Raccolte miste film + serie', () => {
     await installNebula(page, viewer);
     await page.goto(`/web/#/details?id=${c!.Id}&serverId=${viewer.serverId}`);
     await expect(page.locator('#itemDetailPage:not(.hide) .nebula-collection-filter')).toBeVisible();
-    await expect(page.locator('#itemDetailPage:not(.hide) .nebula-manage-btn')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Altre azioni' }).click();
+    await expect(page.getByRole('menuitem', { name: 'Gestisci raccolta' })).toHaveCount(0);
+    await page.keyboard.press('Escape');
 
     const movie = await libraryItem(viewer, 'Comfort Club');
     await page.goto(`/web/#/details?id=${movie.Id}&serverId=${viewer.serverId}`);
-    await page.locator('#itemDetailPage:not(.hide) .mainDetailButtons .nebula-addto-btn').click();
+    await page.getByRole('button', { name: 'Altre azioni' }).click();
+    await page.getByRole('menuitem', { name: 'Aggiungi a…' }).click();
     const dialog = page.getByRole('dialog', { name: /Aggiungi «Comfort Club» a…/ });
     await expect(dialog).toContainText('Gestione raccolte');
     await expect(dialog.getByRole('checkbox')).toHaveCount(0);
@@ -151,7 +156,7 @@ test.describe('Raccolte miste film + serie', () => {
     const hub = page.locator('#boxsetsPage .nebula-hub');
     await expect(hub).toBeVisible();
     await expect(hub.locator('.nebula-card--collection', { hasText: name })).toBeVisible();
-    await page.screenshot({ path: `docs/screenshots/collections-hub-${test.info().project.name}.png` });
+    await page.screenshot({ path: `test-results/screenshots/collections-hub-${test.info().project.name}.png` });
     await hub.getByRole('button', { name: 'Playlist', exact: true }).click();
     await expect(hub.locator('.nebula-card--collection', { hasText: name })).toBeHidden();
     await hub.getByRole('button', { name: 'Vista classica' }).click();

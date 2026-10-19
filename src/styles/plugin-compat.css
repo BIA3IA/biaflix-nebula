@@ -83,24 +83,6 @@ body:not(.dashboardDocument) [data-kefin-desktop-drawer] .MuiDrawer-paper {
   backdrop-filter: var(--nebula-glass-filter);
 }
 
-/* Barra categorie home */
-body:not(.dashboardDocument) .kefin-home-category-rail {
-  background: transparent;
-}
-
-body:not(.dashboardDocument) .kefin-home-category-btn {
-  border: 1px solid var(--nebula-glass-border);
-  border-radius: var(--nebula-radius-pill);
-  background: var(--nebula-glass-bg);
-  color: var(--nebula-text-muted);
-}
-
-body:not(.dashboardDocument) .kefin-home-category-item.is-active .kefin-home-category-btn {
-  border-color: rgb(var(--nebula-primary-rgb) / 60%);
-  background: rgb(var(--nebula-primary-rgb) / 28%);
-  color: var(--nebula-text);
-}
-
 /* Spotlight KefinTweaks (sezioni editoriali sotto l'hero Nebula): bordi e overlay coerenti */
 body:not(.dashboardDocument) .spotlight-section .spotlight-items-container {
   border-radius: var(--nebula-radius-xl);
@@ -135,3 +117,181 @@ body:not(.dashboardDocument) .breadcrumb-nav a:hover {
 body:not(.dashboardDocument) [id^='customTabButton_'][aria-current='page'] {
   background: transparent;
 }
+
+/*
+ * KefinTweaks: controlli accanto ai titoli delle sezioni home (aggiorna, vedi tutto, configura, altro).
+ * Glass e discreti: compaiono al passaggio sulla sezione o con il focus da tastiera; su touch restano visibili.
+ */
+body:not(.dashboardDocument) .section-controls :is(.section-refresh-button, button.show-all-button, .section-configure-button, .section-controls-more) {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: 50%;
+  background: var(--nebula-glass-bg);
+  color: var(--nebula-text-muted);
+  font-size: 18px;
+  backdrop-filter: var(--nebula-glass-filter);
+  transition:
+    opacity var(--nebula-normal) var(--nebula-ease),
+    color var(--nebula-fast) var(--nebula-ease),
+    border-color var(--nebula-fast) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument)
+  .section-controls
+  :is(.section-refresh-button, button.show-all-button, .section-configure-button, .section-controls-more):is(:hover, :focus-visible) {
+  border-color: rgb(var(--nebula-primary-rgb) / 60%);
+  color: var(--nebula-text);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body:not(.dashboardDocument) .section-controls :is(.section-refresh-button, button.show-all-button, .section-configure-button, .section-controls-more) {
+    opacity: 0;
+    visibility: visible;
+  }
+
+  body:not(.dashboardDocument)
+    :is(.verticalSection, .spotlight-section):is(:hover, :focus-within)
+    .section-controls
+    :is(.section-refresh-button, button.show-all-button, .section-configure-button, .section-controls-more) {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  body:not(.dashboardDocument) .section-controls :is(.section-refresh-button, button.show-all-button, .section-configure-button) {
+    opacity: 0.7;
+  }
+}
+
+/*
+ * KefinTweaks: categorie della home (Home / Scopri / Fissati). Da colonna fissa semi-trasparente sul bordo
+ * sinistro a pillola glass orizzontale in alto a sinistra, sopra l'hero, che scorre con la pagina.
+ */
+
+/* Il contenitore esterno è `display: contents` (KefinTweaks): si posiziona la pillola interna. */
+
+/*
+ * KefinTweaks copia sulla pillola le classi MUI dell'AppBar (MuiAppBar-positionFixed…), che la tengono
+ * `position: fixed` sul bordo sinistro con una dichiarazione non sovrascrivibile per specificità:
+ * qui serve !important, limitato alle proprietà di posizionamento e di layout (display/direzione).
+ */
+/* stylelint-disable declaration-no-important */
+body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-rail {
+  position: absolute !important;
+  inset: calc(var(--nebula-nav-top) + var(--nebula-nav-height) + 16px) auto auto var(--nebula-content-gutter) !important;
+  z-index: 5 !important;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  gap: 4px;
+  width: auto;
+  height: auto;
+  padding: 4px;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-glass-strong);
+  box-shadow: var(--nebula-shadow-soft), var(--nebula-inner-light);
+  opacity: 1;
+  transform: none;
+  backdrop-filter: var(--nebula-glass-filter);
+}
+/* stylelint-enable declaration-no-important */
+
+body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-item {
+  margin: 0;
+}
+
+body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  min-width: 40px;
+  height: 36px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--nebula-radius-pill);
+  background: transparent;
+  color: var(--nebula-text-muted);
+  font: 600 var(--nebula-text-sm) / 1 var(--nebula-font-body);
+}
+
+body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-btn .material-icons {
+  font-size: 19px;
+}
+
+body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-btn:is(:hover, :focus-visible) {
+  color: var(--nebula-text);
+  background: var(--nebula-glass-highlight);
+}
+
+body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-item.is-active .kefin-home-category-btn {
+  background: var(--nebula-gradient);
+  color: #fff;
+  box-shadow: 0 4px 16px rgb(var(--nebula-primary-rgb) / 35%);
+}
+
+/* Sotto i 900px l'hero mobile parte più in basso per lasciare spazio alla pillola. */
+@media (width < 900px) {
+  html:has(#kefin-home-category-rail:not(.hide)) .nebula-hero__content {
+    top: calc(var(--nebula-nav-height) + var(--nebula-nav-top) + 72px);
+  }
+}
+
+/*
+ * Jellyfin Enhanced — righe di raccomandazioni/studi/network (recommendations-render.js, 12.12).
+ * La riga è un emby-scroller di Jellyfin: sul desktop scorre con transform e mostra le sue frecce
+ * (.emby-scrollbuttons, funzionanti). JE aggiunge anche frecce proprie che chiamano scroller.scrollBy()
+ * (scroll nativo, non usato da quel contenitore) e quindi non spostano nulla: doppio controllo, uno rotto.
+ * Si tiene un solo set, quello che funziona. Dove le frecce native mancano, quelle JE restano.
+ */
+body:not(.dashboardDocument) .je-recommendations-section:has(.emby-scrollbuttons) .je-scroll-btn {
+  display: none;
+}
+
+/*
+ * KefinTweaks — effetti stagionali (Halloween, neve, San Valentino): disattivati con Nebula attiva
+ * (specifica: «Seasonal Animations / Backgrounds: OFF»). Stesse regole dei moduli opzionali ufficiali
+ * KefinTweaks 0.5.1 «Seasonal Background Hide» e «Seasonal Animation Disable», che usano !important
+ * per battere gli stili inseriti dallo script stagionale. Le sezioni di contenuto stagionali restano.
+ */
+/* stylelint-disable declaration-no-important */
+body[data-seasonal-background='true'] .backdropContainer .backdropImage {
+  background: initial !important;
+}
+
+body[data-seasonal-background='true'] #reactRoot > .backgroundContainer::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+[data-seasonal-background='true'] header.MuiAppBar-root,
+[data-seasonal-background='true'] .skinHeader:not(.osdHeader) .headerTop {
+  border-bottom: none !important;
+}
+
+/* L'alone rosso Halloween ha specificità (0,4,2) + !important: qui (0,5,3) per riportare l'ombra Nebula. */
+html[data-active-page] body[data-seasonal-background='true'] header.MuiAppBar-root.MuiAppBar-root:not(.dashboard-appBar) {
+  box-shadow: var(--nebula-shadow-soft), var(--nebula-inner-light) !important;
+}
+
+[data-seasonal-background='true'] header.MuiAppBar-root::before,
+[data-seasonal-background='true'] header.MuiAppBar-root::after,
+[data-seasonal-background='true'] .skinHeader:not(.osdHeader) .headerTop::before,
+[data-seasonal-background='true'] .skinHeader:not(.osdHeader) .headerTop::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  mask-image: none !important;
+  height: 0 !important;
+  opacity: 0 !important;
+}
+
+.snowverlay {
+  display: none !important;
+}
+/* stylelint-enable declaration-no-important */

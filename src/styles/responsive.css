@@ -6,49 +6,16 @@
   }
 }
 
-/* Sotto 900px MUI usa il drawer: navbar compatta. */
-@media (width <= 900px) {
+/* Sotto 900px MUI usa il drawer: navbar compatta (dettagli in mobile.css). */
+@media (width < 900px) {
   :root {
     --nebula-nav-top: 8px;
     --nebula-nav-height: 56px;
     --nebula-radius-xl: 22px;
   }
 
-  .nebula-hero {
-    height: clamp(380px, 60svh, 620px);
-  }
-
-  /* Header compatto: il ServerButton è nascosto da MUI, il logo Biaflix resta centrato. */
-  body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root:first-child::after {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 34px;
-    height: 34px;
-    background: image-set(url('assets/biaflix-logo-128.png') 1x, url('assets/biaflix-logo-256.png') 2x) center / contain no-repeat;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    content: '';
-  }
-
-  .nebula-hero__content {
-    bottom: var(--nebula-space-6);
-    gap: var(--nebula-space-3);
-  }
-
-  .nebula-hero__controls {
-    top: calc(var(--nebula-nav-height) + var(--nebula-nav-top) + var(--nebula-space-6));
-    bottom: auto;
-  }
-
   .nebula-hero__nav {
     display: none;
-  }
-
-  .nebula-hero__scrim {
-    background:
-      linear-gradient(0deg, var(--nebula-bg) 0%, rgb(var(--nebula-bg-rgb) / 82%) 32%, rgb(var(--nebula-bg-rgb) / 15%) 70%),
-      linear-gradient(180deg, rgb(var(--nebula-bg-rgb) / 60%) 0%, transparent 25%);
   }
 }
 

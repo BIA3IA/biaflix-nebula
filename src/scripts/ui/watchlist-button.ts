@@ -12,6 +12,8 @@ import { toast } from './toast';
 function render(btn: HTMLElement, listed: boolean | null): void {
   const known = listed === true;
   btn.replaceChildren(icon(known ? 'bookmark_added' : 'bookmark_add'));
+  // Variante con etichetta visibile (barra azioni dell'hero dettagli).
+  if (btn.classList.contains('nebula-btn')) btn.append(h('span', { class: 'nebula-btn__label' }, t('watchlistShort')));
   btn.setAttribute('aria-pressed', String(known));
   const label = known ? t('watchlistRemove') : t('watchlistAdd');
   btn.setAttribute('aria-label', label);
@@ -34,14 +36,16 @@ export function installWatchlistSync(): () => void {
 export function watchlistButton(
   ctx: NebulaContext,
   item: Pick<BaseItem, 'Id' | 'Type' | 'SeriesId' | 'UserData'>,
-  variant: 'lg' | 'sm' | 'detail' = 'lg',
+  variant: 'lg' | 'sm' | 'detail' | 'pill' = 'lg',
 ): HTMLButtonElement {
   const targetId = watchlistTargetId(item);
   const initial = targetId === item.Id && item.UserData ? item.UserData.Likes === true : null;
   const cls =
-    variant === 'detail'
-      ? 'detailButton emby-button nebula-detail-btn nebula-watchlist-btn'
-      : `nebula-icon-btn ${variant === 'lg' ? 'nebula-icon-btn--lg' : ''} nebula-watchlist-btn`;
+    variant === 'pill'
+      ? 'nebula-btn nebula-btn--glass nebula-watchlist-btn'
+      : variant === 'detail'
+        ? 'detailButton emby-button nebula-detail-btn nebula-watchlist-btn'
+        : `nebula-icon-btn ${variant === 'lg' ? 'nebula-icon-btn--lg' : ''} nebula-watchlist-btn`;
   const btn = h('button', { type: 'button', class: cls, 'data-target-id': targetId }) as HTMLButtonElement;
   render(btn, initial);
   if (initial === null) {

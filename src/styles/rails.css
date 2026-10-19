@@ -130,3 +130,14 @@ body:not(.dashboardDocument) .emby-scrollbuttons .emby-scrollbuttons-button {
 .nebula-rail__empty {
   max-width: 760px;
 }
+
+/*
+ * Correzione dell'overflow orizzontale del documento (bug riprodotto su dettagli, cast, simili).
+ * jellyfin-web 12.2 (lib/scroller/index.js) usa lo scorrimento animato con transform
+ * (.animatedScrollX) e applica `overflow: hidden` al contenitore SOLO nel layout TV: su desktop il
+ * contenitore non ritaglia e la fila intera di card allarga la pagina. Qui il contenitore viene ritagliato
+ * come previsto dal componente; i contenitori a scroll nativo (.scrollX) non vengono toccati.
+ */
+body:not(.dashboardDocument) .emby-scroller:not(.scrollX, .scrollY):has(> .animatedScrollX) {
+  overflow: hidden;
+}

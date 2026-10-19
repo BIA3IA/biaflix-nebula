@@ -1,6 +1,6 @@
 {
   "name": "biaflix-nebula",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "description": "Biaflix Nebula: skin cinematografica dark-only per Jellyfin Web 12 con raccolte miste film+serie.",
   "license": "MIT",
@@ -22,7 +22,8 @@
     "check": "pnpm typecheck && pnpm lint:css && pnpm test && pnpm build",
     "dev:up": "bash dev/up.sh",
     "dev:down": "bash dev/down.sh",
-    "dev:seed": "node dev/seed.mjs"
+    "dev:seed": "node dev/seed.mjs",
+    "dev:plugins": "node dev/plugins.mjs && docker restart biaflix-nebula-dev && node dev/wait.mjs && node dev/kefin-config.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

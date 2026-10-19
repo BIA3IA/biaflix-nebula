@@ -44,6 +44,10 @@
   --nebula-shadow-soft: 0 10px 30px rgb(0 0 0 / 35%);
   --nebula-shadow-strong: 0 18px 48px rgb(0 0 0 / 55%);
   --nebula-glow: 0 10px 34px rgb(var(--nebula-primary-rgb) / 28%);
+
+  /* Hover delle card: profondità neutra, nessun bordo/alone colorato. */
+  --nebula-card-hover-shadow: 0 18px 40px rgb(0 0 0 / 55%), 0 4px 12px rgb(0 0 0 / 35%);
+  --nebula-card-hover-edge: rgb(255 255 255 / 16%);
   --nebula-inner-light: inset 0 1px 0 var(--nebula-glass-highlight);
 
   /* Focus */

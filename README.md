@@ -2,8 +2,6 @@
 
 Skin originale, **dark-only** e cinematografica per **Jellyfin Web 12.2**: glassmorphism immersivo, identità viola → blu → ciano del logo Biaflix, homepage con hero e rail editoriali, **raccolte miste film + serie** salvate davvero sul server Jellyfin.
 
-![Home desktop](docs/screenshots/home-firefox-1080p.png)
-
 ## Cosa fa
 
 | Area      | Implementazione                                                                                                                                                                                                 |
@@ -47,6 +45,8 @@ pnpm install
 pnpm build          # dist/nebula.css, dist/nebula.js, dist/js-injector-snippet.js, dist/assets/
 pnpm check          # typecheck + stylelint + unit + build
 pnpm dev:up && pnpm dev:seed   # Jellyfin 12.2 locale su 127.0.0.1:8097
+pnpm dev:plugins                # stessi plugin della produzione (KefinTweaks, JE, JS Injector…)
+bash dev/enrich-media.sh && node dev/people-images.mjs   # dati realistici per la pagina dettagli
 pnpm test:e2e
 ```
 

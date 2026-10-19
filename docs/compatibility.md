@@ -22,6 +22,21 @@
 | Plugin Pages                          | 3.0.2.0   | pagine JE servite da Plugin Pages ereditano palette e superfici                                                                                                                                       |
 | Intro Skipper, InPlayerEpisodePreview | —         | player non modificato oltre ai colori dei controlli                                                                                                                                                   |
 
+## Pagina dettagli (v0.2.0)
+
+Il controller nativo di jellyfin-web resta il proprietario della pagina: Nebula aggiunge hero, stagioni ed episodi, informazioni, cast e suggerimenti, e **nasconde soltanto** con CSS le sezioni native sostituite (`#childrenCollapsible`, `#listChildrenCollapsible`, `.nextUpSection`, `#castCollapsible`, `#guestCastCollapsible`, `#similarCollapsible`, `.moreFromSeasonSection`, e `.series-episodes-section` di KefinTweaks). Le azioni passano per i pulsanti nativi (attivati per delega), quindi aggiornamenti di Jellyfin o dei plugin che aggiungono pulsanti compaiono automaticamente in «Altre azioni».
+
+Tipi gestiti: Film, Serie, Stagione, Episodio, Raccolta. Le altre pagine (persone, musica, live TV) restano native con lo stile Nebula.
+
+## Correttivi per difetti di plugin terzi (da rimuovere quando corretti a monte)
+
+| Plugin                  | Difetto                                                                                                        | Correttivo Nebula                                                                                                               |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Jellyfin Enhanced 12.12 | Con «Use Icons» spento `JE.icon()` restituisce '' e `JE.t()` rimette il segnaposto `{{icon:…}}` nei testi      | `src/scripts/compat/je-icon-tokens.ts` avvolge `JE.t` e toglie i token rimasti; in alternativa basta attivare «Use Icons» in JE |
+| Jellyfin Enhanced 12.12 | Righe Studi/Network: doppie frecce, quelle di JE usano `scrollBy` su uno scroller a transform e non funzionano | `plugin-compat.css` nasconde solo le frecce JE quando la riga ha quelle native                                                  |
+| jellyfin-web 12.2       | Scroller a transform senza ritaglio su desktop → scroll orizzontale del documento                              | `rails.css`: ritaglio come nel layout TV                                                                                        |
+| KefinTweaks 0.5.1       | Pillola categorie con classi MUI dell'AppBar (fissa sul bordo)                                                 | `plugin-compat.css`: posizionamento con `!important` limitato                                                                   |
+
 ## Limiti noti (non aggirabili lato client)
 
 1. **Le raccolte sono globali.** Jellyfin non ha raccolte private per account: una raccolta è visibile a tutti gli utenti che vedono i titoli contenuti. Nebula lo dichiara nei dialog. Per liste personali usa le **playlist** (private di default, pubblicabili). Una raccolta davvero privata richiederebbe un backend dedicato (spec §7), da approvare prima.

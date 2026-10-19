@@ -1,120 +1,1021 @@
 /*
- * Pagina dettagli film/serie/episodio (view legacy #itemDetailPage dentro il layout Modern).
- * Backdrop cinematografico leggibile, azioni glass, Riproduci primario.
+ * Pagina dettagli Nebula: hero cinematografico, stagioni ed episodi, informazioni, cast, suggerimenti.
+ * Si attiva con .nebula-detail sulla pagina nativa (#itemDetailPage), messa da features/details.ts.
+ * Le sezioni native sostituite sono solo nascoste: senza Nebula tornano visibili.
  */
-body:not(.dashboardDocument) #itemDetailPage .itemBackdrop {
-  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
-  mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+
+/* --- Sezioni native sostituite ----------------------------------------------------------- */
+#itemDetailPage.nebula-detail :is(.itemBackdrop, .detailLogo, .detailImageContainer, .detailRibbon) {
+  display: none;
 }
 
-body:not(.dashboardDocument) #itemDetailPage .itemBackdrop::after {
+#itemDetailPage.nebula-detail .detailPagePrimaryContent :is(.itemGenres, .tagline, .overview, .overview-controls) {
+  display: none;
+}
+
+/* Stagioni/episodi/prossimo: un'unica area Nebula (anche al posto della sezione episodi KefinTweaks). */
+#itemDetailPage:is(.nebula-detail--series, .nebula-detail--season, .nebula-detail--episode)
+  :is(#childrenCollapsible, #listChildrenCollapsible, .nextUpSection, .series-episodes-section, .moreFromSeasonSection) {
+  display: none;
+}
+
+/* Cast e «Altri simili» nativi → Cast e troupe / Potrebbe piacerti */
+#itemDetailPage.nebula-detail:not(.nebula-detail--boxset) :is(#castCollapsible, #guestCastCollapsible, #similarCollapsible) {
+  display: none;
+}
+
+/* Dettagli tecnici, tracce e tag: a scomparsa (pulsante in «Informazioni»). */
+#itemDetailPage.nebula-detail--collapsible:not([data-nebula-tech='open']) .detailPagePrimaryContainer {
+  display: none;
+}
+
+#itemDetailPage.nebula-detail {
+  background-color: var(--nebula-bg);
+}
+
+#itemDetailPage.nebula-detail .detailPageWrapperContainer {
+  flex-direction: column;
+}
+
+#itemDetailPage.nebula-detail .detailPagePrimaryContainer {
+  order: 3;
+  margin: 0 var(--nebula-content-gutter) var(--nebula-space-6);
+  padding: var(--nebula-space-5);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-lg);
+  background: rgb(14 19 37 / 55%);
+  animation: nebula-rise var(--nebula-normal) var(--nebula-ease) both;
+}
+
+#itemDetailPage.nebula-detail .detailPagePrimaryContent {
+  width: auto;
+  padding: 0;
+}
+
+#itemDetailPage.nebula-detail .detailPageSecondaryContainer {
+  order: 7;
+  padding-inline: var(--nebula-content-gutter);
+}
+
+#itemDetailPage.nebula-detail .itemTags {
+  color: var(--nebula-text-muted);
+  font-size: var(--nebula-text-sm);
+}
+
+/* Blocchi Nebula nel wrapper */
+.nebula-detail-block {
+  min-width: 0;
+  margin: 0 var(--nebula-content-gutter) var(--nebula-section-gap);
+  animation: nebula-rise var(--nebula-slow) var(--nebula-ease) both;
+}
+
+.nebula-section__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--nebula-space-3) var(--nebula-space-4);
+  margin-bottom: var(--nebula-space-4);
+}
+
+.nebula-section__title {
+  margin: 0;
+  font: 700 var(--nebula-text-section) / 1.2 var(--nebula-font-display);
+  letter-spacing: -0.01em;
+}
+
+.nebula-section__subtitle {
+  margin: 4px 0 0;
+  color: var(--nebula-text-subtle);
+  font-size: var(--nebula-text-sm);
+}
+
+@keyframes nebula-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- Hero --------------------------------------------------------------------------------- */
+.nebula-detail-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(420px, 62vh, 700px);
+  margin: calc(-1 * (var(--nebula-nav-height) + var(--nebula-nav-top) + 8px)) 0 var(--nebula-section-gap);
+  padding: calc(var(--nebula-nav-height) + var(--nebula-nav-top) + 40px) var(--nebula-content-gutter) clamp(32px, 6vh, 64px);
+  overflow: hidden;
+}
+
+.ndh__bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgb(var(--nebula-bg-rgb) / 75%) 0%, rgb(var(--nebula-bg-rgb) / 15%) 55%, transparent 100%);
-  pointer-events: none;
-  content: '';
+  z-index: -1;
+  overflow: hidden;
+  background: var(--nebula-bg-elevated);
 }
 
-body:not(.dashboardDocument) #itemDetailPage .detailPagePrimaryContainer {
-  background: transparent;
+.ndh__backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 65% 25%;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity var(--nebula-slow) var(--nebula-ease),
+    transform 1.6s var(--nebula-ease);
 }
 
-body:not(.dashboardDocument) #itemDetailPage .nameContainer .itemName,
-body:not(.dashboardDocument) #itemDetailPage .parentName {
-  font-family: var(--nebula-font-display);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  text-shadow: 0 2px 18px rgb(0 0 0 / 45%);
+.nebula-detail-hero.is-ready .ndh__backdrop {
+  opacity: 1;
+  transform: none;
 }
 
-body:not(.dashboardDocument) #itemDetailPage .itemMiscInfo,
-body:not(.dashboardDocument) #itemDetailPage .itemGenres,
-body:not(.dashboardDocument) #itemDetailPage .tagline {
-  color: var(--nebula-text-muted);
+/* Fallback senza Backdrop: locandina ingrandita e sfocata come luce ambientale. */
+.ndh__backdrop--ambient,
+.nebula-detail-hero.is-ready .ndh__backdrop--ambient {
+  opacity: 0.6;
+  filter: blur(42px) saturate(150%);
+  transform: scale(1.35);
 }
 
-body:not(.dashboardDocument) #itemDetailPage .overview {
-  max-width: 75ch;
-  color: rgb(246 246 255 / 88%);
-  line-height: 1.6;
+.ndh__backdrop--empty {
+  background:
+    radial-gradient(60% 80% at 75% 30%, rgb(var(--nebula-primary-rgb) / 30%), transparent 70%),
+    radial-gradient(50% 60% at 95% 85%, rgb(var(--nebula-cyan-rgb) / 16%), transparent 70%), var(--nebula-bg-elevated);
 }
 
-/* Pulsanti: cerchi glass 48px, Riproduci in gradiente. */
-body:not(.dashboardDocument) #itemDetailPage .mainDetailButtons {
-  gap: var(--nebula-space-2);
-  align-items: center;
+.ndh__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(var(--nebula-bg-rgb) / 94%) 0%, rgb(var(--nebula-bg-rgb) / 78%) 32%, rgb(var(--nebula-bg-rgb) / 20%) 66%, transparent 100%),
+    linear-gradient(0deg, var(--nebula-bg) 0%, rgb(var(--nebula-bg-rgb) / 60%) 24%, transparent 55%),
+    linear-gradient(180deg, rgb(var(--nebula-bg-rgb) / 60%) 0%, transparent 22%);
 }
 
-body:not(.dashboardDocument) #itemDetailPage .mainDetailButtons .detailButton {
-  min-width: 48px;
-  min-height: 48px;
+.ndh--no-backdrop .ndh__scrim {
+  background:
+    linear-gradient(90deg, rgb(var(--nebula-bg-rgb) / 85%) 0%, rgb(var(--nebula-bg-rgb) / 45%) 60%, rgb(var(--nebula-bg-rgb) / 30%) 100%),
+    linear-gradient(0deg, var(--nebula-bg) 0%, transparent 50%);
+}
+
+.ndh__inner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(24px, 3vw, 48px);
+  align-items: end;
+  width: 100%;
+  max-width: var(--nebula-content-max);
+  margin-inline: auto;
+}
+
+.ndh__poster {
+  width: clamp(180px, 17vw, 290px);
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-lg);
+  background: var(--nebula-surface);
+  box-shadow:
+    0 30px 70px rgb(0 0 0 / 55%),
+    0 12px 40px rgb(var(--nebula-primary-rgb) / 22%);
+  animation: nebula-rise var(--nebula-slow) var(--nebula-ease) both;
+}
+
+.ndh__poster--wide {
+  width: clamp(260px, 30vw, 460px);
+  aspect-ratio: 16 / 9;
+}
+
+.ndh__poster-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ndh__info {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--nebula-space-3);
+  justify-items: start;
+  min-width: 0;
+  max-width: 820px;
+  animation: nebula-rise var(--nebula-slow) var(--nebula-ease) 80ms both;
+}
+
+.ndh__eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
   margin: 0;
+  color: var(--nebula-text-muted);
+  font-size: var(--nebula-text-sm);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ndh__eyebrow > * + *::before {
+  margin-right: 14px;
+  color: var(--nebula-primary-light);
+  content: '•';
+}
+
+.ndh__series-link {
+  color: var(--nebula-text);
+  text-decoration: none;
+}
+
+.ndh__series-link:hover {
+  color: var(--nebula-primary-light);
+}
+
+.ndh__title {
+  margin: 0;
+  font: 800 clamp(30px, 4.2vw, 64px) / 1.04 var(--nebula-font-display);
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 24px rgb(0 0 0 / 45%);
+  overflow-wrap: anywhere;
+}
+
+.ndh__title--logo {
+  display: grid;
+  gap: 6px;
+  line-height: 0;
+}
+
+.ndh__logo {
+  max-width: min(520px, 100%);
+  max-height: clamp(80px, 14vh, 160px);
+  object-fit: contain;
+  object-position: left bottom;
+  filter: drop-shadow(0 4px 20px rgb(0 0 0 / 55%));
+}
+
+.ndh__subtitle {
+  font: 700 var(--nebula-text-lg) / 1.3 var(--nebula-font-display);
+}
+
+.ndh__meta,
+.ndh__genres {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ndh__meta {
+  color: var(--nebula-text-muted);
+  font-size: var(--nebula-text-md);
+  font-weight: 600;
+}
+
+.ndh__badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid var(--nebula-glass-border-strong);
+  border-radius: 6px;
+  font-size: var(--nebula-text-xs);
+}
+
+.ndh__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--nebula-warning);
+}
+
+.ndh__genres {
+  gap: 8px;
+}
+
+.ndh__overview {
+  display: -webkit-box;
+  max-width: 68ch;
+  margin: var(--nebula-space-1) 0 0;
+  overflow: hidden;
+  color: rgb(246 246 255 / 88%);
+  font-size: clamp(15px, 1.05vw, 17px);
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.ndh__overview.is-expanded {
+  display: block;
+}
+
+.ndh__readmore {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--nebula-primary-light);
+  font: 700 var(--nebula-text-sm) / 1 var(--nebula-font-body);
+  cursor: pointer;
+}
+
+.ndh__readmore:focus-visible {
+  outline: 2px solid var(--nebula-cyan);
+  outline-offset: 4px;
+}
+
+.ndh__credits {
+  margin: 0;
+  color: var(--nebula-text-muted);
+  font-size: var(--nebula-text-sm);
+}
+
+.ndh__credits-label {
+  margin-right: 8px;
+  color: var(--nebula-text-subtle);
+  font-weight: 700;
+}
+
+.ndh__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nebula-space-3);
+  margin-top: var(--nebula-space-2);
+}
+
+.ndh__play {
+  min-width: 180px;
+}
+
+.ndh__play-label {
+  display: grid;
+  justify-items: start;
+  line-height: 1.1;
+}
+
+.ndh__play-label small {
+  color: rgb(255 255 255 / 80%);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ndh__progress {
+  display: flex;
+  align-items: center;
+  gap: var(--nebula-space-3);
+  width: min(360px, 100%);
+  color: var(--nebula-text-muted);
+  font-size: var(--nebula-text-sm);
+}
+
+.ndh__progress .nebula-progress {
+  position: relative;
+  flex: 1;
+  border-radius: var(--nebula-radius-pill);
+  overflow: hidden;
+}
+
+/* --- Stagioni ed episodi ------------------------------------------------------------------- */
+.nep__header {
+  display: grid;
+  gap: var(--nebula-space-3);
+  margin-bottom: var(--nebula-space-4);
+}
+
+.nep__tabs {
+  display: flex;
+  gap: 8px;
+  max-width: 100%;
+  padding: 4px 2px;
+  overflow: auto hidden;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.nep__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.nep__tab {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 var(--nebula-space-4);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-glass-bg);
+  color: var(--nebula-text-muted);
+  font: 600 var(--nebula-text-sm) / 1 var(--nebula-font-body);
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition:
+    background var(--nebula-fast) var(--nebula-ease),
+    color var(--nebula-fast) var(--nebula-ease),
+    border-color var(--nebula-fast) var(--nebula-ease);
+}
+
+.nep__tab:hover {
+  color: var(--nebula-text);
+  border-color: var(--nebula-glass-border-strong);
+}
+
+.nep__tab[aria-selected='true'] {
+  border-color: transparent;
+  background: var(--nebula-gradient);
+  color: #fff;
+  box-shadow: 0 6px 20px rgb(var(--nebula-primary-rgb) / 35%);
+}
+
+.nep__tab:focus-visible {
+  outline: none;
+  box-shadow: var(--nebula-focus-ring);
+}
+
+.nep__tab-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--nebula-radius-pill);
+  background: rgb(255 255 255 / 12%);
+  font-size: 11px;
+}
+
+.nep__select {
+  max-width: 320px;
+}
+
+.nep__status:empty {
+  display: none;
+}
+
+.nep__grid.itemsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: var(--nebula-space-5) var(--nebula-space-4);
+  margin: 0;
+  padding: 0;
+  transition: opacity var(--nebula-normal) var(--nebula-ease);
+}
+
+.nep__grid.is-loading {
+  opacity: 0.45;
+}
+
+.nep {
+  display: grid;
+  gap: var(--nebula-space-3);
+  align-content: start;
+  min-width: 0;
+  animation: nebula-rise var(--nebula-normal) var(--nebula-ease) both;
+}
+
+.nep__media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid rgb(213 218 255 / 8%);
+  border-radius: var(--nebula-radius-md);
+  background: var(--nebula-surface);
+  box-shadow: var(--nebula-shadow-soft);
+  transition:
+    transform var(--nebula-normal) var(--nebula-ease),
+    box-shadow var(--nebula-normal) var(--nebula-ease),
+    border-color var(--nebula-normal) var(--nebula-ease);
+}
+
+.nep:is(:hover, :focus-within) .nep__media {
+  border-color: var(--nebula-card-hover-edge);
+  box-shadow: var(--nebula-card-hover-shadow);
+  transform: translateY(var(--nebula-hover-lift));
+}
+
+.nep.is-current .nep__media,
+.nep.is-next .nep__media {
+  border-color: rgb(var(--nebula-cyan-rgb) / 60%);
+}
+
+.nep__link,
+.nep__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.nep__img {
+  object-fit: cover;
+}
+
+.nep__img--empty {
+  display: grid;
+  place-items: center;
+  color: rgb(213 218 255 / 40%);
+  font-size: 34px;
+}
+
+.nep.is-played .nep__img {
+  filter: saturate(70%) brightness(80%);
+}
+
+.nep__media .nebula-progress {
+  position: absolute;
+  inset: auto 0 0;
+}
+
+.nep__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgb(var(--nebula-primary-rgb) / 92%);
+  color: #fff;
+  font-size: 17px;
+}
+
+.nep__next {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  border-color: rgb(var(--nebula-cyan-rgb) / 55%);
+}
+
+.nep__play {
+  position: absolute;
+  right: 12px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--nebula-gradient);
+  color: #fff;
+  font-size: 26px;
+  box-shadow: var(--nebula-glow);
+  cursor: pointer;
+  opacity: 0.92;
+  transform: scale(0.94);
+  transition:
+    opacity var(--nebula-fast) var(--nebula-ease),
+    transform var(--nebula-fast) var(--nebula-ease);
+}
+
+.nep:is(:hover, :focus-within) .nep__play {
+  opacity: 1;
+  transform: none;
+}
+
+.nep__play:focus-visible {
+  outline: none;
+  box-shadow: var(--nebula-focus-ring);
+}
+
+.nep__body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nep__title {
+  margin: 0;
+  font: 700 var(--nebula-text-md) / 1.3 var(--nebula-font-body);
+}
+
+.nep__title a {
+  color: var(--nebula-text);
+  text-decoration: none;
+}
+
+.nep__title a:hover {
+  color: var(--nebula-primary-light);
+}
+
+.nep__meta {
+  margin: 0;
+  color: var(--nebula-text-subtle);
+  font-size: var(--nebula-text-sm);
+}
+
+.nep__meta:empty {
+  display: none;
+}
+
+.nep__overview {
+  display: -webkit-box;
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: var(--nebula-text-muted);
+  font-size: var(--nebula-text-sm);
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* --- Informazioni -------------------------------------------------------------------------- */
+.nebula-info {
+  display: grid;
+  gap: var(--nebula-space-4);
+  padding: var(--nebula-space-5);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-lg);
+  background: linear-gradient(160deg, rgb(var(--nebula-primary-rgb) / 8%), transparent 50%), rgb(14 19 37 / 55%);
+}
+
+.ninfo__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: var(--nebula-space-3) var(--nebula-space-5);
+  margin: 0;
+}
+
+.ninfo__row {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ninfo__row dt {
+  color: var(--nebula-text-subtle);
+  font-size: var(--nebula-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ninfo__row dd {
+  margin: 0;
+  color: var(--nebula-text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.ninfo__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: var(--nebula-space-2);
+  min-height: var(--nebula-touch-target);
+  padding: 0 var(--nebula-space-4);
   border: 1px solid var(--nebula-glass-border);
   border-radius: var(--nebula-radius-pill);
   background: var(--nebula-glass-bg);
   color: var(--nebula-text);
-  box-shadow: var(--nebula-inner-light);
-  backdrop-filter: var(--nebula-glass-filter);
+  font: 600 var(--nebula-text-sm) / 1 var(--nebula-font-body);
+  cursor: pointer;
+}
+
+.ninfo__toggle:hover {
+  border-color: var(--nebula-glass-border-strong);
+}
+
+.ninfo__toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--nebula-focus-ring);
+}
+
+.ninfo__chevron {
+  transition: transform var(--nebula-normal) var(--nebula-ease);
+}
+
+.ninfo__toggle[aria-expanded='true'] .ninfo__chevron {
+  transform: rotate(180deg);
+}
+
+/* --- Cast e troupe ------------------------------------------------------------------------- */
+.ncast__list {
+  display: grid;
+  grid-auto-columns: 112px;
+  grid-auto-flow: column;
+  gap: var(--nebula-space-4);
+  margin: 0;
+  padding: 6px 2px 10px;
+  overflow: auto hidden;
+  list-style: none;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+
+.nebula-cast.is-expanded .ncast__list {
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  grid-auto-flow: row;
+  overflow: visible;
+}
+
+.ncast.is-extra {
+  display: none;
+}
+
+.nebula-cast.is-expanded .ncast.is-extra {
+  display: block;
+}
+
+.ncast {
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.ncast__link {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  color: inherit;
+  text-align: center;
+  text-decoration: none;
+}
+
+.ncast__frame {
+  display: block;
+  width: 96px;
+  height: 96px;
+  overflow: hidden;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: 50%;
+  background: var(--nebula-surface);
+  box-shadow: var(--nebula-shadow-soft);
   transition:
-    background-color var(--nebula-fast) var(--nebula-ease),
-    border-color var(--nebula-fast) var(--nebula-ease),
-    transform var(--nebula-fast) var(--nebula-ease);
+    transform var(--nebula-normal) var(--nebula-ease),
+    border-color var(--nebula-normal) var(--nebula-ease);
 }
 
-body:not(.dashboardDocument) #itemDetailPage .mainDetailButtons .detailButton:hover {
-  border-color: rgb(var(--nebula-primary-rgb) / 60%);
-  background: rgb(var(--nebula-primary-rgb) / 26%);
+.ncast__link:is(:hover, :focus-visible) .ncast__frame {
+  border-color: var(--nebula-card-hover-edge);
+  transform: translateY(-3px);
 }
 
-body:not(.dashboardDocument) #itemDetailPage .mainDetailButtons .detailButton:is(.btnPlay, .btnResume):not(.hide) {
-  padding-inline: var(--nebula-space-4);
-  border-color: transparent;
-  background: var(--nebula-gradient);
-  color: #fff;
-  box-shadow: var(--nebula-glow);
+.ncast__link:focus-visible {
+  outline: none;
 }
 
-body:not(.dashboardDocument) #itemDetailPage .nebula-watchlist-btn[aria-pressed='true'] {
-  color: var(--nebula-cyan);
-  border-color: rgb(var(--nebula-cyan-rgb) / 55%);
+.ncast__link:focus-visible .ncast__frame {
+  box-shadow: var(--nebula-focus-ring);
 }
 
-/* Pannelli informativi compatti */
-body:not(.dashboardDocument) #itemDetailPage :is(.itemDetailsGroup, .mediaInfoContent) {
-  color: var(--nebula-text-muted);
+.ncast__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
 }
 
-body:not(.dashboardDocument) #itemDetailPage .detailSectionContent :is(.selectContainer select, .emby-select-withcolor) {
-  border-radius: var(--nebula-radius-sm);
+/* Senza foto: iniziali piccole su gradiente Nebula, niente grandi ovali vuoti. */
+.ncast__img--empty {
+  display: grid;
+  place-items: center;
+  background: radial-gradient(80% 80% at 30% 20%, rgb(var(--nebula-primary-rgb) / 45%), transparent 70%), var(--nebula-bg-elevated);
+  color: rgb(255 255 255 / 85%);
+  font: 700 22px / 1 var(--nebula-font-display);
+  letter-spacing: 0.04em;
 }
 
-body:not(.dashboardDocument) #itemDetailPage .detailImageContainer .card .cardScalable {
-  box-shadow: var(--nebula-shadow-strong);
+.ncast__name {
+  display: -webkit-box;
+  max-width: 100%;
+  margin-top: 6px;
+  overflow: hidden;
+  color: var(--nebula-text);
+  font-size: var(--nebula-text-sm);
+  font-weight: 700;
+  line-height: 1.25;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
-/* Episodi e stagioni: thumbnail 16:9 nitide, testo spoiler-safe gestito da JE. */
-body:not(.dashboardDocument) #itemDetailPage .listItem {
-  border-radius: var(--nebula-radius-md);
+.ncast__role {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--nebula-text-subtle);
+  font-size: var(--nebula-text-xs);
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
-body:not(.dashboardDocument) #itemDetailPage .listItem:hover {
-  background: rgb(255 255 255 / 4%);
+/* --- Potrebbe piacerti / Seerr ------------------------------------------------------------- */
+.nmay__track.itemsContainer {
+  display: grid;
+  grid-auto-columns: var(--nebula-poster-width);
+  grid-auto-flow: column;
+  gap: var(--nebula-space-4);
+  margin: 0;
+  padding: 10px 2px 14px;
+  overflow: auto hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
 }
 
-body:not(.dashboardDocument) #itemDetailPage .listItemImage {
-  border-radius: var(--nebula-radius-sm);
+.nmay__track .nebula-card {
+  scroll-snap-align: start;
 }
 
-/* --- Pagina raccolta --------------------------------------------------------- */
-.nebula-collection-filter {
-  margin: var(--nebula-space-4) 0 var(--nebula-space-2);
+.nebula-maylike .is-extra {
+  display: none;
 }
 
-#itemDetailPage.nebula-collection-page .nebula-notice--inline {
-  margin-bottom: var(--nebula-space-4);
+.nebula-maylike.is-expanded .nmay__track.itemsContainer {
+  grid-template-columns: repeat(auto-fill, minmax(var(--nebula-poster-width), 1fr));
+  grid-auto-flow: row;
+  overflow: visible;
 }
 
+.nebula-maylike.is-expanded .is-extra {
+  display: grid;
+}
+
+.nebula-seerr-host:not(:has(> .nebula-seerr:not([hidden]))),
+.nebula-seerr[hidden] {
+  display: none;
+}
+
+/* L'hero ha il proprio backdrop: lo sfondo globale nativo della pagina non deve creare fasce sotto. */
+body:not(.dashboardDocument):has(#itemDetailPage.nebula-detail:not(.hide)) .backgroundContainer.withBackdrop {
+  background: var(--nebula-bg);
+}
+
+.nebula-seerr .jellyseerr-details-section {
+  margin: 0;
+}
+
+.nebula-seerr .jellyseerr-details-section > .sectionTitle,
+.nebula-seerr .jellyseerr-details-section .sectionTitleContainer {
+  display: none;
+}
+
+.nebula-seerr .nseerr-duplicate {
+  display: none;
+}
+
+/* --- Raccolta ------------------------------------------------------------------------------ */
+#itemDetailPage[data-nebula-filter='Movie'] .collectionItems .card[data-type]:not([data-type='Movie']),
+#itemDetailPage[data-nebula-filter='Series'] .collectionItems .card[data-type]:not([data-type='Series']),
 #itemDetailPage[data-nebula-filter='Movie'] #childrenCollapsible .card[data-type]:not([data-type='Movie']),
 #itemDetailPage[data-nebula-filter='Series'] #childrenCollapsible .card[data-type]:not([data-type='Series']) {
   display: none;
+}
+
+.nebula-collection-filter {
+  justify-self: start;
+}
+
+/* --- Pagina dettagli non gestita da Nebula (es. persone): stile nativo migliorato ----------- */
+body:not(.dashboardDocument) #itemDetailPage:not(.nebula-detail) .mainDetailButtons .detailButton {
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-glass-bg);
+}
+
+/* --- Responsive ---------------------------------------------------------------------------- */
+@media (width < 900px) {
+  .nebula-detail-hero {
+    min-height: 0;
+    padding-top: calc(var(--nebula-nav-height) + var(--nebula-nav-top) + 24px);
+  }
+
+  .ndh__inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--nebula-space-5);
+    justify-items: center;
+  }
+
+  .ndh__poster {
+    width: clamp(150px, 42vw, 220px);
+  }
+
+  .ndh__poster--wide {
+    width: min(100%, 520px);
+  }
+
+  .ndh__info {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    width: 100%;
+    text-align: center;
+  }
+
+  .ndh__overview {
+    justify-self: stretch;
+  }
+
+  .ndh__eyebrow,
+  .ndh__meta,
+  .ndh__genres {
+    justify-content: center;
+  }
+
+  .ndh__logo {
+    object-position: center bottom;
+  }
+
+  .ndh__scrim {
+    background:
+      linear-gradient(0deg, var(--nebula-bg) 0%, rgb(var(--nebula-bg-rgb) / 82%) 45%, rgb(var(--nebula-bg-rgb) / 35%) 100%),
+      linear-gradient(180deg, rgb(var(--nebula-bg-rgb) / 60%) 0%, transparent 30%);
+  }
+
+  .ndh__backdrop,
+  .nebula-detail-hero.is-ready .ndh__backdrop {
+    opacity: 0.75;
+  }
+
+  /* Riproduci a tutta larghezza, azioni secondarie in parti uguali (flex: niente tracce implicite). */
+  .ndh__actions {
+    width: 100%;
+    max-width: 520px;
+    justify-content: center;
+    justify-self: center;
+  }
+
+  .ndh__play {
+    flex: 1 1 100%;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  .ndh__actions > .nebula-btn--glass {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+
+  .ndh__play-label {
+    justify-items: center;
+  }
+
+  .ndh__actions .nebula-btn--glass {
+    min-width: 0;
+    padding-inline: var(--nebula-space-3);
+  }
+
+  .ndh__progress {
+    justify-content: center;
+  }
+}
+
+@media (width < 600px) {
+  .ndh__overview {
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+
+  .ndh__actions .nebula-btn--glass .nebula-btn__label {
+    font-size: var(--nebula-text-sm);
+  }
+
+  .ncast__list {
+    grid-auto-columns: 88px;
+  }
+
+  .ncast__frame {
+    width: 76px;
+    height: 76px;
+  }
+
+  .nebula-info {
+    padding: var(--nebula-space-4);
+  }
+
+  #itemDetailPage.nebula-detail .detailPagePrimaryContainer {
+    padding: var(--nebula-space-4);
+  }
+}
+
+@media (width < 380px) {
+  /* 320px: le azioni secondarie restano icone con etichetta accessibile, nessun taglio. */
+  .ndh__actions .nebula-btn--glass .nebula-btn__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }

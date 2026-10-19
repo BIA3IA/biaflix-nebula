@@ -31,13 +31,13 @@ body:not(.dashboardDocument) .card :is(.cardImageContainer, .cardContent, .blurh
 
 body:not(.dashboardDocument) .card-hoverable:hover .cardScalable,
 body:not(.dashboardDocument) .card:focus-within .cardScalable {
-  box-shadow: var(--nebula-shadow-strong), var(--nebula-glow);
+  box-shadow: var(--nebula-card-hover-shadow);
   transform: translateY(var(--nebula-hover-lift)) scale(var(--nebula-hover-scale));
 }
 
 body:not(.dashboardDocument) .card-hoverable:hover .cardScalable::after,
 body:not(.dashboardDocument) .card:focus-within .cardScalable::after {
-  border-color: rgb(var(--nebula-primary-rgb) / 55%);
+  border-color: var(--nebula-card-hover-edge);
 }
 
 /* Overlay hover nativo: sfumatura solo in basso, azioni glass. */
@@ -202,12 +202,12 @@ body:not(.dashboardDocument) .personCard :is(.cardImageContainer, .cardContent) 
 }
 
 .nebula-card:not(.nebula-skeleton):is(:hover, :focus-within) .nebula-card__media {
-  box-shadow: var(--nebula-shadow-strong), var(--nebula-glow);
+  box-shadow: var(--nebula-card-hover-shadow);
   transform: translateY(var(--nebula-hover-lift)) scale(var(--nebula-hover-scale));
 }
 
 .nebula-card:not(.nebula-skeleton):is(:hover, :focus-within) .nebula-card__media::after {
-  border-color: rgb(var(--nebula-primary-rgb) / 55%);
+  border-color: var(--nebula-card-hover-edge);
 }
 
 .nebula-card__media:focus-visible {

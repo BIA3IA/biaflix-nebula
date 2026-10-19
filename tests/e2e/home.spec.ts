@@ -21,7 +21,7 @@ test.describe('Homepage Nebula', () => {
 
     // Un solo hero, nessun doppio hamburger introdotto da Nebula.
     await expect(page.locator('.nebula-hero')).toHaveCount(1);
-    await page.screenshot({ path: `docs/screenshots/home-${info.project.name}.png`, fullPage: false });
+    await page.screenshot({ path: `test-results/screenshots/home-${info.project.name}.png`, fullPage: false });
     expect(consoleErrors).toEqual([]);
   });
 
@@ -39,7 +39,7 @@ test.describe('Homepage Nebula', () => {
     await installNebula(page, s, { skin: false });
     await page.goto('/web/#/home');
     await page.waitForFunction(() => (window as unknown as { BiaflixNebula?: unknown }).BiaflixNebula !== undefined);
-    await expect(page.locator('#homeTab .homeSectionsContainer .verticalSection').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('#homeTab .homeSectionsContainer .card').filter({ visible: true }).first()).toBeVisible({ timeout: 20_000 });
     expect(await page.evaluate(() => (window as unknown as { BiaflixNebula: { state: string } }).BiaflixNebula.state)).toBe('idle');
     await expect(page.locator('html.nebula-active')).toHaveCount(0);
     await expect(page.locator('.nebula-hero')).toHaveCount(0);

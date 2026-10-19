@@ -50,7 +50,7 @@ Dashboard → KefinTweaks → **Skin Manager** → _Skins JSON_. Incollare il bl
     "colorSchemes": []
   },
   {
-    "name": "ElegantFin",
+    "name": "ElegantFin Biaflix",
     "author": "lscambo13 (configurazione Biaflix attuale)",
     "url": [
       {
@@ -73,9 +73,15 @@ Dashboard → KefinTweaks → **Skin Manager** → _Skins JSON_. Incollare il bl
 Perché due voci:
 
 - **Biaflix Nebula** è la nuova skin.
-- **ElegantFin**, con lo stesso nome, sostituisce la definizione integrata di KefinTweaks: lo Skin Manager rimpiazza per nome. Contiene **esattamente** l'insieme di fogli caricato oggi, cioè gli `@import` del Branding più i fogli della skin integrata. Chi resta su ElegantFin non vede differenze, e ElegantFin diventa alternativo a Nebula invece di sovrapporsi.
+- **ElegantFin Biaflix** contiene **esattamente** i fogli caricati oggi: gli `@import` del Branding più i fogli della skin ElegantFin integrata in KefinTweaks. Chi la usa non vede differenze.
 
-Salvare. `defaultSkin` resta `ElegantFin`.
+> ⚠️ **Il nome deve essere diverso da «ElegantFin».** In KefinTweaks 0.5.1 il riquadro «Skins JSON» scarta in silenzio le voci con il nome di una skin integrata (`skinManager-configuration.js`, filtro `defaultSkinNames`).
+
+Poi, nella stessa pagina:
+
+1. griglia **«Enable/Disable Skins»**: lasciare attive almeno **Jellyfin Default**, **Biaflix Nebula** ed **ElegantFin Biaflix**. Le caselle non spuntate vengono salvate come `enabled:false` e le skin spariscono per tutti;
+2. **Default Skin = ElegantFin Biaflix**. Chi aveva «ElegantFin» memorizzata ricade sulla predefinita, quindi sullo stesso aspetto;
+3. **Salva**.
 
 ## 3. Aggiungere lo script JS Injector (inerte finché nessuno sceglie Nebula)
 

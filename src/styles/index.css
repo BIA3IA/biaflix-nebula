@@ -7,6 +7,7 @@
 @import './base.css';
 @import './navbar.css';
 @import './components.css';
+@import './controls.css';
 @import './hero.css';
 @import './rails.css';
 @import './cards.css';
@@ -16,4 +17,5 @@
 @import './player.css';
 @import './plugin-compat.css';
 @import './responsive.css';
+@import './mobile.css';
 @import './reduced-motion.css';

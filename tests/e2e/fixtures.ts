@@ -4,8 +4,12 @@ import { test as base, expect, type Page } from '@playwright/test';
 import { DEV_USERS, login } from '../../dev/seed.mjs';
 
 export const BASE = process.env.NEBULA_DEV_URL ?? 'http://127.0.0.1:8097';
-const DIST = resolve(import.meta.dirname, '../../dist');
+/** NEBULA_DIST permette di servire una build diversa (es. la versione in produzione per gli screenshot «prima»). */
+const DIST = process.env.NEBULA_DIST ?? resolve(import.meta.dirname, '../../dist');
 const TYPES: Record<string, string> = { '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.map': 'application/json' };
+
+/** Default: ambiente reale con plugin (pnpm dev:plugins). NEBULA_E2E_MODE=simulated per un Jellyfin senza plugin. */
+export const DEFAULT_MODE: 'simulated' | 'kefin' = process.env.NEBULA_E2E_MODE === 'simulated' ? 'simulated' : 'kefin';
 
 export type DevUser = keyof typeof DEV_USERS;
 
@@ -33,7 +37,16 @@ export async function sessionFor(user: DevUser): Promise<Session> {
 }
 
 /** Serve dist/ come farebbe il CDN e simula lo Skin Manager KefinTweaks che carica la skin. */
-export async function installNebula(page: Page, s: Session, opts: { skin?: boolean; reducedMotion?: boolean } = {}): Promise<void> {
+/**
+ * mode 'simulated' (default): inserisce il <link data-kefin-skin> come farebbe lo Skin Manager.
+ * mode 'kefin': ambiente reale con KefinTweaks 0.5.1 + JE installati in locale (pnpm dev:plugins);
+ *   la skin è caricata dallo Skin Manager vero e nebula.js dallo snippet JS Injector.
+ */
+export async function installNebula(
+  page: Page,
+  s: Session,
+  opts: { skin?: boolean; reducedMotion?: boolean; mode?: 'simulated' | 'kefin' } = {},
+): Promise<void> {
   await page.route('**/__nebula/**', async (route) => {
     const rel = new URL(route.request().url()).pathname.replace(/^\/__nebula\//, '');
     try {
@@ -44,7 +57,7 @@ export async function installNebula(page: Page, s: Session, opts: { skin?: boole
     }
   });
   await page.addInitScript(
-    ({ base, s, skin }) => {
+    ({ base, s, skin, mode }) => {
       localStorage.setItem(
         'jellyfin_credentials',
         JSON.stringify({
@@ -62,6 +75,10 @@ export async function installNebula(page: Page, s: Session, opts: { skin?: boole
         }),
       );
       localStorage.setItem('layout', 'modern');
+      if (mode === 'kefin') {
+        if (skin) localStorage.setItem('kefinTweaks_selectedSkin', 'Biaflix Nebula');
+        return;
+      }
       (window as unknown as { BiaflixNebulaConfig: unknown }).BiaflixNebulaConfig = { activation: 'skin', debug: true };
       document.addEventListener('DOMContentLoaded', () => {
         if (skin) {
@@ -77,17 +94,32 @@ export async function installNebula(page: Page, s: Session, opts: { skin?: boole
         document.head.append(script);
       });
     },
-    { base: BASE, s, skin: opts.skin ?? true },
+    { base: BASE, s, skin: opts.skin ?? true, mode: opts.mode ?? DEFAULT_MODE },
   );
   if (opts.reducedMotion) await page.emulateMedia({ reducedMotion: 'reduce' });
 }
 
 export const KNOWN_CONSOLE_NOISE = [/favicon/i, /serviceworker/i, /Failed to load resource.*(404|401)/i, /ResizeObserver loop/i, /chromecast|cast_sender/i];
 
+/**
+ * Errori di codice terzo (vedi docs/QA.md), filtrati in modo mirato:
+ * KefinTweaks 0.5.1 seriesEpisodes.js:760 legge `seasonsData.Items` su una risposta non definita (riprodotto anche a Nebula spenta).
+ * jellyfin-web 12.2 emby-scrollbuttons.js:167: `this.scrollHandler()` in un requestAnimationFrame dopo
+ * l'aggancio; se il view manager nativo rimuove la pagina (figlio di .skinBody) nello stesso frame, il
+ * detachedCallback azzera l'handler. Intermittente, scatenato dalle navigazioni istantanee dei test.
+ */
+export const PREEXISTING_PAGE_ERRORS = [
+  /seasonsData is undefined/,
+  /Cannot read properties of undefined \(reading 'Items'\)/,
+  /\bscrollHandler is not a function/,
+];
+
 export const test = base.extend<{ consoleErrors: string[] }>({
   consoleErrors: async ({ page }, use) => {
     const errors: string[] = [];
-    page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
+    page.on('pageerror', (e) => {
+      if (!PREEXISTING_PAGE_ERRORS.some((r) => r.test(e.message))) errors.push(`pageerror: ${e.message}`);
+    });
     page.on('console', (m) => {
       if (m.type() === 'error' && !KNOWN_CONSOLE_NOISE.some((r) => r.test(m.text()))) errors.push(m.text());
     });

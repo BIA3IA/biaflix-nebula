@@ -1,5 +1,39 @@
 # QA
 
+## v0.2.0: pagina dettagli e responsive (19/10/2026)
+
+**Ambiente:** Jellyfin 12.2 locale con gli **stessi plugin della produzione** (`pnpm dev:plugins`): KefinTweaks 0.5.1 con la tua configurazione pubblica, Jellyfin Enhanced 12.12.0.0, JS Injector 4.0.0.0, File Transformation 3.0.2.0, Plugin Pages 3.0.2.0. I media sintetici sono stati arricchiti (`dev/enrich-media.sh`, `dev/people-images.mjs`): cast di 14 persone (metà senza foto), regia, studi, 12 tag, seconda stagione, logo, film senza backdrop.
+
+**Risultati:** `pnpm check` verde (typecheck, stylelint, **49/49** unit, build), Prettier verde, **E2E 82 superati, 0 falliti** (20 saltati: test solo-desktop o solo-mobile nei profili non pertinenti).
+
+| Verifica                                                                                                                                             | Esito                               |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| Nessuno scroll orizzontale del documento: film, film senza backdrop, serie, stagione, episodio × 320/390/600/768/1024/1366/1920 × Firefox e Chromium | ✅ (v0.1.1: fino a +1483px)         |
+| Navbar senza sovrapposizioni né tagli alle 7 larghezze; drawer apribile e chiudibile da tastiera (Esc), un solo hamburger                            | ✅                                  |
+| Un solo hero, un solo Riproduci; sezioni native sostituite non visibili (stagioni, prossimo, episodi KefinTweaks, cast, simili)                      | ✅                                  |
+| Riproduci dell'hero (film) e Play episodio → player nativo `#/video`                                                                                 | ✅                                  |
+| Cambio stagione con click e con le frecce (tablist)                                                                                                  | ✅                                  |
+| Cast: ritratti 1:1 circolari, ruolo sotto il nome, iniziali senza foto, «Mostra tutto»                                                               | ✅                                  |
+| «Altre azioni»: azioni native senza duplicati; Preferito salvato sul server; tastiera (↓, Esc, focus di ritorno)                                     | ✅                                  |
+| Dettagli tecnici a scomparsa (tag, Media Info, tracce); fallback hero senza backdrop                                                                 | ✅                                  |
+| Skin disattivata a caldo: la pagina nativa torna intatta                                                                                             | ✅                                  |
+| Raccolte (criterio §7), watchlist, hub, controlli glass, dashboard nativa                                                                            | ✅ (suite esistenti)                |
+| Nessun nuovo errore in console                                                                                                                       | ✅ (vedi errore preesistente sotto) |
+
+Le immagini non sono versionate: gli screenshot (matrice responsive, prima/dopo con `NEBULA_DIST` + `SHOT_TAG=before`) si rigenerano in locale in `test-results/screenshots/` lanciando `pnpm test:e2e`.
+
+**Errore preesistente, non causato da Nebula:** KefinTweaks 0.5.1 `seriesEpisodes.js:760` («Cannot read properties of undefined (reading 'Items')») sulle pagine serie. Si riproduce identico con Nebula disattivata ed è escluso dai test con un filtro mirato (`PREEXISTING_PAGE_ERRORS`). Nebula sostituisce comunque quella sezione con «Stagioni ed episodi».
+
+**Errore intermittente di jellyfin-web (non di Nebula):** «this.scrollHandler is not a function» (`emby-scrollbuttons.js:167`). Compare quando il view manager nativo rimuove una pagina dallo `skinBody` nello stesso frame in cui una riga si è agganciata; l'ho visto 2 volte su 12 ripetizioni, solo con le navigazioni istantanee dei test. Nebula non rimuove nodi da `skinBody`. Non l'ho riprodotto a Nebula spenta, perché è raro anche con Nebula attiva. È filtrato in modo mirato.
+
+**Non verificabile in locale:**
+
+- sezioni Seerr di JE (Recommended/Similar): richiedono un'istanza Seerr. Il raggruppamento in «Scopri e richiedi» si basa sul DOM documentato di JE 12.12 (`.jellyseerr-details-section`) ed è da verificare in produzione;
+- Spoiler Guard attivo (in produzione è OFF);
+- Safari/iOS e dispositivi touch reali (testata l'emulazione mobile Chromium).
+
+**Nota sulla tua configurazione:** l'animazione stagionale di Halloween di KefinTweaks (frangia rossa sotto la navbar) resta attiva, perché è una tua impostazione. La specifica la indica come da spegnere (Seasonal Animations / Backgrounds: OFF).
+
 ## Ambiente di test
 
 Istanza **locale e isolata** di Jellyfin 12.2 (`jellyfin/jellyfin:12.2.20261005-225228`, porta `127.0.0.1:8097`), con media sintetici generati da ffmpeg (5 film, 3 serie; nessun contenuto reale) e tre utenti:
@@ -41,7 +75,7 @@ L'E2E simula lo Skin Manager KefinTweaks inserendo lo stesso `<link data-kefin-s
 | `prefers-reduced-motion`: nessuna trasformazione                                                                                                                                                               | ✅                | ✅                | —                      |
 | Dashboard admin senza stile Nebula                                                                                                                                                                             | ✅                | ✅                | ✅                     |
 
-Screenshot in [`docs/screenshots/`](screenshots/).
+Screenshot generati in `test-results/screenshots/` (non versionati).
 
 ### Difetti trovati dai test e corretti
 

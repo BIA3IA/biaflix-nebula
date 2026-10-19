@@ -54,8 +54,28 @@ export interface BaseItem {
   CanDelete?: boolean;
   /** Presente solo negli elementi restituiti da /Playlists/{id}/Items. */
   PlaylistItemId?: string;
+  People?: PersonInfo[];
+  Studios?: { Name: string; Id?: string }[];
+  Taglines?: string[];
+  RemoteTrailers?: { Url?: string; Name?: string }[];
+  LocalTrailerCount?: number;
+  CriticRating?: number;
+  PremiereDate?: string;
+  EndDate?: string;
+  Status?: string;
+  SeasonId?: string;
+  SeasonName?: string;
+  CollectionType?: string;
   LocationType?: string;
   IsFolder?: boolean;
+}
+
+export interface PersonInfo {
+  Id: string;
+  Name: string;
+  Role?: string;
+  Type?: 'Actor' | 'Director' | 'Writer' | 'Producer' | 'GuestStar' | 'Composer' | (string & {});
+  PrimaryImageTag?: string;
 }
 
 export interface ItemsResult<T = BaseItem> {
@@ -167,6 +187,11 @@ export class JellyfinApi {
     return this.request('GET', '/Users/Me');
   }
 
+  /** Librerie visibili all'utente (CollectionType: movies, tvshows, boxsets, playlists…). */
+  getUserViews(): Promise<ItemsResult<BaseItem & { CollectionType?: string }>> {
+    return this.request('GET', '/UserViews', { userId: this.userId });
+  }
+
   // --- Item ---------------------------------------------------------------
 
   getItems(query: Query): Promise<ItemsResult> {
@@ -187,6 +212,39 @@ export class JellyfinApi {
       sortBy: 'SortName',
       enableImageTypes: ['Primary', 'Backdrop', 'Thumb'],
       imageTypeLimit: 1,
+    });
+  }
+
+  /** Item con i campi necessari alla pagina dettagli Nebula (persone, studi, trailer, date). */
+  getItemFull(id: string): Promise<BaseItem> {
+    return this.request('GET', `/Items/${encodeURIComponent(id)}`, {
+      userId: this.userId,
+      fields: [...ITEM_FIELDS, 'People', 'Studios', 'Taglines', 'RemoteTrailers', 'PremiereDate', 'EndDate', 'Status', 'OfficialRating'],
+    });
+  }
+
+  getSeasons(seriesId: string): Promise<ItemsResult> {
+    return this.request('GET', `/Shows/${encodeURIComponent(seriesId)}/Seasons`, { userId: this.userId, fields: ['ChildCount', 'PrimaryImageAspectRatio'] });
+  }
+
+  getEpisodes(seriesId: string, seasonId: string): Promise<ItemsResult> {
+    return this.request('GET', `/Shows/${encodeURIComponent(seriesId)}/Episodes`, {
+      userId: this.userId,
+      seasonId,
+      fields: ['Overview', 'PrimaryImageAspectRatio'],
+      enableUserData: true,
+    });
+  }
+
+  getNextUp(seriesId: string): Promise<ItemsResult> {
+    return this.request('GET', '/Shows/NextUp', { userId: this.userId, seriesId, limit: 1, fields: ['PrimaryImageAspectRatio'] });
+  }
+
+  getSimilar(id: string, limit = 24): Promise<ItemsResult> {
+    return this.request('GET', `/Items/${encodeURIComponent(id)}/Similar`, {
+      userId: this.userId,
+      limit,
+      fields: ['PrimaryImageAspectRatio', 'ProductionYear'],
     });
   }
 

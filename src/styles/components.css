@@ -317,14 +317,6 @@
   display: none;
 }
 
-.nebula-check {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  accent-color: var(--nebula-primary);
-  flex: none;
-}
-
 .nebula-toggle {
   display: inline-flex;
   align-items: center;
@@ -697,4 +689,37 @@
   flex: 1 1 260px;
   margin: 0;
   line-height: 1.5;
+}
+
+/* --- Tooltip glass (al posto di quello di sistema) ------------------------------- */
+.nebula-tooltip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: calc(var(--nebula-z-toast) + 1);
+  max-width: min(280px, calc(100vw - 16px));
+  padding: 7px 11px;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: 10px;
+  background: rgb(12 16 32 / 88%);
+  color: var(--nebula-text);
+  font: 600 var(--nebula-text-xs) / 1.35 var(--nebula-font-body);
+  letter-spacing: 0.01em;
+  box-shadow: var(--nebula-shadow-soft), var(--nebula-inner-light);
+  backdrop-filter: blur(18px) saturate(150%);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-3px) scale(0.98);
+  transition:
+    opacity var(--nebula-fast) var(--nebula-ease),
+    transform var(--nebula-fast) var(--nebula-ease);
+}
+
+.nebula-tooltip[data-side='top'] {
+  transform: translateY(3px) scale(0.98);
+}
+
+.nebula-tooltip.is-visible {
+  opacity: 1;
+  transform: none;
 }

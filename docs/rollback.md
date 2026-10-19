@@ -4,13 +4,13 @@ Nessun rollback richiede reinstallazioni, riavvii di Jellyfin o di LXC 104. Racc
 
 ## Livello 1: un solo browser (10 secondi)
 
-- Icona **Aspetto** nella barra → skin **ElegantFin**; oppure
+- Icona **Aspetto** nella barra → skin **ElegantFin Biaflix**; oppure
 - console del browser: `BiaflixNebula.disable()` (spegne il JS Nebula su quel browser; `BiaflixNebula.enable()` lo riattiva).
 
 ## Livello 2: tutti gli utenti (1 minuto)
 
 1. JavaScript Injector → script **«Biaflix Nebula»** → disattivare (o eliminare). Il JS non viene più caricato.
-2. KefinTweaks → Skin Manager → **Default skin = ElegantFin** (se era stata cambiata).
+2. KefinTweaks → Skin Manager → **Default skin = ElegantFin Biaflix** (se era stata cambiata).
 3. Facoltativo: rimuovere la voce «Biaflix Nebula» dagli _Skins JSON_. I browser che l'avevano selezionata tornano automaticamente alla skin predefinita: lo Skin Manager ripiega sul default se la skin salvata non esiste più.
 
 ## Livello 3: ripristino completo dello stato pre-Nebula

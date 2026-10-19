@@ -9,7 +9,7 @@ import { nativeItemsContainer, itemDataAttrs } from '../cards';
 import type { NebulaContext } from '../context';
 import type { Feature } from '../lifecycle';
 import { t } from '../i18n';
-import { backdropImage, logoImage, posterImage } from '../images';
+import { backdropImage, logoImage, posterImage, srcset } from '../images';
 import type { BaseItem } from '../jellyfin-api';
 import { h, icon, prefersReducedMotion } from '../ui/dom';
 import { watchlistButton } from '../ui/watchlist-button';
@@ -103,6 +103,21 @@ function slide(ctx: NebulaContext, item: BaseItem, curated: boolean, index: numb
   host.append(play, details, wl);
   actions.append(host);
 
+  // Su mobile la composizione usa la locandina nitida (2:3 si adatta allo schermo verticale);
+  // il backdrop diventa uno sfondo ambientale. Nascosta via CSS su desktop.
+  const posterRef = posterImage(item);
+  const poster = posterRef
+    ? h('img', {
+        class: 'nebula-hero__poster',
+        alt: '',
+        'aria-hidden': 'true',
+        loading: index === 0 ? 'eager' : 'lazy',
+        decoding: 'async',
+        sizes: '260px',
+        ...srcset(ctx.api, posterRef, 260),
+      })
+    : null;
+
   return h(
     'article',
     { class: 'nebula-hero__slide', 'data-index': index, 'aria-roledescription': 'slide', 'aria-label': `${index + 1}: ${item.Name}` },
@@ -111,6 +126,7 @@ function slide(ctx: NebulaContext, item: BaseItem, curated: boolean, index: numb
     h(
       'div',
       { class: 'nebula-hero__content' },
+      poster,
       curated ? h('span', { class: 'nebula-chip nebula-chip--featured' }, icon('auto_awesome'), t('featured')) : null,
       title,
       h(
@@ -172,6 +188,19 @@ export function buildHero(ctx: NebulaContext, items: BaseItem[], curated: boolea
   root.addEventListener('focusin', hold);
   root.addEventListener('focusout', release);
   document.addEventListener('visibilitychange', onVisibility);
+
+  // Swipe orizzontale su touch per cambiare slide (i tap sui pulsanti restano click normali).
+  let touchStart: { x: number; y: number } | null = null;
+  root.addEventListener('pointerdown', (e) => {
+    touchStart = e.pointerType === 'touch' ? { x: e.clientX, y: e.clientY } : null;
+  });
+  root.addEventListener('pointerup', (e) => {
+    if (!touchStart || slides.length < 2) return;
+    const dx = e.clientX - touchStart.x;
+    const dy = e.clientY - touchStart.y;
+    touchStart = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(current + (dx < 0 ? 1 : -1));
+  });
 
   show(0);
   startAuto();

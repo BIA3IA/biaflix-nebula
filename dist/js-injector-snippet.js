@@ -1,5 +1,5 @@
 /*
- * Biaflix Nebula v0.1.1 — snippet per JS Injector ("Biaflix Nebula", pubblico).
+ * Biaflix Nebula v0.2.0 — snippet per JS Injector ("Biaflix Nebula", pubblico).
  * Carica nebula.js UNA sola volta. Il JS si attiva solo se la skin "Biaflix Nebula" è selezionata
  * nello Skin Manager di KefinTweaks. Per spegnere tutto: disattivare questo script in JS Injector.
  */
@@ -25,7 +25,7 @@
   };
 
   // Sostituire con l'URL versionato (tag fisso, mai @latest) dove è pubblicato dist/nebula.js.
-  var NEBULA_JS_URL = 'https://cdn.jsdelivr.net/gh/BIA3IA/biaflix-nebula@v0.1.1/dist/nebula.js';
+  var NEBULA_JS_URL = 'https://cdn.jsdelivr.net/gh/BIA3IA/biaflix-nebula@v0.2.0/dist/nebula.js';
 
   var s = document.createElement('script');
   s.id = 'biaflix-nebula-js';

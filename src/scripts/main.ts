@@ -6,7 +6,7 @@
  */
 import { CollectionsService } from './collections';
 import type { NebulaContext } from './context';
-import { readSession, waitForSession } from './env';
+import { isModernLayout, readSession, waitForSession } from './env';
 import { LOCAL_KILL_SWITCH_KEY, resolveFlags, type NebulaFlags } from './flags';
 import { setLocale } from './i18n';
 import { JellyfinApi } from './jellyfin-api';
@@ -14,6 +14,7 @@ import { Lifecycle } from './lifecycle';
 import { PlaylistService } from './playlist';
 import { isSkinLinkPresent, watchSkin } from './skin-detect';
 import { WatchlistService } from './watchlist';
+import { installBottomNav } from './features/bottom-nav';
 import { installNativeCardActions } from './features/card-actions';
 import { collectionsHubFeature } from './features/collections-hub';
 import { detailsFeature } from './features/details';
@@ -21,6 +22,9 @@ import { heroFeature } from './features/hero';
 import { homeRailsFeature } from './features/home-rails';
 import { applyShell, routeMarker } from './features/shell';
 import { closeAllDialogs } from './ui/dialog';
+import { installGlassSelect } from './ui/glass-select';
+import { installTooltips } from './ui/tooltip';
+import { installJeIconTokenFix } from './compat/je-icon-tokens';
 import { removeToasts } from './ui/toast';
 import { installWatchlistSync } from './ui/watchlist-button';
 
@@ -80,8 +84,15 @@ function boot(): void {
       const lifecycle = new Lifecycle([routeMarker, heroFeature(ctx), homeRailsFeature(ctx), detailsFeature(ctx), collectionsHubFeature(ctx)], (feature, err) =>
         console.warn(PREFIX, `feature "${feature}"`, err),
       );
-      const cleanups = [applyShell(), installWatchlistSync(), installNativeCardActions(ctx)];
+      const cleanups = [applyShell(), installWatchlistSync(), installNativeCardActions(ctx), installGlassSelect(), installTooltips(), installJeIconTokenFix()];
       lifecycle.start();
+      // Barra in basso solo nel layout Modern (le route di libreria legacy differiscono).
+      if (isModernLayout()) {
+        void installBottomNav(ctx).then((cleanup) => {
+          if (gen === generation) cleanups.push(cleanup);
+          else cleanup();
+        });
+      }
 
       // Cambio utente o logout nella stessa SPA: riavvio con la nuova sessione.
       const onView = () => {
