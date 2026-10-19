@@ -4,6 +4,13 @@
  */
 import type { BaseItem, JellyfinApi } from './jellyfin-api';
 
+// Vista Nebula ospitata dalla route home reale: nessuna route sconosciuta al router Jellyfin.
+export const WATCHLIST_HREF = '#/home?nebula=watchlist';
+
+export function isWatchlistRoute(path: string, params: URLSearchParams): boolean {
+  return path === 'home' && params.get('nebula') === 'watchlist';
+}
+
 export const WATCHLIST_CHANGED = 'biaflix-nebula:watchlist-changed';
 
 /** Come JE: per episodi/stagioni la watchlist si applica alla serie. */

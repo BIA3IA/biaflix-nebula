@@ -100,7 +100,8 @@ Tutti i valori devono stare in token CSS e non ripetersi hard-coded nei componen
 ### Mobile / tablet
 
 - Header compatto con logo, search e profilo; hamburger o bottom navigation con max 4–5 destinazioni principali. Menu accessibile via touch e tastiera, safe areas per dispositivi con notch.
-- Hero 55–65svh con testo leggibile, massimo 2 CTA; sezioni in carousels swipe-safe e card non minuscole.
+- Hero panoramica nitida con gli stessi titoli della raccolta «In evidenza» del desktop: altezza adattiva con base 72svh (minimo 480px, massimo di base 680px), testo leggibile e massimo 2 CTA. Se il contenuto richiede più spazio, la hero cresce senza sovrapporsi alla navbar. Sezioni in carousels swipe-safe e card non minuscole.
+- Logo Home mobile come link nel flusso della toolbar, con spazio riservato; dock inferiore fisso da 68px, disponibile anche a inizio pagina e durante lo scroll. Play e codice episodio su righe distinte con spazio esplicito.
 - Niente hover-only, no autoplay trailer, no glass che impedisca la leggibilità.
 
 ### Route richieste
@@ -112,7 +113,7 @@ Tutti i valori devono stare in token CSS e non ripetersi hard-coded nei componen
 Ordine consigliato, ma configurabile dal proprietario e dai plugin senza duplicare le sezioni:
 
 1. **Floating navbar**, overlay sul contenuto.
-2. **Cinematic Hero** 72–80svh desktop, 55–65svh mobile. Backdrop 16:9 o più ampio, sfumatura a sinistra e sotto. Scegliere contenuti *realmente presenti nella libreria*; fonte preferita: contenuti fissati da proprietario/KefinTweaks Spotlight; in assenza, elementi di libreria dotati di backdrop. Non confondere trailer esterni con media disponibile.
+2. **Cinematic Hero** 72–80svh desktop, adattiva su mobile come descritto sopra. Backdrop 16:9 o più ampio, sfumatura a sinistra e sotto. Scegliere contenuti *realmente presenti nella libreria*; fonte preferita: raccolta curata «In evidenza» (nome configurabile); in assenza di titoli, film da riprendere e ultimi aggiunti dotati di backdrop. Non confondere trailer esterni con media disponibile.
 3. **Rail «Continua a guardare»** (priorità alta), card 16:9 con progress, serie/episodio e `Riprendi`.
 4. **Rail «Prossimo episodio»** se esistono serie in corso, con immagine episodio, SxxExx, durata e spoiler guard quando attivo.
 5. **Rail «Aggiunti di recente»**: poster 2:3 e date non invadenti; filtro film/serie se utile.
@@ -181,6 +182,7 @@ Ordine consigliato, ma configurabile dal proprietario e dai plugin senza duplica
 ### Watchlist
 
 - Fonte dati da stabilire con un audit: KefinTweaks implementa watchlist separata dai Favorites, sfruttando `UserData Likes`; Jellyfin Enhanced può sincronizzarla con Seerr. Non trattare Favorite e Watchlist come sinonimi.
+- **Pagina dedicata:** `#/home?nebula=watchlist` usa la route home reale come contenitore, con vista Nebula distinta dalla homepage e dai Preferiti. Link Watchlist subito dopo Preferiti nella navbar desktop; la barra mobile punta alla stessa pagina. URL riapribile, refresh e avanti/indietro; griglia di poster, conteggio, stato vuoto/errore con Aggiorna e caricamento progressivo di 60 titoli. Il parametro è riservato a Nebula: disattivando la skin riappare la home nativa. Nessun popup watchlist.
 - `Aggiungi/Rimuovi watchlist` coerente su hero, card, dettagli e ricerca; conteggio, error handling, sincronizzazione tra browser e web client; nessuna finta icona a cuore senza mutazione reale.
 
 ### Login, profilo, settings

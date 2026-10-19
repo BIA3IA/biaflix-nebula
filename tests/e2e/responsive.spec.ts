@@ -127,7 +127,7 @@ test.describe('Navbar responsive', () => {
     await page.goto('/web/#/home');
     await expect(page.locator('html.nebula-active')).toHaveCount(1, { timeout: 20_000 });
     const problems: string[] = [];
-    for (const width of WIDTHS) {
+    for (const width of [...WIDTHS, 1100, 1200]) {
       await page.setViewportSize({ width, height: 800 });
       await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
       const report = await page.evaluate(() => {

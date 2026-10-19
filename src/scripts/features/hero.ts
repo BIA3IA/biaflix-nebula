@@ -14,6 +14,7 @@ import type { BaseItem } from '../jellyfin-api';
 import { h, icon, prefersReducedMotion } from '../ui/dom';
 import { watchlistButton } from '../ui/watchlist-button';
 import { waitFor } from '../ui/wait';
+import { isWatchlistRoute } from '../watchlist';
 
 const MAX_SLIDES = 5;
 const TICKS_PER_MINUTE = 600_000_000;
@@ -220,6 +221,7 @@ export function heroFeature(ctx: NebulaContext): Feature {
     name: 'hero',
     routes: ['home'],
     async mount({ page, signal, params }) {
+      if (isWatchlistRoute('home', params)) return;
       if (!ctx.flags.hero || !page) return;
       if (params.get('tab') && params.get('tab') !== '0') return;
       const tab = await waitFor<HTMLElement>(page, '#homeTab', signal);
@@ -228,9 +230,26 @@ export function heroFeature(ctx: NebulaContext): Feature {
       const { items, curated } = await pickHeroItems(ctx);
       if (signal.aborted || !items.length) return;
       const hero = buildHero(ctx, items, curated);
-      tab.prepend(hero.root);
+      // La home nativa/KefinTweaks può ricostruire i figli del tab dopo il mount.
+      // Conserva la stessa hero (slide e listener) e osserva solo tab e suo contenitore.
+      let observedTab: HTMLElement | null = null;
+      const observer = new MutationObserver(() => attach());
+      const attach = () => {
+        if (signal.aborted) return;
+        const target = page.querySelector<HTMLElement>('#homeTab');
+        if (!target) return;
+        if (observedTab !== target) {
+          observer.disconnect();
+          observer.observe(target.parentElement ?? page, { childList: true });
+          observer.observe(target, { childList: true });
+          observedTab = target;
+        }
+        if (target.firstElementChild !== hero.root) target.prepend(hero.root);
+      };
+      attach();
       page.classList.add('nebula-has-hero');
       return () => {
+        observer.disconnect();
         hero.destroy();
         page.classList.remove('nebula-has-hero');
       };

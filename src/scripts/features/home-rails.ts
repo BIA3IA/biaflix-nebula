@@ -10,7 +10,7 @@ import type { NebulaContext } from '../context';
 import type { Feature } from '../lifecycle';
 import { t } from '../i18n';
 import { PLAYLISTS_CHANGED } from '../playlist';
-import { WATCHLIST_CHANGED } from '../watchlist';
+import { isWatchlistRoute, WATCHLIST_CHANGED } from '../watchlist';
 import { h, icon } from '../ui/dom';
 import { createRail, type RailHandle } from '../ui/rail';
 import { waitFor } from '../ui/wait';
@@ -65,6 +65,7 @@ export function homeRailsFeature(ctx: NebulaContext): Feature {
     name: 'home-rails',
     routes: ['home'],
     async mount({ page, signal, params }) {
+      if (isWatchlistRoute('home', params)) return;
       if (!page || (params.get('tab') && params.get('tab') !== '0')) return;
       if (!ctx.flags.homeCollectionsRail && !ctx.flags.homeWatchlistRail) return;
       const container = await waitFor<HTMLElement>(page, '#homeTab .homeSectionsContainer, #homeTab .sections', signal, 15_000);

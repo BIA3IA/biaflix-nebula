@@ -1,6 +1,6 @@
 /**
  * Barra di navigazione mobile (glass, fluttuante in basso): max 5 destinazioni reali.
- * Home, Film, Serie TV, Raccolte (solo se la libreria esiste), Watchlist (pannello). La ricerca resta in alto.
+ * Home, Film, Serie TV, Raccolte (solo se la libreria esiste), Watchlist. La ricerca resta in alto.
  * I link puntano alle route vere di Jellyfin 12 (#/movies?topParentId=…), quindi back/forward,
  * refresh e deep link restano nativi. Visibile solo sotto i 900px (CSS), mai nel player.
  */
@@ -9,7 +9,7 @@ import { currentRoute } from '../env';
 import { t } from '../i18n';
 import type { BaseItem } from '../jellyfin-api';
 import { h, icon } from '../ui/dom';
-import { openWatchlistPanel } from './navbar-extras';
+import { WATCHLIST_HREF, isWatchlistRoute } from '../watchlist';
 
 interface NavEntry {
   key: string;
@@ -34,7 +34,13 @@ export function buildEntries(views: View[]): NavEntry[] {
   const shows = first('tvshows');
   const boxsets = first('boxsets');
   const entries: NavEntry[] = [
-    { key: 'home', label: t('navHome'), glyph: 'home', href: '#/home', match: (p, q) => p === 'home' && (!q.get('tab') || q.get('tab') === '0') },
+    {
+      key: 'home',
+      label: t('navHome'),
+      glyph: 'home',
+      href: '#/home',
+      match: (p, q) => p === 'home' && !isWatchlistRoute(p, q) && (!q.get('tab') || q.get('tab') === '0'),
+    },
   ];
   if (movies) entries.push({ key: 'movies', label: t('movies'), glyph: 'movie', href: libraryHref(movies), match: (p) => p === 'movies' });
   if (shows) entries.push({ key: 'shows', label: t('series'), glyph: 'live_tv', href: libraryHref(shows), match: (p) => p === 'tv' });
@@ -46,6 +52,7 @@ export function buildEntries(views: View[]): NavEntry[] {
       href: libraryHref(boxsets),
       match: (p) => p === 'boxsets' || p === 'playlists',
     });
+  entries.push({ key: 'watchlist', label: t('watchlistShort'), glyph: 'bookmarks', href: WATCHLIST_HREF, match: isWatchlistRoute });
   return entries;
 }
 
@@ -55,15 +62,7 @@ export async function installBottomNav(ctx: NebulaContext): Promise<() => void> 
   const links = entries.map((e) =>
     h('a', { class: 'nebula-bottomnav__item', href: e.href, 'data-key': e.key }, icon(e.glyph), h('span', { class: 'nebula-bottomnav__label' }, e.label)),
   );
-  // Watchlist: non è una route di Jellyfin, apre il pannello glass (su mobile sta qui invece che nella navbar).
-  const watch = h(
-    'button',
-    { type: 'button', class: 'nebula-bottomnav__item', 'data-key': 'watchlist', 'aria-label': t('watchlist') },
-    icon('bookmarks'),
-    h('span', { class: 'nebula-bottomnav__label' }, t('watchlistShort')),
-  );
-  watch.addEventListener('click', () => void openWatchlistPanel(ctx));
-  const nav = h('nav', { class: 'nebula-root nebula-bottomnav', 'aria-label': t('mainNav') }, links, watch);
+  const nav = h('nav', { class: 'nebula-root nebula-bottomnav', 'aria-label': t('mainNav') }, links);
 
   const sync = () => {
     const { path, params } = currentRoute();

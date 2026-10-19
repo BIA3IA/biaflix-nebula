@@ -1,8 +1,8 @@
 /**
  * Hub «Raccolte» sulle route reali di Jellyfin #/boxsets e #/playlists (layout Modern).
  * Griglia editoriale 16:9 con collage, filtro Tutte / Raccolte / Playlist, «+ Nuova raccolta».
- * La griglia nativa viene nascosta SOLO dopo che l'hub è stato reso con successo, e resta
- * raggiungibile con «Vista classica» (fallback senza perdita di funzionalità).
+ * La griglia nativa viene nascosta SOLO dopo che l'hub è stato reso con successo;
+ * resta disponibile come fallback se il caricamento fallisce.
  */
 import { collectionCard, nativeItemsContainer } from '../cards';
 import { canManageCollections, COLLECTIONS_CHANGED } from '../collections';
@@ -49,13 +49,7 @@ export function collectionsHubFeature(ctx: NebulaContext): Feature {
       }
       const np = h('button', { type: 'button', class: 'nebula-btn nebula-btn--glass' }, icon('playlist_add'), t('newPlaylist'));
       np.addEventListener('click', () => openCreatePlaylist(ctx));
-      const classic = h('button', { type: 'button', class: 'nebula-btn nebula-btn--ghost', 'aria-pressed': 'false' }, icon('view_module'), t('classicView'));
-      classic.addEventListener('click', () => {
-        const on = page.classList.toggle('nebula-hub-classic');
-        document.documentElement.classList.toggle('nebula-hub-mode', !on);
-        classic.setAttribute('aria-pressed', String(on));
-      });
-      actions.append(np, classic);
+      actions.append(np);
 
       const hub = h(
         'section',
@@ -96,7 +90,7 @@ export function collectionsHubFeature(ctx: NebulaContext): Feature {
         status.textContent = grid.children.length ? '' : t('emptyCollection');
         applyFilter();
         page.classList.add('nebula-hub-active');
-        if (!page.classList.contains('nebula-hub-classic')) document.documentElement.classList.add('nebula-hub-mode');
+        document.documentElement.classList.add('nebula-hub-mode');
       };
 
       page.querySelector(':scope > .nebula-hub')?.remove();
@@ -115,7 +109,7 @@ export function collectionsHubFeature(ctx: NebulaContext): Feature {
         document.removeEventListener(COLLECTIONS_CHANGED, refresh);
         document.removeEventListener(PLAYLISTS_CHANGED, refresh);
         hub.remove();
-        page.classList.remove('nebula-hub-active', 'nebula-hub-classic');
+        page.classList.remove('nebula-hub-active');
         document.documentElement.classList.remove('nebula-hub-mode');
       };
     },

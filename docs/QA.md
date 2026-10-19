@@ -1,4 +1,49 @@
+## Watchlist come pagina (19/10/2026)
+
+La watchlist usa `#/home?nebula=watchlist`, una vista dedicata sulla route home reale. Il link desktop è subito dopo Preferiti; su mobile si apre dalla barra inferiore, con stato attivo. Rimossi il pulsante dal gruppo azioni a destra e il popup. La griglia riusa card e azioni Nebula, `UserData.Likes`, conteggio e caricamento progressivo di 60 titoli; nessuna nuova dipendenza o impostazione server.
+
+**Regressioni trovate:** durante il ritorno dai dettagli, `viewshow` può indicare ancora la view in uscita quando l'hash è già quello della home. Montare lì la watchlist produceva contenuti senza azioni o una pagina assente. La feature ora risolve esplicitamente `#indexPage` nel documento e ignora il page hint della view uscente. I test unitari verificano l'host, risposte fuori ordine, cleanup di richieste/listener e ricostruzione della home nativa. I test browser verificano il ritorno reale dai dettagli.
+
+**Verifiche statiche:** `pnpm check` superato: typecheck, lint CSS, 62 test unitari, build. Il test UI usa risposte sintetiche per elenchi, paginazione, rimozione ed errore 503/recupero; il test `link Watchlist apre la pagina con i titoli salvati sul server` usa esclusivamente l'istanza Jellyfin locale e ripristina lo stato Likes iniziale.
+
+**Regressione mobile con lista lunga:** il click reale su «Carica altri titoli» era intercettato dalla barra inferiore fissa. La `.page` interna di Jellyfin può scorrere indipendentemente dal `main`; il suo fondo non aveva lo spazio riservato alla barra. Aggiunti `scroll-padding-bottom` al contenitore watchlist e padding inferiore alla vista, limitatamente al mobile con barra attiva. La regressione resta un click normale, senza `force`, scroll manuali o attese arbitrarie.
+
+La prima selezione allargata ha inoltre rilevato aspettative obsolete in `features.spec.ts` (Home/Discover e locandina verticale mobile). I test ora verificano i requisiti già richiesti: selettore nascosto, ritorno alla categoria standard e hero panoramica nitida.
+
+**E2E finale:** `pnpm exec playwright test tests/e2e/watchlist.spec.ts --max-failures=1 --output=/tmp/nebula-watchlist-final-six`: **6/6 superati** su Firefox desktop, Chromium desktop e mobile. Coperti link vicino a Preferiti, apertura senza dialoghi, reload, link diretto, indietro/avanti dai dettagli, rimozione e sincronizzazione, stato vuoto, errore/recupero, conteggio, paginazione e layout da 320 a 1920px. La precedente selezione allargata ha dato 34 superati e 4 saltati per profilo, più il difetto del dock ora corretto e verificato nella ripetizione finale. Le regressioni homepage, player, rail, barra fissa e navbar (anche 1100/1200px) sono passate. Prettier e `git diff HEAD --check` superati.
+
+**Revisione finale:** controllati feature, navigazione, helper di route, integrazione lifecycle, CSS e test modificati. Nessuna nuova criticità significativa rilevata; API autenticata e fonte Likes restano quelle esistenti. Le risposte asincrone vengono ignorate dopo cleanup o quando superate da una richiesta successiva.
+
+**Limiti:** Safari/iOS e dispositivi fisici non verificati; nessun rilascio in produzione.
+
+## Azioni dell'hub Raccolte/Playlist (19/10/2026)
+
+Rimosso «Classic view / Vista classica» da entrambe le route, insieme al toggle, alle regole CSS e alle traduzioni dedicate. Restano «Nuova raccolta» (con i permessi esistenti) e «Nuova playlist». Il fallback nativo in caso di errore iniziale resta disponibile.
+
+**Verifiche:** `pnpm check` superato (typecheck, lint CSS, 58 unit test, build). `pnpm exec playwright test tests/e2e/collections-hub.spec.ts tests/e2e/collections.spec.ts --max-failures=1 --output=/tmp/nebula-collections-actions-final`: 18 superati, 6 saltati per profilo mobile, 0 falliti. Coperti entrambe le route, apertura/annullamento dei dialoghi, azioni contenute nel viewport anche a 320px, filtri, CRUD e permessi esistenti su desktop. Prettier e controllo whitespace superati. Nessun rilascio in produzione.
+
+Dopo la correzione del bordo: `pnpm check` nuovamente superato e `tests/e2e/collections-hub.spec.ts` **6/6** su Firefox desktop, Chromium desktop e mobile, inclusa la regressione basata sui pixel dello screenshot. Safari e dispositivi fisici non verificati.
+
+**Artefatto sul bordo, causa verificata:** il gradiente del pulsante primario aveva origine nel padding box, veniva disegnato fino al bordo trasparente e si ripeteva (`repeat` predefinito). Sul bordo sinistro ricompariva quindi il ciano dell'estremità destra. Il test legge i pixel della striscia sinistra nello screenshot reale: prima della correzione fallisce su Chromium mobile con differenza verde−rosso 140 (limite 40). Correzione condivisa per i pulsanti primari: `background-origin: border-box` e `background-repeat: no-repeat`; colori, forma, ombra e azioni restano invariati.
+
 # QA
+
+## Revisione mobile: hero, navbar e dock (19/10/2026)
+
+**Difetti riprodotti prima del fix:** rimuovendo la hero come in un ridisegno nativo della home, Nebula non la reinseriva; nel pulsante Play il codice episodio distava circa 0,8px dalla scritta. Un ulteriore test ha riprodotto il reinserimento di logo/watchlist dopo il teardown da un frame già in coda. I test di regressione sono conservati in `tests/unit/hero.test.ts`, `tests/unit/navbar-extras.test.ts` e `tests/e2e/mobile-layout.spec.ts`.
+
+**Modifiche:** hero mobile panoramica con raccolta curata condivisa con desktop, sfondo nitido e altezza adattiva; reinserimento dopo ricostruzione del tab conservando la slide; logo Home reale con spazio nel flex della navbar; dock 68px con stato attivo a gradiente, safe area e spazio riservato nel contenuto; Play/codice episodio distanziati. La configurazione e i dati server restano invariati.
+
+- `pnpm check`: typecheck, lint CSS, **58 unit test** e build superati.
+- Suite finale unica: **39 E2E superati, 6 esclusi per profilo, 0 falliti**, con `pnpm exec playwright test tests/e2e/mobile-layout.spec.ts tests/e2e/home.spec.ts tests/e2e/navbar.spec.ts tests/e2e/responsive.spec.ts --max-failures=1`. Include home, cambio/disattivazione skin, navbar, dettagli film/serie/stagione/episodio e matrice 320–1920px.
+- Prettier sui sorgenti modificati e `git diff --check` superati. Screenshot home/hero/dettagli/navbar in `test-results/screenshots/mobile-*.png`, esaminati dopo il caricamento della build locale.
+- Nuova suite mobile: **12/12 E2E superati** su Firefox, Chromium desktop ridimensionato e Chromium mobile. Raccolta sintetica con titoli reali dell'istanza locale, swipe, ricostruzione home, navbar con icone JE abilitate a 320/360/390/430/600/768/899px; Play e codice episodio a 320–768px; dock nello schermo a scroll 0/1400/fine/0 e viewport 390×620.
+
+**Nota sull'ambiente:** il dock era già `position: fixed` nella build iniziale locale (a scroll zero: y=768, bottom=832 su viewport alto 844px); il comportamento «visibile solo a fondo pagina» non è stato riprodotto in quell'ambiente. Il nuovo layout mantiene la posizione fissa verificata. Le schermate dell'utente mostravano ancora Home/Discover, rimosso dal codice corrente nei passaggi precedenti: una build precedente sul dispositivo è una possibilità, non una verifica di produzione.
+
+Una prima suite più ampia si è interrotta su «Server non disponibile», con richieste senza risposta prima dell'attivazione della skin, e ha accumulato timeout. A server tornato disponibile, lo stesso test della homepage è passato senza cambi al codice. La verifica finale usa un processo unico e si ferma al primo errore.
+
+**Limiti:** verifiche su browser locali ed emulazione touch; Safari/iOS e dispositivi fisici non verificati. Nessuna modifica alla produzione.
 
 ## Navbar essenziale (19/10/2026)
 
@@ -118,7 +163,7 @@ Screenshot generati in `test-results/screenshots/` (non versionati).
 2. **Feature montate sulla pagina precedente** quando `hashchange` e `viewshow` arrivano nello stesso frame. Corretto in `lifecycle.ts`, con test di regressione che fallisce sul codice vecchio.
 3. **Rail della home cancellate** dal ridisegno nativo (`homesections.js` usa `innerHTML`). Ora c'è un observer limitato ai figli diretti, con test di regressione.
 4. **Logo doppio** (Biaflix + icona Jellyfin) nella navbar. Ora c'è un solo logo.
-5. **Controlli duplicati** nell'hub: la toolbar nativa «Nuova collezione» e i filtri agivano sulla griglia nascosta. Ora la toolbar è nascosta in modalità hub e visibile in «Vista classica».
+5. **Controlli duplicati** nell'hub: la toolbar nativa «Nuova collezione» e i filtri agivano sulla griglia nascosta. Ora la toolbar è nascosta in modalità hub; resta disponibile come fallback se il caricamento dell'hub fallisce. Il controllo «Vista classica» è stato rimosso su richiesta.
 
 ### Revisione avversariale del codice (corretti, con test dove praticabile)
 

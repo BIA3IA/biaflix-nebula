@@ -15,6 +15,7 @@ import { PlaylistService } from './playlist';
 import { isSkinLinkPresent, watchSkin } from './skin-detect';
 import { WatchlistService } from './watchlist';
 import { installBottomNav } from './features/bottom-nav';
+import { watchlistPageFeature } from './features/watchlist-page';
 import { installNavbarExtras } from './features/navbar-extras';
 import { installNativeCardActions } from './features/card-actions';
 import { collectionsHubFeature } from './features/collections-hub';
@@ -83,8 +84,9 @@ function boot(): void {
         watchlist: new WatchlistService(api),
         log,
       };
-      const lifecycle = new Lifecycle([routeMarker, heroFeature(ctx), homeRailsFeature(ctx), detailsFeature(ctx), collectionsHubFeature(ctx)], (feature, err) =>
-        console.warn(PREFIX, `feature "${feature}"`, err),
+      const lifecycle = new Lifecycle(
+        [routeMarker, heroFeature(ctx), homeRailsFeature(ctx), detailsFeature(ctx), collectionsHubFeature(ctx), watchlistPageFeature(ctx)],
+        (feature, err) => console.warn(PREFIX, `feature "${feature}"`, err),
       );
       const cleanups = [applyShell(), installWatchlistSync(), installNativeCardActions(ctx), installGlassSelect(), installTooltips(), installJeIconTokenFix()];
       lifecycle.start();

@@ -54,32 +54,15 @@
 }
 
 /* La griglia nativa resta nel DOM (fallback) ma si nasconde quando l'hub è pronto. */
-:is(#boxsetsPage, #playlistsPage).nebula-hub-active:not(.nebula-hub-classic) > :not(.nebula-hub) {
-  display: none;
-}
-
-:is(#boxsetsPage, #playlistsPage).nebula-hub-classic > .nebula-hub > :not(.nebula-hub__header) {
+:is(#boxsetsPage, #playlistsPage).nebula-hub-active > :not(.nebula-hub) {
   display: none;
 }
 
 /*
  * In modalità hub la toolbar nativa della libreria (filtri, ordinamento, «Nuova collezione»)
  * agirebbe su una griglia nascosta: la nascondiamo per non duplicare i controlli.
- * Torna visibile con «Vista classica».
+ * Resta disponibile se il caricamento dell'hub fallisce.
  */
 html.nebula-hub-mode body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root {
   display: none;
-}
-
-/* Pannello «La mia watchlist» (pulsante segnalibro nella navbar) */
-.nebula-dialog--watchlist {
-  width: min(1100px, 100%);
-}
-
-.nebula-watchlist-grid.itemsContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(46%, 150px), 1fr));
-  gap: var(--nebula-space-5) var(--nebula-space-4);
-  margin: 0;
-  padding: 4px 2px;
 }

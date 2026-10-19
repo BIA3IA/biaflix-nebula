@@ -45,8 +45,11 @@
   box-shadow: var(--nebula-focus-ring);
 }
 
+/* Il gradiente copre il bordo trasparente senza ripetere il ciano sul lato viola. */
 .nebula-btn--primary {
   background: var(--nebula-gradient);
+  background-origin: border-box;
+  background-repeat: no-repeat;
   color: #fff;
   box-shadow: var(--nebula-glow);
 }

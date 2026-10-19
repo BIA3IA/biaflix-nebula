@@ -79,6 +79,7 @@
   --nebula-poster-width: clamp(132px, 13vw, 214px);
   --nebula-thumb-width: clamp(232px, 21vw, 320px);
   --nebula-touch-target: 44px;
+  --nebula-bottomnav-height: 68px;
 
   /* Tipografia (system-first, nessun font esterno obbligatorio) */
   --nebula-font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;

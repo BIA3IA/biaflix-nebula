@@ -37,9 +37,10 @@ test('navbar essenziale: senza Home/Discover né il pulsante Active Streams', as
   const watchlist = page.locator(isMobile ? '.nebula-bottomnav [data-key="watchlist"]' : '.nebula-nav-watchlist');
   await expect(watchlist).toBeVisible();
   await watchlist.click();
-  await expect(page.getByRole('dialog')).toBeVisible();
-  await page.keyboard.press('Escape');
+  await expect(page.locator('.nebula-watchlist-page')).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.goBack();
+  await expect(page.locator('.nebula-watchlist-page')).toHaveCount(0);
   await page
     .locator(isMobile ? '.nebula-bottomnav [data-key="home"]' : 'header.MuiAppBar-root a[href="#/"]')
     .first()

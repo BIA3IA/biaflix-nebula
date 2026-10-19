@@ -98,7 +98,7 @@ test.describe('Card native', () => {
 });
 
 test.describe('Layout', () => {
-  test('mobile: hero con locandina nitida, nessun overflow, max 2 CTA visibili', async ({ page, isMobile }, info) => {
+  test('mobile: hero panoramica nitida, nessun overflow, max 2 CTA visibili', async ({ page, isMobile }, info) => {
     test.skip(!isMobile, 'Solo mobile');
     const s = await sessionFor('viewer');
     await installNebula(page, s);
@@ -108,10 +108,10 @@ test.describe('Layout', () => {
     const h = await hero.evaluate((el) => el.getBoundingClientRect().height / window.innerHeight);
     expect(h).toBeGreaterThan(0.6);
     expect(h).toBeLessThanOrEqual(0.95);
-    // Locandina nitida (nessun filtro), backdrop usato solo come luce ambientale.
+    // Stessa hero panoramica del desktop, senza locandina verticale né sfocatura.
     const poster = page.locator('.nebula-hero__slide.is-active .nebula-hero__poster');
-    await expect(poster).toBeVisible();
-    expect(await poster.evaluate((el) => getComputedStyle(el).filter)).toBe('none');
+    await expect(poster).toBeHidden();
+    await expect(hero.locator('.is-active .nebula-hero__backdrop')).toHaveCSS('filter', 'none');
     const visibleCtas = await page.locator('.nebula-hero__slide.is-active .nebula-hero__action-host > *:visible').count();
     expect(visibleCtas).toBeLessThanOrEqual(2);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -174,40 +174,48 @@ test.describe('Layout', () => {
 });
 
 test.describe('Navbar: watchlist e categorie home', () => {
-  test('pulsante «La mia watchlist» apre il pannello con i titoli in watchlist', async ({ page }, info) => {
+  test('link Watchlist apre la pagina con i titoli salvati sul server', async ({ page, isMobile }, info) => {
     const s = await sessionFor('viewer');
     const id = await movieId(s, 'Comfort Club');
-    await apiCall(s, 'POST', `/UserItems/${id}/Rating?userId=${s.userId}&likes=true`);
-    await installNebula(page, s);
-    await gotoHome(page);
-    await page.getByRole('button', { name: 'La mia watchlist' }).click();
-    const dlg = page.getByRole('dialog', { name: 'La mia watchlist' });
-    await expect(dlg.locator('.nebula-card', { hasText: 'Comfort Club' })).toBeVisible();
-    await page.screenshot({ path: `test-results/screenshots/watchlist-panel-${info.project.name}.png` });
-    // Aprire il titolo chiude il pannello e porta ai dettagli.
-    await dlg.locator('.nebula-card', { hasText: 'Comfort Club' }).locator('a.nebula-card__media').click();
-    await expect(page).toHaveURL(/#\/details\?id=/);
-    await expect(page.getByRole('dialog')).toHaveCount(0);
-    await apiCall(s, 'DELETE', `/UserItems/${id}/Rating?userId=${s.userId}`);
+    const wasListed = await likes(s, id);
+    try {
+      await apiCall(s, 'POST', `/UserItems/${id}/Rating?userId=${s.userId}&likes=true`);
+      await installNebula(page, s);
+      await gotoHome(page);
+      await page.locator(isMobile ? '.nebula-bottomnav [data-key="watchlist"]' : '.nebula-nav-watchlist').click();
+      const view = page.locator('#indexPage > .nebula-watchlist-page');
+      await expect(view.locator('.nebula-card', { hasText: 'Comfort Club' })).toBeVisible();
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await page.screenshot({ path: `test-results/screenshots/watchlist-server-${info.project.name}.png` });
+      await view.locator('.nebula-card', { hasText: 'Comfort Club' }).locator('a.nebula-card__media').click();
+      await expect(page).toHaveURL(/#\/details\?id=/);
+      await expect(view).toHaveCount(0);
+    } finally {
+      if (!wasListed) await apiCall(s, 'DELETE', `/UserItems/${id}/Rating?userId=${s.userId}`);
+    }
   });
 
-  test('categorie KefinTweaks nella barra: un solo controllo, comanda la home', async ({ page }, info) => {
+  test('home standard raggiungibile senza selettore Home/Discover', async ({ page, isMobile }, info) => {
     const s = await sessionFor('viewer');
     await installNebula(page, s);
     await gotoHome(page);
     const group = page.getByRole('group', { name: 'Sezioni della home' });
-    await expect(group).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator('#kefin-home-category-rail .kefin-home-category-rail').filter({ visible: true })).toHaveCount(0);
-    const buttons = group.getByRole('button');
-    await expect(buttons).toHaveCount(2);
-    await buttons.nth(1).click();
-    await expect(buttons.nth(1)).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('#kefin-home-category-rail')).toHaveAttribute('data-category', 'discovery');
+    await expect(group).toHaveCount(0);
+    await expect(page.locator('#kefin-home-category-rail')).toBeHidden();
+    await page
+      .locator('#kefin-home-category-rail .kefin-home-category-item[data-category-id="discovery"] button')
+      .evaluate((button: HTMLButtonElement) => button.click());
+    await page.goto('/web/#/search');
+    await page
+      .locator(isMobile ? '.nebula-bottomnav [data-key="home"]' : 'header.MuiAppBar-root a[href="#/"]')
+      .first()
+      .click();
+    await expect(page.locator('#kefin-home-category-rail .kefin-home-category-item[data-category-id="none"]')).toHaveClass(/is-active/);
+    await expect(page.locator('.nebula-hero')).toBeVisible();
+    await expect(group).toHaveCount(0);
     await page.screenshot({
       path: `test-results/screenshots/navbar-categories-${info.project.name}.png`,
       clip: { x: 0, y: 0, width: Math.min(1366, page.viewportSize()!.width), height: 110 },
     });
-    await page.goto('/web/#/search');
-    await expect(group).toHaveCount(0);
   });
 });

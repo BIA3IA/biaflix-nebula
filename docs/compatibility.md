@@ -30,9 +30,17 @@ Tipi gestiti: Film, Serie, Stagione, Episodio, Raccolta. Le altre pagine (person
 
 ## Navbar
 
-Home/Discover di KefinTweaks non viene più duplicato nella navbar e il selettore originale resta nascosto. All'ingresso in home Nebula richiama la categoria standard `none` tramite il pulsante nativo, per evitare selezioni Scopri nascoste. Il ritorno alla home resta sul logo desktop e nella barra inferiore mobile; la watchlist conserva il proprio pannello.
+Home/Discover di KefinTweaks non viene più duplicato nella navbar e il selettore originale resta nascosto. All'ingresso in home Nebula richiama la categoria standard `none` tramite il pulsante nativo, per evitare selezioni Scopri nascoste. Il ritorno alla home resta sul logo desktop, sul nuovo link con logo nella toolbar mobile e nella barra inferiore; la watchlist ora è una pagina dedicata (`#/home?nebula=watchlist`), collegata dopo Preferiti su desktop e dalla barra inferiore su mobile.
 
 Il widget Active Streams (`#je-active-streams` e `#je-active-streams-panel`) è nascosto con un override `!important` circoscritto: il bridge MUI usa `display: inline-flex !important` sui pulsanti JE e prevaleva sulla vecchia regola. La sezione Stream attivi della pagina Attività mantiene la propria configurazione e i propri permessi.
+
+## Mobile e persistenza della hero
+
+La home mobile usa la stessa raccolta «In evidenza» del desktop, con backdrop nitido, titolo/logo, trama breve e due CTA. Il poster verticale della precedente composizione mobile resta nascosto. La hero ha altezza adattiva per mantenere il contenuto sotto la navbar anche con testo lungo o viewport basso.
+
+Il mount osserva solo i figli diretti del tab home e del suo contenitore: se Jellyfin/KefinTweaks rimuove la hero o sostituisce il tab, viene reinserito lo stesso nodo, conservando slide e listener. Cleanup e abort disconnettono l'observer. Il logo mobile ora è un link Home reale nel flex della toolbar, anziché un'immagine assoluta del pulsante menu. I frame della navbar vengono annullati al teardown per evitare reinserimenti dopo la disattivazione della skin.
+
+Il dock inferiore usa il token `--nebula-bottomnav-height` (68px), posizione fixed e safe area; il contenuto riserva spazio sotto. Le prove controllano il dock a inizio/fine pagina, dopo scroll e con viewport ridotto. La frase Play/Riprendi e il codice episodio hanno gap 6px e line-height separati. Safari e dispositivi fisici non verificati.
 
 ## Calendario Jellyfin Enhanced
 
@@ -57,7 +65,7 @@ La suite E2E abilita il Native Tab intercettando la configurazione nel browser, 
 | Jellyfin Enhanced 12.12 | Con «Use Icons» spento `JE.icon()` restituisce '' e `JE.t()` rimette il segnaposto `{{icon:…}}` nei testi      | `src/scripts/compat/je-icon-tokens.ts` avvolge `JE.t` e toglie i token rimasti; in alternativa basta attivare «Use Icons» in JE |
 | Jellyfin Enhanced 12.12 | Righe Studi/Network: doppie frecce, quelle di JE usano `scrollBy` su uno scroller a transform e non funzionano | `plugin-compat.css` nasconde solo le frecce JE quando la riga ha quelle native                                                  |
 | jellyfin-web 12.2       | Scroller a transform senza ritaglio su desktop → scroll orizzontale del documento                              | `rails.css`: ritaglio come nel layout TV                                                                                        |
-| KefinTweaks 0.5.1       | Pillola categorie con classi MUI dell'AppBar (fissa sul bordo)                                                 | `plugin-compat.css`: selettore Home/Discover nascosto; duplicato Nebula rimosso                                                                   |
+| KefinTweaks 0.5.1       | Pillola categorie con classi MUI dell'AppBar (fissa sul bordo)                                                 | `plugin-compat.css`: selettore Home/Discover nascosto; duplicato Nebula rimosso                                                 |
 
 ## Limiti noti (non aggirabili lato client)
 
