@@ -509,11 +509,6 @@
   transform: translateY(var(--nebula-hover-lift));
 }
 
-.nep.is-current .nep__media,
-.nep.is-next .nep__media {
-  border-color: rgb(var(--nebula-cyan-rgb) / 60%);
-}
-
 .nep__link,
 .nep__img {
   display: block;
@@ -555,11 +550,31 @@
   font-size: 17px;
 }
 
+/* «Prossimo» / «In visione»: etichetta in gradiente sulla miniatura, nessun bordo attorno alla card. */
 .nep__next {
   position: absolute;
   top: 10px;
   left: 10px;
-  border-color: rgb(var(--nebula-cyan-rgb) / 55%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 10px 0 6px;
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-gradient);
+  color: #fff;
+  font: 700 var(--nebula-text-xs) / 1 var(--nebula-font-body);
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 40%);
+}
+
+.nep__next .nebula-icon {
+  font-size: 16px;
+}
+
+.nep__next--current {
+  background: var(--nebula-glass-strong);
+  backdrop-filter: var(--nebula-glass-filter);
 }
 
 .nep__play {

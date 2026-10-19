@@ -25,6 +25,12 @@
 - Jellyfin Enhanced: nelle righe Studi/Network c'erano due frecce «avanti», e quella sulla card non funzionava (scrollBy su uno scroller a transform). Ora resta solo quella funzionante.
 - Effetti stagionali di KefinTweaks (Halloween: frangia «sangue» e alone rosso della navbar, sfondi, neve) disattivati con Nebula attiva, come chiede la specifica. Le sezioni di contenuto stagionali restano.
 - Jellyfin Enhanced 12.12 con «Use Icons» spento mostrava `{{icon:warning}}` nei testi (es. «Seleziona almeno una stagione»). Correttivo isolato in `compat/je-icon-tokens.ts`, ripristinato allo spegnimento.
+- Tema unico: nascosti il pulsante «Aspetto» di KefinTweaks e i selettori skin/schema colore (la scelta resta all'amministratrice).
+- Navbar essenziale: nascosti i breadcrumb di KefinTweaks e «Active Streams» di JE; categorie Home/Scopri come controllo nella barra; pulsante «La mia watchlist» (pannello glass), su mobile nella barra in basso.
+- Nessuno screensaver dopo l'inattività (flag `disableScreensaver`, default attivo).
+- Episodi: «Prossimo»/«In visione» come etichetta in gradiente, senza bordo attorno alla card.
+- Interruttori stagioni di JE: corretto il conflitto con lo stile generico delle checkbox (rimosso), ora solo colori Nebula.
+- Toolbar della libreria (Riproduci tutti, filtri, ordinamento, pagine) in pillole glass.
 - Screenshot non più versionati: i test li scrivono in `test-results/screenshots/`.
 
 **Controlli glass**: popup glass per tutte le select (tastiera, typeahead, foglio dal basso su mobile, compatibile con React); checkbox, toggle e radio di Jellyfin, MUI e plugin restilizzati senza toccarne la logica.

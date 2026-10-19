@@ -38,6 +38,8 @@ test.describe('Pagina dettagli Nebula', () => {
       await expect(page.locator(`#itemDetailPage:not(.hide) ${sel}`).filter({ visible: true }), sel).toHaveCount(0);
     }
     await expect(page.locator('.nebula-episodes')).toHaveCount(1);
+    // Breadcrumb KefinTweaks nascosti (navbar essenziale).
+    await expect(page.locator('#kefinTweaks-breadcrumbs-wrapper').filter({ visible: true })).toHaveCount(0);
     await expect(page.locator('.nebula-cast')).toHaveCount(1);
     expect(consoleErrors).toEqual([]);
   });

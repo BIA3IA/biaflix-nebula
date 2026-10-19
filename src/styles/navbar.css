@@ -233,3 +233,167 @@ body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .Mui
     padding-inline: var(--nebula-space-2);
   }
 }
+
+/* --- Elementi Nebula nella navbar ------------------------------------------------------------ */
+.nebula-nav-watchlist {
+  display: inline-grid;
+  place-items: center;
+  width: var(--nebula-touch-target);
+  height: var(--nebula-touch-target);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--nebula-text);
+  cursor: pointer;
+  transition: background-color var(--nebula-fast) var(--nebula-ease);
+}
+
+.nebula-nav-watchlist:hover {
+  background: var(--nebula-glass-highlight);
+}
+
+.nebula-nav-watchlist:focus-visible {
+  outline: none;
+  box-shadow: var(--nebula-focus-ring);
+}
+
+/* Categorie della home (KefinTweaks) come controllo segmentato nella barra. */
+.nebula-navcats {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+  margin-inline: var(--nebula-space-3) auto;
+  padding: 3px;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-pill);
+  background: rgb(255 255 255 / 4%);
+}
+
+.nebula-navcats__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--nebula-radius-pill);
+  background: transparent;
+  color: var(--nebula-text-muted);
+  font: 600 var(--nebula-text-sm) / 1 var(--nebula-font-body);
+  cursor: pointer;
+}
+
+.nebula-navcats__btn .nebula-icon {
+  font-size: 18px;
+}
+
+.nebula-navcats__btn:hover {
+  color: var(--nebula-text);
+}
+
+.nebula-navcats__btn[aria-pressed='true'] {
+  background: var(--nebula-gradient);
+  color: #fff;
+}
+
+.nebula-navcats__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--nebula-focus-ring);
+}
+
+@media (width < 1100px) {
+  .nebula-navcats__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .nebula-navcats__btn {
+    padding: 0 10px;
+  }
+}
+
+/* Con le categorie nella barra, la barra originale di KefinTweaks non serve (resta la logica). */
+/* stylelint-disable declaration-no-important */
+html.nebula-navcats-on body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-rail {
+  display: none !important;
+}
+/* stylelint-enable declaration-no-important */
+
+@media (width < 900px) {
+  .nebula-navcats {
+    margin-inline: auto 4px;
+  }
+
+  .nebula-navcats__btn {
+    min-height: 32px;
+    padding: 0 8px;
+  }
+}
+
+/*
+ * Toolbar della libreria (riga sotto la navbar nelle pagine Film/Serie/…): Riproduci tutto, casuale,
+ * filtri, ordinamento, vista, pagine. Da gruppo rettangolare MUI a pillole glass coerenti.
+ */
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root {
+  gap: 6px;
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root .MuiButtonGroup-root {
+  overflow: hidden;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-glass-bg);
+}
+
+/* Solo l'azione principale («Riproduci tutti», con etichetta) in gradiente. */
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root .MuiButtonGroup-root:has(.MuiButton-startIcon) {
+  border-color: transparent;
+  background: var(--nebula-gradient);
+  box-shadow: 0 6px 18px rgb(var(--nebula-primary-rgb) / 30%);
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root .MuiButtonGroup-grouped {
+  min-height: 38px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--nebula-text);
+  font-weight: 700;
+  text-transform: none;
+  box-shadow: none;
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root .MuiButtonGroup-grouped:not(:last-of-type) {
+  border-right: 1px solid var(--nebula-glass-border);
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root .MuiButtonGroup-grouped:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root .MuiIconButton-root {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: 50%;
+  background: var(--nebula-glass-bg);
+  color: var(--nebula-text);
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root .MuiIconButton-root:hover {
+  border-color: rgb(var(--nebula-primary-rgb) / 60%);
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root .MuiIconButton-root.Mui-disabled {
+  opacity: 0.35;
+}
+
+/* I separatori verticali MUI tra i gruppi non servono con le pillole. */
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root .MuiDivider-vertical {
+  display: none;
+}

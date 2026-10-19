@@ -314,8 +314,11 @@ body:not(.dashboardDocument) .MuiRadio-root.Mui-checked {
   color: var(--nebula-primary-light);
 }
 
-/* --- Input semplici (pannelli KefinTweaks/JE, dialog Nebula) ---------------------------- */
-body:not(.dashboardDocument) input[type='checkbox']:not(.emby-checkbox, .mdl-switch__input, .MuiSwitch-input, .PrivateSwitchBase-input),
+/* --- Checkbox e interruttori Nebula -------------------------------------------------------
+ * Solo i controlli di Nebula (.nebula-check, .nebula-toggle). Le checkbox semplici di Jellyfin e dei plugin
+ * NON vengono restilizzate genericamente: molti plugin (es. gli interruttori stagioni di JE) disegnano il
+ * proprio controllo sull'input stesso e una regola generica lo rompe.
+ */
 .nebula-check {
   appearance: none;
   position: relative;
@@ -333,7 +336,6 @@ body:not(.dashboardDocument) input[type='checkbox']:not(.emby-checkbox, .mdl-swi
     border-color var(--nebula-fast) var(--nebula-ease);
 }
 
-body:not(.dashboardDocument) input[type='checkbox']:not(.emby-checkbox, .mdl-switch__input, .MuiSwitch-input, .PrivateSwitchBase-input):checked,
 .nebula-check:checked {
   border-color: transparent;
   background:
@@ -342,20 +344,16 @@ body:not(.dashboardDocument) input[type='checkbox']:not(.emby-checkbox, .mdl-swi
     var(--nebula-gradient);
 }
 
-body:not(.dashboardDocument) input[type='checkbox']:not(.emby-checkbox, .mdl-switch__input, .MuiSwitch-input, .PrivateSwitchBase-input):focus-visible,
 .nebula-check:focus-visible {
   outline: none;
   box-shadow: var(--nebula-focus-ring);
 }
 
-body:not(.dashboardDocument) input[type='checkbox']:not(.emby-checkbox, .mdl-switch__input, .MuiSwitch-input, .PrivateSwitchBase-input):disabled,
 .nebula-check:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
-/* Interruttore esplicito per le preferenze Nebula (role=switch) */
-body:not(.dashboardDocument) input[type='checkbox'][role='switch'],
 .nebula-toggle > .nebula-check {
   width: 42px;
   height: 24px;
@@ -363,7 +361,6 @@ body:not(.dashboardDocument) input[type='checkbox'][role='switch'],
   background: rgb(255 255 255 / 10%);
 }
 
-body:not(.dashboardDocument) input[type='checkbox'][role='switch']::after,
 .nebula-toggle > .nebula-check::after {
   position: absolute;
   top: 2px;
@@ -377,32 +374,29 @@ body:not(.dashboardDocument) input[type='checkbox'][role='switch']::after,
   content: '';
 }
 
-body:not(.dashboardDocument) input[type='checkbox'][role='switch']:checked,
 .nebula-toggle > .nebula-check:checked {
   background: var(--nebula-gradient);
 }
 
-body:not(.dashboardDocument) input[type='checkbox'][role='switch']:checked::after,
 .nebula-toggle > .nebula-check:checked::after {
   background: #fff;
   transform: translateX(18px);
 }
 
-body:not(.dashboardDocument) input[type='radio']:not(.mdl-radio__button, .PrivateSwitchBase-input) {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  border: 1px solid var(--nebula-glass-border-strong);
-  border-radius: 50%;
-  background: rgb(255 255 255 / 6%);
-  cursor: pointer;
-  vertical-align: middle;
+/* Jellyfin Enhanced — interruttori stagioni (richieste Seerr): solo colori Nebula, geometria di JE. */
+body:not(.dashboardDocument) .jellyseerr-season-checkbox {
+  border: 1px solid var(--nebula-glass-border);
+  background: rgb(255 255 255 / 10%);
 }
 
-body:not(.dashboardDocument) input[type='radio']:not(.mdl-radio__button, .PrivateSwitchBase-input):checked {
-  border: 6px solid var(--nebula-primary-light);
-  background: #fff;
+body:not(.dashboardDocument) .jellyseerr-season-checkbox:checked {
+  border-color: transparent;
+  background: var(--nebula-gradient);
+}
+
+body:not(.dashboardDocument) .jellyseerr-season-checkbox:focus-visible {
+  outline: none;
+  box-shadow: var(--nebula-focus-ring);
 }
 
 /* --- Menu glass («Altre azioni») ---------------------------------------------------------------- */

@@ -295,3 +295,34 @@ html[data-active-page] body[data-seasonal-background='true'] header.MuiAppBar-ro
   display: none !important;
 }
 /* stylelint-enable declaration-no-important */
+
+/*
+ * Tema unico per tutti: con Nebula attiva gli utenti non possono cambiare skin.
+ * KefinTweaks 0.5.1 registra sempre il pulsante «Aspetto» (nessuna opzione per toglierlo) e aggiunge i
+ * selettori skin/schema colore in Impostazioni → Schermo. La scelta resta all'amministratrice tramite la
+ * configurazione KefinTweaks (Default Skin + Enable/Disable Skins), che è anche la via di rollback.
+ */
+body:not(.dashboardDocument) [data-kefin-custom-menu-top-right*='toggleAppearancePopover'],
+body:not(.dashboardDocument) .kefin-appearance-popover,
+body:not(.dashboardDocument) [data-modal-id='appearance-popover'],
+body:not(.dashboardDocument) :is(.fldSkin, .fldColorSchemes) {
+  display: none;
+}
+
+/*
+ * Navbar essenziale per scelta della proprietaria:
+ * - breadcrumb di KefinTweaks (Shows / Titolo / Stagioni) sotto la barra: nascosti; la navigazione resta
+ *   affidata a navbar, link «serie» nell'hero e cronologia del browser;
+ * - pulsante «Active Streams» di Jellyfin Enhanced (chi sta guardando cosa): tolto dalla barra.
+ * Per spegnerli alla fonte: KefinTweaks → script «breadcrumbs»; JE → «Active Streams».
+ */
+body:not(.dashboardDocument) :is(#je-active-streams, #je-active-streams-panel) {
+  display: none;
+}
+
+/* I breadcrumb ricevono `style.display = 'block'` inline da breadcrumbs.js: serve !important. */
+/* stylelint-disable declaration-no-important */
+body:not(.dashboardDocument) :is(#kefinTweaks-breadcrumbs-wrapper, #kefinTweaks-popover-container) {
+  display: none !important;
+}
+/* stylelint-enable declaration-no-important */

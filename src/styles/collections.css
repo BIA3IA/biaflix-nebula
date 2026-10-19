@@ -70,3 +70,16 @@
 html.nebula-hub-mode body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root {
   display: none;
 }
+
+/* Pannello «La mia watchlist» (pulsante segnalibro nella navbar) */
+.nebula-dialog--watchlist {
+  width: min(1100px, 100%);
+}
+
+.nebula-watchlist-grid.itemsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(46%, 150px), 1fr));
+  gap: var(--nebula-space-5) var(--nebula-space-4);
+  margin: 0;
+  padding: 4px 2px;
+}

@@ -172,3 +172,42 @@ test.describe('Layout', () => {
     await page.keyboard.press('Escape');
   });
 });
+
+test.describe('Navbar: watchlist e categorie home', () => {
+  test('pulsante «La mia watchlist» apre il pannello con i titoli in watchlist', async ({ page }, info) => {
+    const s = await sessionFor('viewer');
+    const id = await movieId(s, 'Comfort Club');
+    await apiCall(s, 'POST', `/UserItems/${id}/Rating?userId=${s.userId}&likes=true`);
+    await installNebula(page, s);
+    await gotoHome(page);
+    await page.getByRole('button', { name: 'La mia watchlist' }).click();
+    const dlg = page.getByRole('dialog', { name: 'La mia watchlist' });
+    await expect(dlg.locator('.nebula-card', { hasText: 'Comfort Club' })).toBeVisible();
+    await page.screenshot({ path: `test-results/screenshots/watchlist-panel-${info.project.name}.png` });
+    // Aprire il titolo chiude il pannello e porta ai dettagli.
+    await dlg.locator('.nebula-card', { hasText: 'Comfort Club' }).locator('a.nebula-card__media').click();
+    await expect(page).toHaveURL(/#\/details\?id=/);
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await apiCall(s, 'DELETE', `/UserItems/${id}/Rating?userId=${s.userId}`);
+  });
+
+  test('categorie KefinTweaks nella barra: un solo controllo, comanda la home', async ({ page }, info) => {
+    const s = await sessionFor('viewer');
+    await installNebula(page, s);
+    await gotoHome(page);
+    const group = page.getByRole('group', { name: 'Sezioni della home' });
+    await expect(group).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('#kefin-home-category-rail .kefin-home-category-rail').filter({ visible: true })).toHaveCount(0);
+    const buttons = group.getByRole('button');
+    await expect(buttons).toHaveCount(2);
+    await buttons.nth(1).click();
+    await expect(buttons.nth(1)).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#kefin-home-category-rail')).toHaveAttribute('data-category', 'discovery');
+    await page.screenshot({
+      path: `test-results/screenshots/navbar-categories-${info.project.name}.png`,
+      clip: { x: 0, y: 0, width: Math.min(1366, page.viewportSize()!.width), height: 110 },
+    });
+    await page.goto('/web/#/search');
+    await expect(group).toHaveCount(0);
+  });
+});

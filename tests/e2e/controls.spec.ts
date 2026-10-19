@@ -115,3 +115,16 @@ test.describe('Jellyfin Enhanced', () => {
       .not.toContain('{{icon:');
   });
 });
+
+test.describe('Tema unico', () => {
+  test('nessun selettore di skin (pulsante Aspetto) e niente Active Streams in navbar', async ({ page }) => {
+    const s = await sessionFor('viewer');
+    await installNebula(page, s);
+    await page.goto('/web/#/home');
+    await expect(page.locator('html.nebula-active')).toHaveCount(1, { timeout: 20_000 });
+    await page.waitForFunction(() => getComputedStyle(document.documentElement).getPropertyValue('--biaflix-nebula').trim() === '1');
+    await expect(page.locator('[data-kefin-custom-menu-top-right*="toggleAppearancePopover"]').filter({ visible: true })).toHaveCount(0);
+    // Navbar essenziale: niente «Active Streams» di JE.
+    await expect(page.locator('#je-active-streams').filter({ visible: true })).toHaveCount(0);
+  });
+});

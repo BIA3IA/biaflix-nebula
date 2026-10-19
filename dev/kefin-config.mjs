@@ -37,7 +37,16 @@ const kefin = extract('kefin').replaceAll('KefinTweaks@latest', 'KefinTweaks@v0.
 const config = extract('KefinTweaks-Config')
   .replaceAll('KefinTweaks@latest', 'KefinTweaks@v0.5.1')
   .replace(/https:\/\/cdn\.jsdelivr\.net\/gh\/BIA3IA\/biaflix-nebula@v[\d.]+\/dist\/nebula\.css/g, `${BASE}/__nebula/nebula.css`);
-const injector = extract('KefinTweaks-injector');
+// --kefin-watchlist: prova locale della Watchlist KefinTweaks (in produzione è spenta).
+const config2 = process.argv.includes('--kefin-watchlist') ? config.replace('"watchlist": false', '"watchlist": true') : config;
+const injectorBase = extract('KefinTweaks-injector');
+// Con --kefin-watchlist aggiunge all'iniettore precompilato i file che la UI di KefinTweaks includerebbe.
+const injector = process.argv.includes('--kefin-watchlist')
+  ? injectorBase.replace(
+      '{"kind":"js","path":"skinManager.js","name":"skinManager"}',
+      '{"kind":"js","path":"skinManager.js","name":"skinManager"},{"kind":"js","path":"thirdparty/chartjs/chart.js","name":"chartjs"},{"kind":"js","path":"statistics.js","name":"statistics"},{"kind":"css","path":"watchlist.css","name":"watchlist"},{"kind":"js","path":"watchlist.js","name":"watchlist"}',
+    )
+  : injectorBase;
 const nebula = readFileSync(new URL('../dist/js-injector-snippet.js', import.meta.url), 'utf8').replace(
   /https:\/\/cdn\.jsdelivr\.net\/gh\/BIA3IA\/biaflix-nebula@v[\d.]+\/dist\/nebula\.js/,
   `${BASE}/__nebula/nebula.js`,
@@ -49,7 +58,7 @@ const url = `${BASE}/Plugins/${JS_INJECTOR}/Configuration`;
 const cfg = await (await fetch(url, { headers })).json();
 cfg.CustomJavaScripts = [
   { Name: 'kefin', Script: kefin, Enabled: true, RequiresAuthentication: false },
-  { Name: 'KefinTweaks-Config', Script: config, Enabled: true, RequiresAuthentication: false },
+  { Name: 'KefinTweaks-Config', Script: config2, Enabled: true, RequiresAuthentication: false },
   { Name: 'KefinTweaks-injector', Script: injector, Enabled: true, RequiresAuthentication: false },
   { Name: 'BiaFlix Nebula', Script: nebula, Enabled: true, RequiresAuthentication: false },
 ];

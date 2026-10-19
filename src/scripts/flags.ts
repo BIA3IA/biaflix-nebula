@@ -26,6 +26,8 @@ export interface NebulaFlags {
   detailActions: boolean;
   collectionsHub: boolean;
   collectionManage: boolean;
+  /** Nessuno screensaver di Jellyfin dopo l'inattività (default: disattivato). */
+  disableScreensaver: boolean;
   /** Lingua UI: 'auto' segue la lingua del browser. */
   locale: 'auto' | 'it' | 'en';
   debug: boolean;
@@ -45,6 +47,7 @@ export const DEFAULT_FLAGS: Readonly<NebulaFlags> = Object.freeze({
   detailActions: true,
   collectionsHub: true,
   collectionManage: true,
+  disableScreensaver: true,
   locale: 'auto',
   debug: false,
 });

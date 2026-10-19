@@ -316,3 +316,16 @@ body:not(.dashboardDocument) .MuiDrawer-paper :is(.jellyfinEnhancedSection, [dat
     transform: translateX(-50%);
   }
 }
+
+/* Su mobile la Watchlist è nella barra in basso: la navbar resta essenziale (niente sovrapposizioni a 320px). */
+@media (width < 900px) {
+  html.nebula-has-bottomnav .nebula-nav-watchlist {
+    display: none;
+  }
+
+  .nebula-bottomnav button.nebula-bottomnav__item {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+}

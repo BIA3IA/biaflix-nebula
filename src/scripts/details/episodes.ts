@@ -69,7 +69,8 @@ function episodeCard(ctx: NebulaContext, ep: BaseItem, opts: { current: boolean;
       h('a', { class: 'nep__link', href, tabindex: '-1', 'aria-hidden': 'true' }, thumb),
       pct && pct < 100 ? h('div', { class: 'nebula-progress' }, h('span', { class: 'nebula-progress__bar', style: `width:${pct}%` })) : null,
       ep.UserData?.Played ? h('span', { class: 'nep__badge', title: t('watched') }, icon('check')) : null,
-      opts.next ? h('span', { class: 'nebula-chip nep__next' }, t('nextUp')) : null,
+      opts.next ? h('span', { class: 'nep__next' }, icon('play_arrow'), t('nextUp')) : null,
+      opts.current ? h('span', { class: 'nep__next nep__next--current' }, icon('visibility'), t('nowWatching')) : null,
       playBtn,
     ),
     h(

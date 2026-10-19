@@ -15,6 +15,7 @@ import { PlaylistService } from './playlist';
 import { isSkinLinkPresent, watchSkin } from './skin-detect';
 import { WatchlistService } from './watchlist';
 import { installBottomNav } from './features/bottom-nav';
+import { installNavbarExtras } from './features/navbar-extras';
 import { installNativeCardActions } from './features/card-actions';
 import { collectionsHubFeature } from './features/collections-hub';
 import { detailsFeature } from './features/details';
@@ -25,6 +26,7 @@ import { closeAllDialogs } from './ui/dialog';
 import { installGlassSelect } from './ui/glass-select';
 import { installTooltips } from './ui/tooltip';
 import { installJeIconTokenFix } from './compat/je-icon-tokens';
+import { disableScreensaver } from './compat/no-screensaver';
 import { removeToasts } from './ui/toast';
 import { installWatchlistSync } from './ui/watchlist-button';
 
@@ -86,8 +88,10 @@ function boot(): void {
       );
       const cleanups = [applyShell(), installWatchlistSync(), installNativeCardActions(ctx), installGlassSelect(), installTooltips(), installJeIconTokenFix()];
       lifecycle.start();
+      if (flags.disableScreensaver) disableScreensaver(user.Id);
       // Barra in basso solo nel layout Modern (le route di libreria legacy differiscono).
       if (isModernLayout()) {
+        cleanups.push(installNavbarExtras(ctx));
         void installBottomNav(ctx).then((cleanup) => {
           if (gen === generation) cleanups.push(cleanup);
           else cleanup();
