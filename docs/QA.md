@@ -1,5 +1,19 @@
 # QA
 
+## Calendario Nebula (19/10/2026)
+
+Restyling CSS di Jellyfin Enhanced 12.12 verificato contro il plugin installato nel container locale. Eventi e user-data sono sintetici, intercettati da Playwright; nessuna istanza Sonarr/Radarr o dato di produzione viene consultato dalla suite.
+
+- `pnpm check`: typecheck, lint CSS, **55 test unitari** e build superati.
+- Prettier sui file sorgente modificati e `git diff HEAD --check`: superati.
+- `tests/e2e/calendar.spec.ts`: agenda, filtri e inversione NOT, cambio periodo/Oggi, viste giorno/settimana/mese e modalità lista/backdrop/card, stato vuoto, focus e movimento ridotto. Profili Firefox 1920×1080, Chromium 1366×768, mobile 390×844; matrice aggiuntiva agenda/mese a 320/600/768/900/1024/1450/1920px.
+- Esecuzione finale sequenziale: **32 E2E superati, 7 saltati per profilo, 0 falliti**, con `pnpm exec playwright test tests/e2e/calendar.spec.ts tests/e2e/home.spec.ts tests/e2e/responsive.spec.ts --grep-invert 'Navbar responsive'`. Include **10 verifiche calendario**, 12 homepage e 10 dettagli responsive. Il test navbar escluso ha un difetto preesistente verificato separatamente (vedi sotto).
+- Screenshot esaminati in `test-results/screenshots/calendar-{agenda,month,empty}-*.png`. La chiusura dei filtri attende la fine della transizione CSS prima della cattura.
+
+**Problema preesistente rilevato nella suite allargata:** nella homepage, la navbar a 320px sovrappone «Discover» e «Altro da Jellyfin Enhanced». Riprodotto con `NEBULA_DIST` puntato a una copia di `dist/` con il CSS originale di `HEAD`, nel test `Navbar responsive` su Firefox. Il calendario non modifica i selettori della navbar.
+
+**Limiti:** testata la pagina dedicata con renderer reale; navigazione Native Tab/Plugin Pages, Safari/iOS, dispositivi fisici e integrazione effettiva Sonarr/Radarr non verificati. Le prime esecuzioni E2E sovrapposte hanno prodotto fallimenti di autenticazione nell'ambiente locale (schermata di login al posto della home); la successiva esecuzione in un unico processo è passata.
+
 ## v0.2.0: pagina dettagli e responsive (19/10/2026)
 
 **Ambiente:** Jellyfin 12.2 locale con gli **stessi plugin della produzione** (`pnpm dev:plugins`): KefinTweaks 0.5.1 con la tua configurazione pubblica, Jellyfin Enhanced 12.12.0.0, JS Injector 4.0.0.0, File Transformation 3.0.2.0, Plugin Pages 3.0.2.0. I media sintetici sono stati arricchiti (`dev/enrich-media.sh`, `dev/people-images.mjs`): cast di 14 persone (metà senza foto), regia, studi, 12 tag, seconda stagione, logo, film senza backdrop.

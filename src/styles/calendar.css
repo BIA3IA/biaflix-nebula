@@ -1,0 +1,327 @@
+/*
+ * Jellyfin Enhanced 12.12 — calendario (pagina, Native Tab e Plugin Pages).
+ * Solo presentazione: renderer, dati, filtri e azioni restano del plugin.
+ * Classi verificate sui moduli calendar-page-{styles,render-views,render-events}.js.
+ */
+body:not(.dashboardDocument) .je-calendar-page {
+  --je-gray: var(--nebula-glass-highlight);
+  --je-gray-hover: var(--nebula-surface-hover);
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--nebula-content-max);
+  margin-inline: auto;
+  padding: var(--nebula-space-5) var(--nebula-content-gutter) var(--nebula-space-7);
+  color: var(--nebula-text);
+}
+
+/* Il wrapper esterno JE riceve già il gutter in plugin-compat.css: evita margini doppi. */
+body:not(.dashboardDocument) #je-calendar-page {
+  padding-inline: 0;
+}
+
+body:not(.dashboardDocument) .je-calendar-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--nebula-space-5) var(--nebula-space-4);
+  margin-bottom: var(--nebula-space-5);
+  padding-top: var(--nebula-space-4);
+}
+
+body:not(.dashboardDocument) .je-calendar-title {
+  grid-column: 1 / -1;
+  min-width: 0;
+  font: 800 clamp(26px, 3.2vw, 46px) / 1.15 var(--nebula-font-display);
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+body:not(.dashboardDocument) .je-calendar-actions {
+  position: static;
+  width: auto;
+  min-width: 0;
+  flex-direction: row;
+  transform: none;
+}
+
+body:not(.dashboardDocument) .je-calendar-actions-right {
+  margin-left: 0;
+  justify-content: flex-end;
+}
+
+body:not(.dashboardDocument) :is(.je-calendar-nav, .je-calendar-nav-group) {
+  gap: var(--nebula-space-2);
+  margin: 0;
+}
+
+body:not(.dashboardDocument) :is(.je-calendar-mode-toggle, .je-calendar-filter-toggle) {
+  padding: var(--nebula-space-1);
+  border: 1px solid var(--nebula-glass-border);
+  background: var(--nebula-glass-bg);
+  box-shadow: var(--nebula-inner-light);
+}
+
+body:not(.dashboardDocument)
+  :is(.je-calendar-nav-btn, .je-calendar-view-btn, .je-calendar-mode-btn, .je-calendar-filter-btn, .je-calendar-filter-invert, .je-calendar-sidebar-toggle) {
+  box-sizing: border-box;
+  min-width: var(--nebula-touch-target);
+  min-height: var(--nebula-touch-target);
+  height: auto;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-glass-bg);
+  color: var(--nebula-text-muted);
+  font: 600 var(--nebula-text-sm) / 1.2 var(--nebula-font-body);
+  opacity: 1;
+  transition:
+    background-color var(--nebula-fast) var(--nebula-ease),
+    border-color var(--nebula-fast) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument) :is(.je-calendar-mode-btn, .je-calendar-filter-btn) {
+  border-color: transparent;
+  background: transparent;
+}
+
+body:not(.dashboardDocument) :is(.je-calendar-nav-btn.je-calendar-nav-today, .je-calendar-view-btn, .je-calendar-sidebar-toggle) {
+  padding: var(--nebula-space-2) var(--nebula-space-4);
+}
+
+body:not(.dashboardDocument)
+  :is(
+    .je-calendar-nav-btn,
+    .je-calendar-view-btn,
+    .je-calendar-mode-btn,
+    .je-calendar-filter-btn,
+    .je-calendar-filter-invert,
+    .je-calendar-sidebar-toggle
+  ):hover {
+  background: var(--nebula-surface-hover);
+  color: var(--nebula-text);
+}
+
+body:not(.dashboardDocument) .je-calendar-nav-btn:not(.je-calendar-nav-today) {
+  font-size: 24px;
+}
+
+/* JE inietta i colori con !important anche dopo il caricamento della skin. */
+/* stylelint-disable declaration-no-important */
+
+/* La pagina dedicata aggiunge 5em inline oltre allo spazio già riservato alla navbar. */
+body:not(.dashboardDocument) #je-calendar-page #je-calendar-container {
+  padding-top: 0 !important;
+}
+
+body:not(.dashboardDocument) :is(.je-calendar-view-btn, .je-calendar-mode-btn, .je-calendar-filter-btn, .je-calendar-filter-invert).active {
+  border-color: transparent !important;
+  background: var(--nebula-gradient) !important;
+  color: #fff;
+  box-shadow: var(--nebula-inner-light);
+}
+
+body:not(.dashboardDocument) .je-calendar-legend-item.active {
+  border-color: var(--nebula-primary-light) !important;
+  background: rgb(var(--nebula-primary-rgb) / 14%);
+}
+
+body:not(.dashboardDocument) .je-calendar-day.je-calendar-today {
+  border-color: rgb(var(--nebula-cyan-rgb) / 60%) !important;
+}
+
+body:not(.dashboardDocument) .je-calendar-day.je-calendar-today :is(.je-calendar-day-number, .je-calendar-day-name) {
+  color: var(--nebula-cyan) !important;
+}
+/* stylelint-enable declaration-no-important */
+
+body:not(.dashboardDocument) .je-calendar-layout {
+  gap: var(--nebula-space-5);
+}
+
+body:not(.dashboardDocument) .je-calendar-sidebar {
+  top: calc(var(--nebula-nav-top) + var(--nebula-nav-height) + var(--nebula-space-5));
+  flex: 0 0 220px;
+  min-width: 0;
+}
+
+body:not(.dashboardDocument) .je-calendar-legend.je-calendar-legend-vertical {
+  box-sizing: border-box;
+  width: 100%;
+  gap: var(--nebula-space-1);
+  padding: var(--nebula-space-3);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-lg);
+  background: var(--nebula-glass-bg);
+  box-shadow: var(--nebula-shadow-soft), var(--nebula-inner-light);
+  backdrop-filter: var(--nebula-glass-filter);
+}
+
+body:not(.dashboardDocument) .je-calendar-filter-controls {
+  padding-bottom: var(--nebula-space-3);
+  margin-bottom: var(--nebula-space-1);
+  border-bottom: 1px solid var(--nebula-glass-border);
+}
+
+body:not(.dashboardDocument) .je-calendar-legend-item {
+  box-sizing: border-box;
+  min-height: var(--nebula-touch-target);
+  border-radius: var(--nebula-radius-sm);
+  color: var(--nebula-text);
+}
+
+body:not(.dashboardDocument) .je-calendar-legend-item.inactive {
+  opacity: 0.6;
+}
+
+body:not(.dashboardDocument) .je-calendar-agenda {
+  gap: var(--nebula-space-3);
+  padding: 0;
+  overflow: visible;
+}
+
+body:not(.dashboardDocument) .je-calendar-agenda-row {
+  gap: var(--nebula-space-4);
+  padding: var(--nebula-space-4);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-lg);
+  background: var(--nebula-glass-bg);
+  box-shadow: var(--nebula-inner-light);
+}
+
+body:not(.dashboardDocument) .je-calendar-agenda-date {
+  box-sizing: border-box;
+  min-width: 120px;
+  padding: var(--nebula-space-3) var(--nebula-space-2);
+  color: var(--nebula-primary-light);
+  font: 700 var(--nebula-text-sm) / 1.4 var(--nebula-font-body);
+  opacity: 1;
+}
+
+body:not(.dashboardDocument) .je-calendar-agenda-events {
+  min-width: 0;
+}
+
+body:not(.dashboardDocument) .je-calendar-agenda-event {
+  gap: var(--nebula-space-3);
+  padding: var(--nebula-space-3);
+  border-radius: var(--nebula-radius-md);
+  background: var(--nebula-glass-highlight);
+}
+
+body:not(.dashboardDocument) .je-calendar-agenda-indicators {
+  min-width: 24px;
+  flex-wrap: wrap;
+}
+
+body:not(.dashboardDocument) .je-calendar-agenda-event-marker {
+  height: 48px;
+}
+
+body:not(.dashboardDocument) .je-calendar-agenda-title-text {
+  font-size: var(--nebula-text-md);
+  line-height: 1.4;
+  max-height: 2.8em;
+  -webkit-line-clamp: 2;
+}
+
+body:not(.dashboardDocument) :is(.je-calendar-agenda-subtitle, .je-calendar-agenda-event-meta) {
+  color: var(--nebula-text-muted);
+  opacity: 1;
+}
+
+body:not(.dashboardDocument) :is(.je-calendar-day, .je-calendar-card) {
+  border-radius: var(--nebula-radius-md);
+  background-color: var(--nebula-glass-bg);
+  box-shadow: var(--nebula-inner-light);
+}
+
+body:not(.dashboardDocument) .je-calendar-day {
+  border: 1px solid var(--nebula-glass-border);
+  overflow: hidden;
+}
+
+body:not(.dashboardDocument) .je-calendar-day-header {
+  padding: var(--nebula-space-3);
+  border-color: var(--nebula-glass-border);
+}
+
+body:not(.dashboardDocument) .je-calendar-event {
+  border-radius: var(--nebula-radius-sm);
+}
+
+body:not(.dashboardDocument) .je-calendar-empty {
+  padding: var(--nebula-space-7) var(--nebula-space-5);
+  border: 1px dashed var(--nebula-glass-border-strong);
+  border-radius: var(--nebula-radius-lg);
+  background: var(--nebula-glass-bg);
+  color: var(--nebula-text-muted);
+  opacity: 1;
+}
+
+/* JE passa alle date compatte a 1450px: manteniamo lo stesso breakpoint. */
+@media (width <= 1450px) {
+  body:not(.dashboardDocument) .je-calendar-sidebar {
+    flex: 0 0 auto;
+  }
+
+  body:not(.dashboardDocument) .je-calendar-legend.je-calendar-legend-vertical {
+    justify-content: flex-start;
+    gap: var(--nebula-space-2);
+  }
+}
+
+@media (width < 900px) {
+  body:not(.dashboardDocument) .je-calendar-header {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--nebula-space-3);
+  }
+
+  body:not(.dashboardDocument) .je-calendar-actions-right {
+    justify-content: flex-start;
+  }
+
+  body:not(.dashboardDocument) .je-calendar-nav {
+    justify-content: flex-start;
+  }
+}
+
+@media (width <= 768px) {
+  body:not(.dashboardDocument) .je-calendar-page {
+    padding-inline: var(--nebula-space-4);
+  }
+
+  body:not(.dashboardDocument) .je-calendar-nav {
+    gap: var(--nebula-space-1);
+  }
+
+  body:not(.dashboardDocument) .je-calendar-mode-toggle {
+    margin-top: var(--nebula-space-2);
+  }
+
+  body:not(.dashboardDocument) .je-calendar-agenda-row {
+    padding: var(--nebula-space-3);
+    gap: var(--nebula-space-2);
+  }
+
+  body:not(.dashboardDocument) .je-calendar-agenda-date {
+    padding: var(--nebula-space-1);
+  }
+
+  body:not(.dashboardDocument) .je-calendar-agenda-events {
+    width: 100%;
+  }
+
+  body:not(.dashboardDocument) .je-calendar-agenda-event {
+    padding: var(--nebula-space-2);
+    gap: var(--nebula-space-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:not(.dashboardDocument) .je-calendar-page * {
+    transition: none;
+  }
+
+  body:not(.dashboardDocument) .je-calendar-page :is(.je-calendar-event, .je-calendar-card):hover {
+    transform: none;
+  }
+}

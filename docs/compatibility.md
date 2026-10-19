@@ -28,6 +28,14 @@ Il controller nativo di jellyfin-web resta il proprietario della pagina: Nebula 
 
 Tipi gestiti: Film, Serie, Stagione, Episodio, Raccolta. Le altre pagine (persone, musica, live TV) restano native con lo stile Nebula.
 
+## Calendario Jellyfin Enhanced
+
+`src/styles/calendar.css` uniforma il calendario JE 12.12 ai token Nebula: toolbar su due righe senza posizionamento assoluto, controlli da almeno 44px, stati attivi con gradiente, filtri glass e agenda raggruppata per data. Le viste giorno/settimana/mese mantengono i renderer e i colori semantici degli eventi del plugin. La dashboard resta esclusa.
+
+Selettori verificati sui moduli locali `calendar-page-styles.js`, `calendar-page-render-views.js` e `calendar-page-render-events.js`. Gli override `!important` sono limitati al padding inline della pagina dedicata e ai colori che JE inietta a sua volta con `!important`. Non vengono sostituiti nodi, gestori delle azioni o fonti dati.
+
+I test usano la pagina dedicata e il renderer reale con risposte sintetiche per calendario/user-data/richieste; non richiedono Sonarr/Radarr. Native Tab e Plugin Pages condividono le classi stilizzate, ma i loro percorsi di navigazione non sono coperti dalla nuova suite. Safari/iOS e touch fisico restano da verificare.
+
 ## Correttivi per difetti di plugin terzi (da rimuovere quando corretti a monte)
 
 | Plugin                  | Difetto                                                                                                        | Correttivo Nebula                                                                                                               |
