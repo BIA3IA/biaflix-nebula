@@ -60,29 +60,29 @@ test('hero in evidenza sopravvive al ridisegno nativo della home', async ({ page
   await page.screenshot({ path: `test-results/screenshots/mobile-featured-${info.project.name}.png` });
 });
 
-test('barra inferiore sempre nel viewport, anche dopo scroll e ritorno in cima', async ({ page }, info) => {
+test('menu laterale: unica navigazione mobile, con la Watchlist', async ({ page }, info) => {
   const s = await sessionFor('viewer');
   await installNebula(page, s);
   await gotoHome(page);
-  const nav = page.locator('.nebula-bottomnav');
-  await expect(nav).toBeVisible();
-  for (const position of [0, 1400, 100000, 0]) {
-    await page.evaluate((y) => window.scrollTo(0, y), position);
-    const box = (await nav.boundingBox())!;
-    expect(box.y).toBeGreaterThanOrEqual(0);
-    expect(box.y + box.height).toBeLessThanOrEqual(844);
-    await expect(nav.locator('[data-key="home"]')).toBeInViewport();
-    await expect(nav.locator('[data-key="watchlist"]')).toBeInViewport();
-  }
-  await page.setViewportSize({ width: 390, height: 620 });
-  expect((await nav.boundingBox())!.y + (await nav.boundingBox())!.height).toBeLessThanOrEqual(620);
-  await page.setViewportSize({ width: 390, height: 844 });
-  await nav.locator('[data-key="watchlist"]').click();
+  await expect(page.locator('.nebula-bottomnav')).toHaveCount(0);
+  await page.locator('header.MuiAppBar-root button.MuiIconButton-root').first().click();
+  const drawer = page.locator('.MuiDrawer-paper');
+  for (const href of ['#/home', '#/home?tab=1', '#/home?nebula=watchlist']) await expect(drawer.locator(`a[href="${href}"]`)).toBeVisible();
+  for (const kind of ['movies', 'tvshows', 'boxsets']) await expect(drawer.locator(`a[href*="collectionType=${kind}"]`)).toBeVisible();
+  // «Watchlist» subito dopo «Preferiti».
+  expect(await drawer.locator('.nebula-drawer-watchlist').evaluate((li) => li.previousElementSibling?.querySelector('a')?.getAttribute('href'))).toBe(
+    '#/home?tab=1',
+  );
+  await page.screenshot({ path: `test-results/screenshots/mobile-drawer-${info.project.name}.png` });
+  await drawer.locator('.nebula-drawer-watchlist a').click();
+  await expect(drawer).toBeHidden();
   await expect(page.locator('.nebula-watchlist-page')).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.locator('header.MuiAppBar-root button.MuiIconButton-root').first().click();
+  await expect(drawer.locator('.nebula-drawer-watchlist a')).toHaveAttribute('aria-current', 'page');
+  await page.keyboard.press('Escape');
   await page.goBack();
   await expect(page.locator('.nebula-watchlist-page')).toHaveCount(0);
-  await page.screenshot({ path: `test-results/screenshots/mobile-home-${info.project.name}.png` });
 });
 
 test('dettagli serie: etichetta Riproduci e codice episodio distanziati', async ({ page }, info) => {

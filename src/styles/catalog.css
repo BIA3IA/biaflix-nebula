@@ -1,0 +1,194 @@
+/*
+ * Pagine catalogo Nebula: Film, Serie TV, Preferiti, Watchlist, Raccolte e Playlist.
+ * Stessa intestazione, stessa barra filtri e stessa griglia a ogni larghezza (vedi ui/catalog.ts).
+ */
+
+/* La pagina ospite (home, libreria) mostra solo il catalogo; la vista nativa resta nel DOM come fallback. */
+.nebula-catalog-active > :not(.nebula-catalog) {
+  display: none;
+}
+
+/*
+ * Con il catalogo pronto la seconda riga della navbar (selettore vista «Film ▾», contatore, riproduci,
+ * filtri, ordinamento, paginazione) sarebbe un doppione: la nascondiamo. Torna se il catalogo fallisce.
+ */
+html.nebula-catalog-mode body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root {
+  display: none;
+}
+
+.nebula-catalog {
+  display: grid;
+  gap: var(--nebula-space-5);
+  min-width: 0;
+  padding: var(--nebula-space-6) var(--nebula-content-gutter) var(--nebula-space-7);
+}
+
+.nebula-catalog [hidden] {
+  display: none;
+}
+
+.nebula-catalog__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--nebula-space-4);
+}
+
+.nebula-catalog__heading {
+  min-width: 0;
+}
+
+.nebula-catalog__titlerow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nebula-space-3);
+}
+
+.nebula-catalog__title {
+  margin: 0;
+  font: 800 clamp(30px, 3.2vw, 46px) / 1.1 var(--nebula-font-display);
+  letter-spacing: -0.02em;
+  background: linear-gradient(120deg, #fff 30%, var(--nebula-primary-light) 70%, var(--nebula-cyan) 100%);
+  background-clip: text;
+  color: transparent;
+  overflow-wrap: anywhere;
+}
+
+.nebula-catalog__subtitle {
+  margin: 8px 0 0;
+  color: var(--nebula-text-muted);
+  line-height: 1.6;
+}
+
+.nebula-catalog__actions,
+.nebula-catalog__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nebula-space-3);
+}
+
+.nebula-catalog__toolbar {
+  justify-content: space-between;
+}
+
+.nebula-catalog__filters {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nebula-catalog__sort {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.nebula-catalog__select.nebula-input {
+  width: auto;
+  min-width: 200px;
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-glass-bg);
+  cursor: pointer;
+  appearance: none;
+}
+
+.nebula-catalog__grid.itemsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
+  gap: var(--nebula-space-5) var(--nebula-space-4);
+  margin: 0;
+  padding: 0;
+}
+
+.nebula-catalog__grid .nebula-card {
+  width: 100%;
+  min-width: 0;
+}
+
+.nebula-catalog__status {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--nebula-space-3);
+  min-height: 240px;
+  padding: var(--nebula-space-5);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-xl);
+  background: var(--nebula-glass-bg);
+  color: var(--nebula-text-muted);
+  text-align: center;
+}
+
+.nebula-catalog__status > .nebula-icon {
+  color: var(--nebula-primary-light);
+  font-size: 36px;
+}
+
+.nebula-catalog__status p {
+  max-width: 44ch;
+  margin: 0;
+  line-height: 1.7;
+}
+
+.nebula-catalog__more {
+  justify-self: center;
+}
+
+.nebula-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Telefono: titolo e azioni impilati in modo compatto, filtri e ordinamento su una riga ciascuno. */
+@media (width < 600px) {
+  .nebula-catalog {
+    gap: var(--nebula-space-4);
+  }
+
+  .nebula-catalog__header {
+    align-items: flex-start;
+    gap: var(--nebula-space-3);
+  }
+
+  .nebula-catalog__actions {
+    width: 100%;
+    gap: var(--nebula-space-2);
+  }
+
+  .nebula-catalog__actions .nebula-btn {
+    flex: 1 1 0;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .nebula-catalog__toolbar {
+    gap: var(--nebula-space-2);
+  }
+
+  .nebula-catalog__filters {
+    width: 100%;
+  }
+
+  .nebula-catalog__sort {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .nebula-catalog__select.nebula-input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .nebula-catalog__grid.itemsContainer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--nebula-space-4) var(--nebula-space-3);
+  }
+}

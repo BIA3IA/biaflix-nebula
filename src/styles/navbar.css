@@ -121,6 +121,19 @@ body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) + div[
   min-height: calc(var(--nebula-nav-height) + var(--nebula-nav-top) + 8px);
 }
 
+/*
+ * Player (#/video) e route senza toolbar: jellyfin-web lascia l'AppBar montata ma vuota (0px) e lo spacer
+ * a 0px. Senza queste regole la barra flottante resta come linea sopra il video e lo spacer spinge
+ * l'header del player 86px più in basso (striscia chiara in alto, video «scurito» sotto).
+ */
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar):empty {
+  display: none;
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar):empty + div[aria-hidden='true'] {
+  min-height: 0;
+}
+
 /* Layout legacy (best effort): stessa barra glass sull'header storico. */
 .nebula-layout-legacy body:not(.dashboardDocument) .skinHeader:not(.osdHeader) {
   background: var(--nebula-glass-strong);

@@ -273,7 +273,7 @@ start()
  │   ]
  ├─ lifecycle.start()
  ├─ se disableScreensaver → disableScreensaver(user.Id)
- ├─ se layout Modern → installNavbarExtras(ctx), installBottomNav(ctx)
+ ├─ se layout Modern → installNavbarExtras(ctx), installDrawerExtras()
  ├─ ascolta 'viewshow': se utente/token cambiano (logout, cambio utente) → stop() + start()
  └─ state = 'running'
 ```
@@ -284,7 +284,7 @@ cambio pagina**: Jellyfin intanto funziona normalmente.
 **Perché la "generation".** `start()` è asincrona: tra l'attesa della sessione e la risposta di
 `/Users/Me` l'utente potrebbe aver cambiato skin (→ `stop()`). Ogni `stop()` incrementa `generation`;
 quando `start()` si risveglia confronta il suo biglietto `gen` con quello attuale e, se diverso, si
-ritira senza montare nulla. Stesso trucco per `installBottomNav`, che è asincrona.
+ritira senza montare nulla.
 
 ### 6.4 `stop()` — spegnimento pulito
 
@@ -363,8 +363,10 @@ Punti chiave:
 | `details`         | `details`                        | [features/details.ts](../src/scripts/features/details.ts)                                      |
 | `collections-hub` | `boxsets`, `playlists`           | [features/collections-hub.ts](../src/scripts/features/collections-hub.ts)                      |
 | `watchlist-page`  | `home` (con `?nebula=watchlist`) | [features/watchlist-page.ts](../src/scripts/features/watchlist-page.ts)                        |
+| `favorites-page`  | `home` (con `?tab=1`)            | [features/catalog-pages.ts](../src/scripts/features/catalog-pages.ts)                          |
+| `library-pages`   | `movies`, `tv`                   | [features/catalog-pages.ts](../src/scripts/features/catalog-pages.ts)                          |
 
-Le funzioni **globali** (navbar, barra in basso, tooltip, select, azioni card) non sono feature di route:
+Le funzioni **globali** (navbar, menu laterale, tooltip, select, azioni card) non sono feature di route:
 sono installate una volta in `start()` e reagiscono da sole a tutta la SPA.
 
 ---
@@ -406,13 +408,39 @@ URL: `#/home?nebula=watchlist` (costante `WATCHLIST_HREF` in [watchlist.ts](../s
 «siamo nella watchlist?»; hero e rail lo usano per **non** montarsi in quella vista, e il CSS
 (`.nebula-watchlist-active`) nasconde il contenuto normale della home.
 
-Flusso: crea sezione con titolo, contatore, «Aggiorna», griglia, «Carica altri» (60 alla volta) →
-`ctx.watchlist.list(limit)` → card poster native-actionable → si aggiorna a ogni `WATCHLIST_CHANGED`.
+Flusso: pagina catalogo (§8.4) con filtro Tutti/Film/Serie e ordinamento →
+`ctx.watchlist.list(limit, { startIndex, … })` → card poster native-actionable → si aggiorna a ogni
+`WATCHLIST_CHANGED`.
 
 Ci si arriva dal link «Watchlist» nella navbar (≥ 900 px, [navbar-extras.ts](../src/scripts/features/navbar-extras.ts))
-o dalla barra in basso (< 900 px, [bottom-nav.ts](../src/scripts/features/bottom-nav.ts)).
+o dalla voce «Watchlist» del menu laterale (< 900 px, [drawer-extras.ts](../src/scripts/features/drawer-extras.ts)).
 
-### 8.4 Pagina dettagli (`features/details.ts` + `details/*`)
+### 8.4 Pagine catalogo: Film, Serie TV, Preferiti (`features/catalog-pages.ts` + `ui/catalog.ts`)
+
+Film, Serie TV, Preferiti, Watchlist, Raccolte e Playlist hanno **la stessa impaginazione**: titolo in
+gradiente con contatore accanto, sottotitolo, azioni, barra con filtri (pillola) e ordinamento (select glass),
+griglia, «Carica altri». Il componente è `createCatalog` in [ui/catalog.ts](../src/scripts/ui/catalog.ts):
+
+```
+createCatalog({ title, filters, sorts, load({startIndex, limit, filter, sort}), card, stateKey })
+ ├─ primo caricamento: load({ startIndex: 0, limit: max(60, quantità ricordata) })
+ ├─ filtro/ordinamento cambiati → ricarica da zero; «Carica altri» → load({ startIndex: mostrati, limit: 60 }) e accoda
+ ├─ risposte superate (l'utente ha già cambiato filtro) → ignorate, contatore di richiesta
+ └─ destroy(): salva in sessionStorage filtro, ordinamento, quantità e scroll → tornando indietro da un
+    dettaglio si ritrova la stessa posizione
+```
+
+- **Film e Serie** (`#/movies`, `#/tv`): `GET /Items?parentId=<libreria>` con filtri Tutti / Da vedere /
+  In corso (solo film) / Visti. «Riproduci tutti» e «Casuale» cliccano i pulsanti della toolbar nativa
+  (stessa logica di Jellyfin). Con il catalogo pronto, `html.nebula-catalog-mode` nasconde la seconda riga
+  della navbar (selettore «Film ▾», contatore, filtri e paginazione MUI). **Se il primo caricamento fallisce
+  si torna alla vista nativa** con la sua toolbar.
+- **Preferiti** (`#/home?tab=1`): `GET /Items?filters=IsFavorite`, filtro Tutti/Film/Serie TV/Episodi.
+- **Race risolta:** `hashchange` e `viewshow` ravvicinati smontano la prima istanza mentre aspetta i dati.
+  Quando quella finisce non deve togliere le classi condivise alla seconda: `setCatalogMode(false)` e
+  `hostCatalog` le rimuovono solo se nessun altro catalogo è ancora nel documento.
+
+### 8.5 Pagina dettagli (`features/details.ts` + `details/*`)
 
 È la feature più complessa. Principio: **il controller nativo di Jellyfin resta il padrone**. Nebula
 aggiunge blocchi propri e nasconde (via CSS) le sezioni native che sostituisce, ma non le cancella.
@@ -445,31 +473,35 @@ Il menu «Altre azioni» elenca i pulsanti nativi visibili _in quel momento_ (pr
 menu «…», pulsanti aggiunti da KefinTweaks/JE…) e ciascuna voce clicca il pulsante originale. Risultato:
 nessuna logica duplicata, e se un plugin aggiunge un pulsante, compare da solo nel menu.
 
-### 8.5 Hub raccolte (`features/collections-hub.ts`)
+### 8.6 Raccolte e Playlist (`features/collections-hub.ts`)
 
-Su `#/boxsets` e `#/playlists` (layout Modern): griglia editoriale con filtro Tutte/Raccolte/Playlist e
-«+ Nuova raccolta». **La griglia nativa viene nascosta solo dopo che l'hub è stato disegnato con successo**:
-se il caricamento fallisce, l'utente vede la pagina standard di Jellyfin.
+Due pagine distinte con l'intestazione del catalogo e griglia 16:9 con collage: `#/boxsets` mostra **solo
+le raccolte** (azione «Nuova raccolta», per chi ha il permesso), `#/playlists` **solo le playlist** (azione
+«Nuova playlist»). Niente selettore Tutte/Raccolte/Playlist: la navbar ha già la voce Playlist.
+**La griglia nativa viene nascosta solo dopo che la pagina è stata disegnata con successo**: se il
+caricamento fallisce, l'utente vede la pagina standard di Jellyfin.
 
-### 8.6 Dialog raccolte (`features/collection-dialogs.ts`)
+### 8.7 Dialog raccolte e playlist (`features/collection-dialogs.ts` + `ui/title-picker.ts`)
 
-Crea raccolta (ricerca multi-selezione film+serie con `ui/title-picker.ts`), «Aggiungi a…» (raccolte e
-playlist con spunta), gestisci. Ogni azione chiama le API reali e mostra **l'esito confermato dal server**
+Crea raccolta / playlist, «Aggiungi a…» (raccolte e playlist con spunta), gestisci. Il selettore titoli si
+apre **già con la libreria** (ultimi aggiunti) in una griglia di locandine: si sfoglia o si cerca dal primo
+carattere, si tocca la locandina per includerla (è una checkbox reale, accessibile), filtro per tipo
+(le playlist hanno anche «Episodi»), «Carica altri», riepilogo dei selezionati con «Deseleziona tutto». Ogni azione chiama le API reali e mostra **l'esito confermato dal server**
 (vedi §10.3).
 
-### 8.7 Funzioni globali
+### 8.8 Funzioni globali
 
-| Funzione                   | File                        | Cosa fa                                                                                                                                                                                 |
-| -------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `applyShell`               | `features/shell.ts`         | Classi `nebula-active`, `nebula-layout-*` su `<html>`.                                                                                                                                  |
-| `installNavbarExtras`      | `features/navbar-extras.ts` | Logo-link Home e link «Watchlist» nella navbar MUI; li reinserisce se React ricostruisce la toolbar; tornando in home riporta KefinTweaks sulla categoria standard.                     |
-| `installBottomNav`         | `features/bottom-nav.ts`    | Barra glass in basso sotto i 900 px: Home, Film, Serie, Raccolte (se esistono), Watchlist. Link alle route vere di Jellyfin.                                                            |
-| `installNativeCardActions` | `features/card-actions.ts`  | Al primo hover/focus su una card nativa aggiunge «watchlist» e «Aggiungi a…». Solo con mouse vero; su touch resta il menu ⋮ nativo. Nessun observer: delega su `pointerover`/`focusin`. |
-| `installWatchlistSync`     | `ui/watchlist-button.ts`    | Quando un titolo entra/esce dalla watchlist, aggiorna **tutti** i pulsanti di quel titolo in pagina.                                                                                    |
-| `installGlassSelect`       | `ui/glass-select.ts`        | Intercetta l'apertura di una `<select>` e mostra un popup glass; la scelta viene scritta sulla select originale.                                                                        |
-| `installTooltips`          | `ui/tooltip.ts`             | Sposta `title` in `data-nebula-tip` e mostra un tooltip glass; al teardown ripristina il `title`.                                                                                       |
-| `installJeIconTokenFix`    | `compat/je-icon-tokens.ts`  | Vedi §12.                                                                                                                                                                               |
-| `disableScreensaver`       | `compat/no-screensaver.ts`  | Vedi §12.                                                                                                                                                                               |
+| Funzione                   | File                        | Cosa fa                                                                                                                                                                                                 |
+| -------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `applyShell`               | `features/shell.ts`         | Classi `nebula-active`, `nebula-layout-*` su `<html>`.                                                                                                                                                  |
+| `installNavbarExtras`      | `features/navbar-extras.ts` | Logo-link Home e link «Watchlist» nella navbar MUI; li reinserisce se React ricostruisce la toolbar; tornando in home riporta KefinTweaks sulla categoria standard.                                     |
+| `installDrawerExtras`      | `features/drawer-extras.ts` | Menu laterale = unica navigazione su telefono (nessuna barra in basso). Aggiunge «Watchlist» dopo «Preferiti» clonando le classi MUI della voce nativa; il drawer si chiude da solo al cambio di route. |
+| `installNativeCardActions` | `features/card-actions.ts`  | Al primo hover/focus su una card nativa aggiunge «watchlist» e «Aggiungi a…». Solo con mouse vero; su touch resta il menu ⋮ nativo. Nessun observer: delega su `pointerover`/`focusin`.                 |
+| `installWatchlistSync`     | `ui/watchlist-button.ts`    | Quando un titolo entra/esce dalla watchlist, aggiorna **tutti** i pulsanti di quel titolo in pagina.                                                                                                    |
+| `installGlassSelect`       | `ui/glass-select.ts`        | Intercetta l'apertura di una `<select>` e mostra un popup glass; la scelta viene scritta sulla select originale.                                                                                        |
+| `installTooltips`          | `ui/tooltip.ts`             | Sposta `title` in `data-nebula-tip` e mostra un tooltip glass; al teardown ripristina il `title`.                                                                                                       |
+| `installJeIconTokenFix`    | `compat/je-icon-tokens.ts`  | Vedi §12.                                                                                                                                                                                               |
+| `disableScreensaver`       | `compat/no-screensaver.ts`  | Vedi §12.                                                                                                                                                                                               |
 
 ---
 
@@ -585,9 +617,9 @@ Così i componenti non si conoscono tra loro: chi scrive annuncia, chi mostra si
 
 ```
 URL #/home  → Jellyfin mostra #indexPage e lancia 'viewshow'
-Lifecycle.apply(): path 'home' → monta route-marker, hero, home-rails, watchlist-page
+Lifecycle.apply(): path 'home' → monta route-marker, hero, home-rails, watchlist-page, favorites-page
   route-marker:   <html data-nebula-route="home">
-  watchlist-page: non è ?nebula=watchlist → non fa nulla
+  watchlist-page / favorites-page: né ?nebula=watchlist né ?tab=1 → non fanno nulla
   hero:           aspetta #homeTab → sceglie titoli via API → inserisce l'hero in cima
   home-rails:     aspetta il contenitore sezioni → inserisce 2 rail con skeleton
                   → carica raccolte+playlist e watchlist → riempie le rail
@@ -629,12 +661,16 @@ click sul segnalibro
 Piccoli interventi su difetti di terzi, ognuno isolato in un file e documentato in
 [compatibility.md](compatibility.md):
 
-| Problema                                                                                                            | Correttivo                                                                                                        |
-| ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| JE 12.12 con «Use Icons» spento mostra testi tipo `{{icon:warning}} …`                                              | `je-icon-tokens.ts` avvolge `JE.t` e toglie i segnaposto rimasti; allo stop rimette l'originale.                  |
-| Screensaver di Jellyfin dopo inattività (non voluto)                                                                | `no-screensaver.ts` imposta `localStorage['<userId>-screensaver'] = 'none'` (stessa chiave usata da JellyTweaks). |
-| Le rail native usano uno scroller che ha `overflow: hidden` solo in modalità TV → la pagina scorreva in orizzontale | Regola in `rails.css` sullo scroller (alla radice, niente `overflow-x: hidden` globale).                          |
-| Frecce `.je-scroll-btn` di JE duplicate/rotte                                                                       | Nascoste in `plugin-compat.css` quando esistono quelle native.                                                    |
+| Problema                                                                                                                                                                                                                    | Correttivo                                                                                                        |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| JE 12.12 con «Use Icons» spento mostra testi tipo `{{icon:warning}} …`                                                                                                                                                      | `je-icon-tokens.ts` avvolge `JE.t` e toglie i segnaposto rimasti; allo stop rimette l'originale.                  |
+| Screensaver di Jellyfin dopo inattività (non voluto)                                                                                                                                                                        | `no-screensaver.ts` imposta `localStorage['<userId>-screensaver'] = 'none'` (stessa chiave usata da JellyTweaks). |
+| Le rail native usano uno scroller che ha `overflow: hidden` solo in modalità TV → la pagina scorreva in orizzontale                                                                                                         | Regola in `rails.css` sullo scroller (alla radice, niente `overflow-x: hidden` globale).                          |
+| Frecce `.je-scroll-btn` di JE duplicate/rotte                                                                                                                                                                               | Nascoste in `plugin-compat.css` quando esistono quelle native.                                                    |
+| Player (`#/video`): jellyfin-web lascia l'AppBar montata ma vuota; la barra flottante restava come linea sopra il video e lo spacer spingeva giù l'header OSD di 86px (striscia chiara in alto, video «scurito»)            | `navbar.css`: `header.MuiAppBar-root:empty` nascosta e spacer a 0. Test: `player-playlist.spec.ts`.               |
+| Playlist (e album): due CSS opzionali di KefinTweaks per le griglie episodi (Ultrachromic `episodes_grid.css`, ScyFlow `EpisodeGrid.css`) rendevano ogni lista della pagina dettagli una griglia a 3–4 colonne senza titoli | `plugin-compat.css`: `#listChildrenCollapsible` torna lista verticale glass (2 id battono i loro `!important`).   |
+| Menu del player (sottotitoli, audio, velocità): jellyfin-web impone `border-radius: .1em !important` → riquadro squadrato con bordo glass                                                                                   | `base.css`: raggio Nebula sugli `.actionSheet`.                                                                   |
+| Popup glass delle select e tooltip sotto i dialog nativi (`.dialogContainer`, z-index 999999)                                                                                                                               | Token `--nebula-z-popover` sopra i dialog nativi.                                                                 |
 
 Errori noti **non nostri** (compaiono anche senza Nebula): `seriesEpisodes.js:760` di KefinTweaks e
 `emby-scrollbuttons scrollHandler` di jellyfin-web. I test E2E li ignorano esplicitamente

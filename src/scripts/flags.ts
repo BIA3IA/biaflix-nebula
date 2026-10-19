@@ -25,6 +25,8 @@ export interface NebulaFlags {
   cardActions: boolean;
   detailActions: boolean;
   collectionsHub: boolean;
+  /** Film, Serie TV e Preferiti con l'impaginazione catalogo Nebula. */
+  libraryPages: boolean;
   collectionManage: boolean;
   /** Nessuno screensaver di Jellyfin dopo l'inattività (default: disattivato). */
   disableScreensaver: boolean;
@@ -46,6 +48,7 @@ export const DEFAULT_FLAGS: Readonly<NebulaFlags> = Object.freeze({
   cardActions: true,
   detailActions: true,
   collectionsHub: true,
+  libraryPages: true,
   collectionManage: true,
   disableScreensaver: true,
   locale: 'auto',

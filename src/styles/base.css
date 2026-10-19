@@ -147,6 +147,12 @@ body:not(.dashboardDocument) .dialog:not(.nebula-dialog) {
   box-shadow: var(--nebula-shadow-strong), var(--nebula-inner-light);
 }
 
+/* Menu del player e action sheet: jellyfin-web impone border-radius .1em !important (angoli quadrati). */
+body:not(.dashboardDocument) .dialog.actionSheet:not(.nebula-dialog) {
+  overflow: hidden;
+  border-radius: var(--nebula-radius-md) !important; /* stylelint-disable-line declaration-no-important */
+}
+
 body:not(.dashboardDocument) .dialog.actionSheet .actionSheetMenuItem:hover,
 body:not(.dashboardDocument) .dialog.actionSheet .actionSheetMenuItem:focus-visible {
   background: rgb(var(--nebula-primary-rgb) / 16%);

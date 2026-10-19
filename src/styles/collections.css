@@ -1,46 +1,4 @@
-/* Hub «Raccolte» su #/boxsets e #/playlists. */
-.nebula-hub {
-  display: grid;
-  gap: var(--nebula-space-5);
-  padding: var(--nebula-space-5) var(--nebula-content-gutter) var(--nebula-space-7);
-}
-
-.nebula-hub__header {
-  padding-top: var(--nebula-space-4);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--nebula-space-4);
-}
-
-.nebula-hub__title {
-  margin: 0;
-  font: 800 clamp(30px, 3.2vw, 46px) / 1.1 var(--nebula-font-display);
-  letter-spacing: -0.02em;
-  background: linear-gradient(120deg, #fff 30%, var(--nebula-primary-light) 70%, var(--nebula-cyan) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.nebula-hub__subtitle {
-  margin: 6px 0 0;
-  color: var(--nebula-text-muted);
-}
-
-.nebula-hub__actions,
-.nebula-hub__toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--nebula-space-3);
-}
-
-.nebula-hub__toolbar {
-  justify-content: space-between;
-}
-
+/* Pagine «Raccolte» (#/boxsets) e «Playlist» (#/playlists): impaginazione catalogo (catalog.css) con griglia 16:9. */
 .nebula-hub__grid.itemsContainer {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
@@ -49,20 +7,7 @@
   padding: 0;
 }
 
-.nebula-hub__grid .nebula-card[hidden] {
-  display: none;
-}
-
 /* La griglia nativa resta nel DOM (fallback) ma si nasconde quando l'hub è pronto. */
 :is(#boxsetsPage, #playlistsPage).nebula-hub-active > :not(.nebula-hub) {
-  display: none;
-}
-
-/*
- * In modalità hub la toolbar nativa della libreria (filtri, ordinamento, «Nuova collezione»)
- * agirebbe su una griglia nascosta: la nascondiamo per non duplicare i controlli.
- * Resta disponibile se il caricamento dell'hub fallisce.
- */
-html.nebula-hub-mode body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root + .MuiToolbar-root {
   display: none;
 }

@@ -1,23 +1,29 @@
 import { expect, gotoHome, installNebula, sessionFor, test } from './fixtures';
 
-for (const route of ['boxsets', 'playlists']) {
-  test(`hub ${route}: solo creazione raccolta e playlist`, async ({ page, isMobile }, info) => {
+const ACTION = { boxsets: 'Nuova raccolta', playlists: 'Nuova playlist' } as const;
+
+for (const route of ['boxsets', 'playlists'] as const) {
+  test(`hub ${route}: un solo tipo e una sola azione di creazione`, async ({ page, isMobile }, info) => {
     await installNebula(page, await sessionFor('curator'));
     await gotoHome(page);
     await page.goto(`/web/#/${route}`);
     const hub = page.locator(`#${route}Page .nebula-hub`);
     await expect(hub).toBeVisible();
     const actions = hub.locator('.nebula-hub__actions');
-    await expect(actions.getByRole('button')).toHaveCount(2);
+    const title = ACTION[route];
+    await expect(actions.getByRole('button')).toHaveCount(1);
+    // Nessun selettore Tutte/Raccolte/Playlist: la navbar ha già la voce Playlist.
+    await expect(hub.locator('.nebula-segmented')).toHaveCount(0);
     await expect(hub.getByRole('button', { name: /Vista classica|Classic view/ })).toHaveCount(0);
+    await expect(hub.locator(route === 'playlists' ? '.nebula-card:not(.nebula-card--playlist)' : '.nebula-card--playlist')).toHaveCount(0);
 
-    for (const title of ['Nuova raccolta', 'Nuova playlist']) {
-      await actions.getByRole('button', { name: title, exact: true }).click();
-      const dialog = page.getByRole('dialog', { name: title, exact: true });
-      await expect(dialog).toBeVisible();
-      await dialog.getByRole('button', { name: 'Annulla', exact: true }).click();
-      await expect(dialog).toHaveCount(0);
-    }
+    await actions.getByRole('button', { name: title, exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: title, exact: true });
+    await expect(dialog).toBeVisible();
+    // Il selettore mostra subito la libreria, senza dover cercare.
+    await expect(dialog.locator('.nebula-picker__row').first()).toBeVisible();
+    await dialog.getByRole('button', { name: 'Annulla', exact: true }).click();
+    await expect(dialog).toHaveCount(0);
 
     if (isMobile) await page.setViewportSize({ width: 320, height: 740 });
     for (const button of await actions.getByRole('button').all()) {
@@ -27,7 +33,7 @@ for (const route of ['boxsets', 'playlists']) {
       expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
     }
     // Il bordo sinistro deve continuare il viola, senza una copia del ciano a destra.
-    const primary = actions.getByRole('button', { name: 'Nuova raccolta', exact: true });
+    const primary = actions.getByRole('button', { name: title, exact: true });
     const height = await primary.evaluate((button) => button.getBoundingClientRect().height);
     const png = await primary.screenshot({ animations: 'disabled' });
     const cyanSeam = await page.evaluate(

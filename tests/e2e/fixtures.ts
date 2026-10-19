@@ -138,3 +138,22 @@ export async function cleanupCollections(s: Session, prefix: string): Promise<vo
   const r = await apiCall<{ Items: { Id: string; Name: string }[] }>(s, 'GET', `/Items?userId=${s.userId}&recursive=true&includeItemTypes=BoxSet`);
   for (const c of r.Items.filter((i) => i.Name.startsWith(prefix))) await apiCall(s, 'DELETE', `/Items/${c.Id}`);
 }
+
+/**
+ * Navigazione principale: su desktop la navbar, su telefono il menu laterale (nessuna barra in basso).
+ * Attende la chiusura del drawer, così il passo successivo non interagisce con il backdrop.
+ */
+export async function navigateTo(page: Page, isMobile: boolean | undefined, target: 'watchlist' | 'home'): Promise<void> {
+  if (!isMobile) {
+    await page
+      .locator(target === 'watchlist' ? '.nebula-nav-watchlist' : 'header.MuiAppBar-root a[href="#/"]')
+      .first()
+      .click();
+    return;
+  }
+  await page.locator('header.MuiAppBar-root button.MuiIconButton-root').first().click();
+  const drawer = page.locator('.MuiDrawer-paper');
+  await expect(drawer).toBeVisible();
+  await drawer.locator(target === 'watchlist' ? '.nebula-drawer-watchlist a' : 'a[href="#/home"]').click();
+  await expect(drawer).toBeHidden();
+}

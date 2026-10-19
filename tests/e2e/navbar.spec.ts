@@ -1,4 +1,4 @@
-import { expect, gotoHome, installNebula, sessionFor, test } from './fixtures';
+import { expect, gotoHome, installNebula, navigateTo, sessionFor, test } from './fixtures';
 
 test('navbar essenziale: senza Home/Discover né il pulsante Active Streams', async ({ page, isMobile }, info) => {
   const s = await sessionFor('viewer');
@@ -34,17 +34,13 @@ test('navbar essenziale: senza Home/Discover né il pulsante Active Streams', as
   });
   await expect(standard).toHaveClass(/is-active/);
   await expect(page.locator('.nebula-hero')).toBeVisible();
-  const watchlist = page.locator(isMobile ? '.nebula-bottomnav [data-key="watchlist"]' : '.nebula-nav-watchlist');
-  await expect(watchlist).toBeVisible();
-  await watchlist.click();
+  if (!isMobile) await expect(page.locator('.nebula-nav-watchlist')).toBeVisible();
+  await navigateTo(page, isMobile, 'watchlist');
   await expect(page.locator('.nebula-watchlist-page')).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goBack();
   await expect(page.locator('.nebula-watchlist-page')).toHaveCount(0);
-  await page
-    .locator(isMobile ? '.nebula-bottomnav [data-key="home"]' : 'header.MuiAppBar-root a[href="#/"]')
-    .first()
-    .click();
+  await navigateTo(page, isMobile, 'home');
   await expect(page.locator('.nebula-hero')).toBeVisible();
   await page.screenshot({ path: `test-results/screenshots/navbar-simple-${info.project.name}.png` });
 });

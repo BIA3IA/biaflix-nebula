@@ -1,4 +1,4 @@
-import { apiCall, expect, gotoHome, installNebula, sessionFor, test } from './fixtures';
+import { apiCall, expect, gotoHome, installNebula, navigateTo, sessionFor, test } from './fixtures';
 import type { BaseItem } from '../../src/scripts/jellyfin-api';
 
 const href = '#/home?nebula=watchlist';
@@ -30,14 +30,13 @@ test('watchlist pagina: navigazione, sincronizzazione, errori e layout', async (
     await expect(desktopLink).toBeVisible();
     expect(await desktopLink.evaluate((link) => link.previousElementSibling?.getAttribute('href'))).toBe('#/home?tab=1');
   }
-  const link = isMobile ? page.locator('.nebula-bottomnav [data-key="watchlist"]') : desktopLink;
-  await expect(link).toHaveAttribute('href', href);
-  await link.click();
+  if (!isMobile) await expect(desktopLink).toHaveAttribute('href', href);
+  await navigateTo(page, isMobile, 'watchlist');
   const view = page.locator('#indexPage > .nebula-watchlist-page');
   await expect(view).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(view.locator('.nebula-card')).toHaveCount(2);
-  await expect(link).toHaveAttribute('aria-current', 'page');
+  if (!isMobile) await expect(desktopLink).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('.nebula-hero')).toHaveCount(0);
   await expect(page.locator('#homeTab')).toBeHidden();
   await page.reload();
@@ -68,11 +67,11 @@ test('watchlist pagina: navigazione, sincronizzazione, errori e layout', async (
   await expect(view.locator('.nebula-card')).toHaveCount(0);
   await expect(view.getByRole('status')).toContainText('La tua watchlist è vuota');
   failure = true;
-  await view.getByRole('button', { name: 'Aggiorna' }).click();
+  await page.reload();
   await expect(view.getByRole('status')).toContainText('Operazione non riuscita');
   failure = false;
   items = library.Items.map((item) => ({ ...item, UserData: { ...item.UserData, Likes: true } }));
-  await view.getByRole('button', { name: 'Aggiorna' }).click();
+  await page.reload();
   await expect(view.locator('.nebula-card')).toHaveCount(2);
   await page.goto('/web/#/home');
   await expect(page.locator('.nebula-hero')).toBeVisible();
@@ -91,7 +90,8 @@ test('watchlist: link diretto e caricamento oltre la prima pagina', async ({ pag
   await page.route('**/Items?*', async (route) => {
     const url = new URL(route.request().url());
     if (url.searchParams.get('filters') !== 'Likes') return route.fallback();
-    await route.fulfill({ json: { Items: items.slice(0, Number(url.searchParams.get('limit'))), TotalRecordCount: items.length } });
+    const start = Number(url.searchParams.get('startIndex') ?? 0);
+    await route.fulfill({ json: { Items: items.slice(start, start + Number(url.searchParams.get('limit'))), TotalRecordCount: items.length } });
   });
   await page.goto(`/web/${href}`);
   const view = page.locator('#indexPage > .nebula-watchlist-page');

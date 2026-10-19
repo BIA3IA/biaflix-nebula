@@ -6,7 +6,8 @@ body:not(.dashboardDocument) #videoOsdPage .videoOsdBottom {
   background: linear-gradient(0deg, rgb(var(--nebula-bg-rgb) / 88%) 0%, rgb(var(--nebula-bg-rgb) / 55%) 55%, transparent 100%);
 }
 
-body:not(.dashboardDocument) #videoOsdPage .osdHeader {
+/* In layout Modern l'header OSD è figlio di .skinBody, fuori da #videoOsdPage. */
+body:not(.dashboardDocument) .skinHeader.osdHeader {
   background: linear-gradient(180deg, rgb(var(--nebula-bg-rgb) / 75%) 0%, transparent 100%);
   backdrop-filter: none;
 }

@@ -1,6 +1,7 @@
 /**
- * Hub «Raccolte» sulle route reali di Jellyfin #/boxsets e #/playlists (layout Modern).
- * Griglia editoriale 16:9 con collage, filtro Tutte / Raccolte / Playlist, «+ Nuova raccolta».
+ * Pagine «Raccolte» (#/boxsets) e «Playlist» (#/playlists) sulle route reali di Jellyfin (layout Modern).
+ * Stessa intestazione delle pagine catalogo (titolo, sottotitolo, contatore, azione) e griglia editoriale
+ * 16:9 con collage. Ogni route mostra solo il proprio tipo: la voce «Playlist» della navbar porta alle playlist.
  * La griglia nativa viene nascosta SOLO dopo che l'hub è stato reso con successo;
  * resta disponibile come fallback se il caricamento fallisce.
  */
@@ -12,8 +13,7 @@ import { t } from '../i18n';
 import { PLAYLISTS_CHANGED } from '../playlist';
 import { h, icon } from '../ui/dom';
 import { openCreateCollection, openCreatePlaylist } from './collection-dialogs';
-
-type HubFilter = 'all' | 'collection' | 'playlist';
+import { setCatalogMode } from './catalog-pages';
 
 export function collectionsHubFeature(ctx: NebulaContext): Feature {
   return {
@@ -21,76 +21,70 @@ export function collectionsHubFeature(ctx: NebulaContext): Feature {
     routes: ['boxsets', 'playlists'],
     async mount({ page, signal, path }) {
       if (!ctx.flags.collectionsHub || !page || !['boxsetsPage', 'playlistsPage'].includes(page.id)) return;
-      let filter: HubFilter = path === 'playlists' ? 'playlist' : 'all';
+      const playlists = path === 'playlists';
 
       const grid = nativeItemsContainer('nebula-hub__grid');
-      const status = h('p', { class: 'nebula-picker__status', role: 'status', 'aria-live': 'polite' }, t('loading'));
-      const segmented = h('div', { class: 'nebula-segmented', role: 'group', 'aria-label': t('collections') });
-      const options: [HubFilter, string][] = [
-        ['all', t('all')],
-        ['collection', t('collections')],
-        ['playlist', t('playlists')],
-      ];
-      for (const [value, label] of options) {
-        const b = h('button', { type: 'button', class: 'nebula-segmented__btn', 'aria-pressed': String(value === filter) }, label);
-        b.addEventListener('click', () => {
-          filter = value;
-          segmented.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-          applyFilter();
-        });
-        segmented.append(b);
-      }
-
-      const actions = h('div', { class: 'nebula-hub__actions' });
-      if (canManageCollections(ctx.user)) {
+      const statusText = h('p', {}, t('loading'));
+      const status = h('div', { class: 'nebula-catalog__status', role: 'status' }, icon(playlists ? 'playlist_play' : 'collections_bookmark'), statusText);
+      const count = h('span', { class: 'nebula-chip nebula-catalog__count', hidden: true });
+      const actions = h('div', { class: 'nebula-catalog__actions nebula-hub__actions' });
+      if (playlists) {
+        const np = h('button', { type: 'button', class: 'nebula-btn nebula-btn--primary' }, icon('playlist_add'), t('newPlaylist'));
+        np.addEventListener('click', () => openCreatePlaylist(ctx));
+        actions.append(np);
+      } else if (canManageCollections(ctx.user)) {
         const nc = h('button', { type: 'button', class: 'nebula-btn nebula-btn--primary' }, icon('add'), t('newCollection'));
         nc.addEventListener('click', () => openCreateCollection(ctx));
         actions.append(nc);
       }
-      const np = h('button', { type: 'button', class: 'nebula-btn nebula-btn--glass' }, icon('playlist_add'), t('newPlaylist'));
-      np.addEventListener('click', () => openCreatePlaylist(ctx));
-      actions.append(np);
 
       const hub = h(
         'section',
-        { class: 'nebula-root nebula-hub', 'aria-labelledby': 'nebula-hub-title' },
+        { class: 'nebula-root nebula-catalog nebula-hub', 'aria-labelledby': 'nebula-hub-title' },
         h(
           'header',
-          { class: 'nebula-hub__header' },
+          { class: 'nebula-catalog__header' },
           h(
             'div',
-            {},
-            h('h1', { id: 'nebula-hub-title', class: 'nebula-hub__title' }, t('collections')),
-            h('p', { class: 'nebula-hub__subtitle' }, t('collectionsSubtitle')),
+            { class: 'nebula-catalog__heading' },
+            h(
+              'div',
+              { class: 'nebula-catalog__titlerow' },
+              h('h1', { id: 'nebula-hub-title', class: 'nebula-catalog__title' }, playlists ? t('playlists') : t('collections')),
+              count,
+            ),
+            h('p', { class: 'nebula-catalog__subtitle' }, playlists ? t('playlistsSubtitle') : t('collectionsSubtitle')),
           ),
           actions,
         ),
-        h('div', { class: 'nebula-hub__toolbar' }, segmented, h('p', { class: 'nebula-notice nebula-notice--inline' }, icon('group'), t('sharedNotice'))),
+        playlists
+          ? null
+          : h('div', { class: 'nebula-catalog__toolbar' }, h('p', { class: 'nebula-notice nebula-notice--inline' }, icon('group'), t('sharedNotice'))),
         status,
         grid,
       );
 
-      const applyFilter = () => {
-        grid.querySelectorAll<HTMLElement>('.nebula-card').forEach((c) => {
-          const kind = c.classList.contains('nebula-card--playlist') ? 'playlist' : 'collection';
-          c.hidden = filter !== 'all' && filter !== kind;
-        });
-      };
-
       const render = async () => {
-        const [collections, playlists] = await Promise.all([ctx.collections.list(), ctx.api.getPlaylists()]);
-        const playlistCards = await Promise.all(
-          playlists.Items.map(async (p) => {
-            const items = await ctx.api.getPlaylistItems(p.Id).catch(() => ({ Items: [], TotalRecordCount: 0 }));
-            return collectionCard(ctx, p, items.TotalRecordCount, items.Items.slice(0, 4), 'playlist');
-          }),
-        );
+        let cards: HTMLElement[];
+        if (playlists) {
+          const list = await ctx.api.getPlaylists();
+          cards = await Promise.all(
+            list.Items.map(async (p) => {
+              const items = await ctx.api.getPlaylistItems(p.Id).catch(() => ({ Items: [], TotalRecordCount: 0 }));
+              return collectionCard(ctx, p, items.TotalRecordCount, items.Items.slice(0, 4), 'playlist');
+            }),
+          );
+        } else {
+          cards = (await ctx.collections.list()).map((c) => collectionCard(ctx, c.item, c.count, c.preview));
+        }
         if (signal.aborted) return;
-        grid.replaceChildren(...collections.map((c) => collectionCard(ctx, c.item, c.count, c.preview)), ...playlistCards);
-        status.textContent = grid.children.length ? '' : t('emptyCollection');
-        applyFilter();
+        grid.replaceChildren(...cards);
+        status.hidden = cards.length > 0;
+        statusText.textContent = playlists ? t('emptyPlaylists') : t('emptyCollections');
+        count.textContent = t(playlists ? 'playlistsCount' : 'collectionsCount', { n: cards.length });
+        count.hidden = false;
         page.classList.add('nebula-hub-active');
-        document.documentElement.classList.add('nebula-hub-mode');
+        setCatalogMode(true);
       };
 
       page.querySelector(':scope > .nebula-hub')?.remove();
@@ -110,7 +104,7 @@ export function collectionsHubFeature(ctx: NebulaContext): Feature {
         document.removeEventListener(PLAYLISTS_CHANGED, refresh);
         hub.remove();
         page.classList.remove('nebula-hub-active');
-        document.documentElement.classList.remove('nebula-hub-mode');
+        setCatalogMode(false);
       };
     },
   };

@@ -66,15 +66,8 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  .nebula-hub__header {
-    align-items: flex-start;
-  }
-
-  .nebula-picker__label {
-    grid-template-columns: auto 40px minmax(0, 1fr);
-  }
-
-  .nebula-picker__meta {
-    grid-column: 3;
+  .nebula-picker__results {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-height: none;
   }
 }

@@ -134,7 +134,7 @@ export function openCreatePlaylist(ctx: NebulaContext, preselected: BaseItem[] =
   const pubId = uniqueId('nebula-public');
   const name = h('input', { id: nameId, class: 'nebula-input', required: true, maxlength: 120, autocomplete: 'off', autofocus: true });
   const pub = h('input', { id: pubId, type: 'checkbox', class: 'nebula-check' });
-  const picker = createTitlePicker(ctx, { preselected });
+  const picker = createTitlePicker(ctx, { preselected, includeEpisodes: true });
   form.append(
     h('p', { class: 'nebula-notice' }, icon('lock'), t('privateNotice'), ' ', t('playlistSeriesNotice')),
     h('div', { class: 'nebula-field' }, h('label', { for: nameId, class: 'nebula-label' }, `${t('name')} *`), name),

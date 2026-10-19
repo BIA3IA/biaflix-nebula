@@ -202,19 +202,6 @@ export class JellyfinApi {
     return this.request('GET', `/Items/${encodeURIComponent(id)}`, { userId: this.userId, fields: ITEM_FIELDS });
   }
 
-  /** Ricerca titoli della libreria (solo film e serie, per il wizard delle raccolte). */
-  searchTitles(term: string, limit = 24): Promise<ItemsResult> {
-    return this.getItems({
-      searchTerm: term,
-      recursive: true,
-      includeItemTypes: ['Movie', 'Series'],
-      limit,
-      sortBy: 'SortName',
-      enableImageTypes: ['Primary', 'Backdrop', 'Thumb'],
-      imageTypeLimit: 1,
-    });
-  }
-
   /** Item con i campi necessari alla pagina dettagli Nebula (persone, studi, trailer, date). */
   getItemFull(id: string): Promise<BaseItem> {
     return this.request('GET', `/Items/${encodeURIComponent(id)}`, {
@@ -256,14 +243,15 @@ export class JellyfinApi {
       : this.request('DELETE', `/UserItems/${encodeURIComponent(itemId)}/Rating`, { userId: this.userId });
   }
 
-  getWatchlist(limit = 24): Promise<ItemsResult> {
+  getWatchlist(limit = 24, query: Query = {}): Promise<ItemsResult> {
     return this.getItems({
       recursive: true,
-      filters: 'Likes',
       includeItemTypes: ['Movie', 'Series'],
       sortBy: 'DateCreated',
       sortOrder: 'Descending',
       limit,
+      ...query,
+      filters: 'Likes',
     });
   }
 

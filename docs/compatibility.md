@@ -40,7 +40,7 @@ La home mobile usa la stessa raccolta «In evidenza» del desktop, con backdrop 
 
 Il mount osserva solo i figli diretti del tab home e del suo contenitore: se Jellyfin/KefinTweaks rimuove la hero o sostituisce il tab, viene reinserito lo stesso nodo, conservando slide e listener. Cleanup e abort disconnettono l'observer. Il logo mobile ora è un link Home reale nel flex della toolbar, anziché un'immagine assoluta del pulsante menu. I frame della navbar vengono annullati al teardown per evitare reinserimenti dopo la disattivazione della skin.
 
-Il dock inferiore usa il token `--nebula-bottomnav-height` (68px), posizione fixed e safe area; il contenuto riserva spazio sotto. Le prove controllano il dock a inizio/fine pagina, dopo scroll e con viewport ridotto. La frase Play/Riprendi e il codice episodio hanno gap 6px e line-height separati. Safari e dispositivi fisici non verificati.
+Su telefono la navigazione principale è il menu laterale (drawer MUI glass): contiene Home, Preferiti, Watchlist (voce aggiunta da Nebula), Raccolte, Film, Serie TV e Playlist; non c'è più una barra in basso. La frase Play/Riprendi e il codice episodio hanno gap 6px e line-height separati. Safari e dispositivi fisici non verificati.
 
 ## Calendario Jellyfin Enhanced
 

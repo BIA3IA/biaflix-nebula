@@ -14,7 +14,8 @@ import { Lifecycle } from './lifecycle';
 import { PlaylistService } from './playlist';
 import { isSkinLinkPresent, watchSkin } from './skin-detect';
 import { WatchlistService } from './watchlist';
-import { installBottomNav } from './features/bottom-nav';
+import { installDrawerExtras } from './features/drawer-extras';
+import { favoritesPageFeature, libraryPagesFeature } from './features/catalog-pages';
 import { watchlistPageFeature } from './features/watchlist-page';
 import { installNavbarExtras } from './features/navbar-extras';
 import { installNativeCardActions } from './features/card-actions';
@@ -85,20 +86,23 @@ function boot(): void {
         log,
       };
       const lifecycle = new Lifecycle(
-        [routeMarker, heroFeature(ctx), homeRailsFeature(ctx), detailsFeature(ctx), collectionsHubFeature(ctx), watchlistPageFeature(ctx)],
+        [
+          routeMarker,
+          heroFeature(ctx),
+          homeRailsFeature(ctx),
+          detailsFeature(ctx),
+          collectionsHubFeature(ctx),
+          watchlistPageFeature(ctx),
+          favoritesPageFeature(ctx),
+          libraryPagesFeature(ctx),
+        ],
         (feature, err) => console.warn(PREFIX, `feature "${feature}"`, err),
       );
       const cleanups = [applyShell(), installWatchlistSync(), installNativeCardActions(ctx), installGlassSelect(), installTooltips(), installJeIconTokenFix()];
       lifecycle.start();
       if (flags.disableScreensaver) disableScreensaver(user.Id);
-      // Barra in basso solo nel layout Modern (le route di libreria legacy differiscono).
-      if (isModernLayout()) {
-        cleanups.push(installNavbarExtras(ctx));
-        void installBottomNav(ctx).then((cleanup) => {
-          if (gen === generation) cleanups.push(cleanup);
-          else cleanup();
-        });
-      }
+      // Navbar e drawer MUI esistono solo nel layout Modern.
+      if (isModernLayout()) cleanups.push(installNavbarExtras(ctx), installDrawerExtras());
 
       // Cambio utente o logout nella stessa SPA: riavvio con la nuova sessione.
       const onView = () => {

@@ -1,4 +1,4 @@
-import { apiCall, expect, gotoHome, installNebula, sessionFor, test, type Session } from './fixtures';
+import { apiCall, expect, gotoHome, installNebula, navigateTo, sessionFor, test, type Session } from './fixtures';
 
 async function movieId(s: Session, name: string): Promise<string> {
   const r = await apiCall<{ Items: { Id: string; Name: string }[] }>(
@@ -182,7 +182,7 @@ test.describe('Navbar: watchlist e categorie home', () => {
       await apiCall(s, 'POST', `/UserItems/${id}/Rating?userId=${s.userId}&likes=true`);
       await installNebula(page, s);
       await gotoHome(page);
-      await page.locator(isMobile ? '.nebula-bottomnav [data-key="watchlist"]' : '.nebula-nav-watchlist').click();
+      await navigateTo(page, isMobile, 'watchlist');
       const view = page.locator('#indexPage > .nebula-watchlist-page');
       await expect(view.locator('.nebula-card', { hasText: 'Comfort Club' })).toBeVisible();
       await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -206,10 +206,7 @@ test.describe('Navbar: watchlist e categorie home', () => {
       .locator('#kefin-home-category-rail .kefin-home-category-item[data-category-id="discovery"] button')
       .evaluate((button: HTMLButtonElement) => button.click());
     await page.goto('/web/#/search');
-    await page
-      .locator(isMobile ? '.nebula-bottomnav [data-key="home"]' : 'header.MuiAppBar-root a[href="#/"]')
-      .first()
-      .click();
+    await navigateTo(page, isMobile, 'home');
     await expect(page.locator('#kefin-home-category-rail .kefin-home-category-item[data-category-id="none"]')).toHaveClass(/is-active/);
     await expect(page.locator('.nebula-hero')).toBeVisible();
     await expect(group).toHaveCount(0);

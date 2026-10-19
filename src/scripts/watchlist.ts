@@ -2,7 +2,7 @@
  * Watchlist = UserData.Likes: la stessa fonte usata da Jellyfin Enhanced (sync Seerr),
  * KefinTweaks e Catch Up. Non è un sinonimo dei Preferiti (IsFavorite).
  */
-import type { BaseItem, JellyfinApi } from './jellyfin-api';
+import type { BaseItem, JellyfinApi, Query } from './jellyfin-api';
 
 // Vista Nebula ospitata dalla route home reale: nessuna route sconosciuta al router Jellyfin.
 export const WATCHLIST_HREF = '#/home?nebula=watchlist';
@@ -49,7 +49,7 @@ export class WatchlistService {
     return p;
   }
 
-  list(limit?: number) {
-    return this.api.getWatchlist(limit);
+  list(limit?: number, query?: Query) {
+    return this.api.getWatchlist(limit, query);
   }
 }

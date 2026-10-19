@@ -149,7 +149,7 @@ test.describe('Raccolte miste film + serie', () => {
     await expect(apiCall(viewer, 'POST', `/Collections/${c!.Id}/Items?ids=${movie.Id}`)).rejects.toThrow(/403/);
   });
 
-  test('hub raccolte con filtri e le sole azioni di creazione', async ({ page }) => {
+  test('hub raccolte: solo raccolte e la sola azione di creazione', async ({ page }) => {
     await installNebula(page, curator);
     await gotoHome(page);
     await page.locator('header.MuiAppBar-root a[href*="boxsets"]').first().click();
@@ -157,17 +157,14 @@ test.describe('Raccolte miste film + serie', () => {
     await expect(hub).toBeVisible();
     await expect(hub.locator('.nebula-card--collection', { hasText: name })).toBeVisible();
     await page.screenshot({ path: `test-results/screenshots/collections-hub-${test.info().project.name}.png` });
-    await hub.getByRole('button', { name: 'Playlist', exact: true }).click();
-    await expect(hub.locator('.nebula-card--collection', { hasText: name })).toBeHidden();
-    await expect(hub.locator('.nebula-hub__actions button')).toHaveCount(2);
+    await expect(hub.locator('.nebula-card--playlist')).toHaveCount(0);
+    await expect(hub.locator('.nebula-hub__actions button')).toHaveCount(1);
     await expect(hub.getByRole('button', { name: /Vista classica|Classic view/ })).toHaveCount(0);
-    for (const title of ['Nuova raccolta', 'Nuova playlist']) {
-      await hub.getByRole('button', { name: title, exact: true }).click();
-      const dialog = page.getByRole('dialog', { name: title, exact: true });
-      await expect(dialog).toBeVisible();
-      await dialog.getByRole('button', { name: 'Annulla', exact: true }).click();
-      await expect(dialog).toHaveCount(0);
-    }
+    await hub.getByRole('button', { name: 'Nuova raccolta', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Nuova raccolta', exact: true });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'Annulla', exact: true }).click();
+    await expect(dialog).toHaveCount(0);
     await expect(page.locator('#boxsetsPage > :not(.nebula-hub)').first()).toBeHidden();
   });
 });

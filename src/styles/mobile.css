@@ -3,7 +3,7 @@
  * - Drawer (menu laterale): pannello glass fluttuante, staccato dai bordi, su tutte le larghezze
  *   (drawer nativo MUI su mobile e drawer desktop di KefinTweaks).
  * - Header mobile essenziale: menu, link Home con logo Biaflix, azioni JE, ricerca e avatar.
- * - Barra di navigazione glass in basso (nebula-bottomnav).
+ * - Navigazione principale nel drawer (con la voce Watchlist aggiunta da Nebula), nessuna barra in basso.
  * - Hero mobile panoramica: stessi titoli in evidenza del desktop, sfondo nitido e swipe.
  */
 
@@ -104,6 +104,17 @@ body:not(.dashboardDocument) .MuiDrawer-paper :is(.MuiListSubheader-root, .sideb
   letter-spacing: 0.12em;
 }
 
+/* Sulla Watchlist (route home con parametro) React evidenzia ancora «Home»: vince la voce Nebula. */
+body:not(.dashboardDocument) .MuiDrawer-paper ul:has(> .nebula-drawer-watchlist .Mui-selected) a[href='#/home'].Mui-selected {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+body:not(.dashboardDocument) .MuiDrawer-paper .nebula-drawer-watchlist .nebula-icon {
+  font-size: 24px;
+}
+
 /* Sezioni aggiunte da Jellyfin Enhanced / KefinTweaks nel drawer */
 body:not(.dashboardDocument) .MuiDrawer-paper :is(.jellyfinEnhancedSection, [data-kefin-custom-menu-link]) a {
   display: flex;
@@ -116,101 +127,12 @@ body:not(.dashboardDocument) .MuiDrawer-paper :is(.jellyfinEnhancedSection, [dat
   text-decoration: none;
 }
 
-/* --- Barra in basso ------------------------------------------------------------ */
-.nebula-bottomnav,
+/* Link Home con logo: solo nell'header mobile. */
 .nebula-nav-home {
   display: none;
 }
 
 @media (width < 900px) {
-  html.nebula-layout-modern .nebula-bottomnav {
-    position: fixed;
-    right: max(8px, env(safe-area-inset-right));
-    bottom: max(8px, env(safe-area-inset-bottom));
-    left: max(8px, env(safe-area-inset-left));
-    z-index: var(--nebula-z-nav);
-    display: grid;
-    grid-auto-columns: 1fr;
-    grid-auto-flow: column;
-    gap: var(--nebula-space-1);
-    height: var(--nebula-bottomnav-height);
-    padding: var(--nebula-space-1);
-    box-sizing: border-box;
-    border: 1px solid var(--nebula-glass-border);
-    border-radius: var(--nebula-radius-lg);
-    background: var(--nebula-glass-strong);
-    box-shadow: var(--nebula-shadow-strong), var(--nebula-inner-light);
-    backdrop-filter: blur(28px) saturate(150%);
-  }
-
-  .nebula-bottomnav__item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--nebula-space-1);
-    min-width: 0;
-    min-height: var(--nebula-touch-target);
-    padding: var(--nebula-space-1);
-    border-radius: var(--nebula-radius-md);
-    color: var(--nebula-text-muted);
-    font: 600 11px / 1.2 var(--nebula-font-body);
-    text-decoration: none;
-    transition:
-      color var(--nebula-fast) var(--nebula-ease),
-      background-color var(--nebula-fast) var(--nebula-ease);
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .nebula-bottomnav__item .nebula-icon {
-    font-size: 24px;
-  }
-
-  .nebula-bottomnav__label {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .nebula-bottomnav__item[aria-current='page'] {
-    background: var(--nebula-gradient);
-    color: #fff;
-  }
-
-  .nebula-bottomnav__item[aria-current='page'] .nebula-icon {
-    color: #fff;
-  }
-
-  .nebula-bottomnav__item:focus-visible {
-    outline: none;
-    box-shadow: var(--nebula-focus-ring);
-  }
-
-  /* Mai sopra player o dialog; si alza se c'è la barra «In riproduzione» nativa. */
-  html[data-nebula-route='video'] .nebula-bottomnav,
-  body.dashboardDocument .nebula-bottomnav {
-    display: none;
-  }
-
-  body:has(.nowPlayingBar:not(.hide)) .nebula-bottomnav {
-    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 4.4em);
-  }
-
-  html.nebula-has-bottomnav {
-    scroll-padding-bottom: calc(var(--nebula-bottomnav-height) + 24px + env(safe-area-inset-bottom));
-  }
-
-  /* Contenuti e toast non finiscono sotto la barra. */
-  html.nebula-has-bottomnav body:not(.dashboardDocument) main {
-    padding-bottom: calc(var(--nebula-bottomnav-height) + 24px + env(safe-area-inset-bottom));
-    scroll-padding-bottom: calc(var(--nebula-bottomnav-height) + 24px + env(safe-area-inset-bottom));
-  }
-
-  html.nebula-has-bottomnav .nebula-toasts {
-    bottom: calc(var(--nebula-bottomnav-height) + 28px + env(safe-area-inset-bottom));
-  }
-
   /* --- Header essenziale ---------------------------------------------------------- */
 
   /* Header mobile: menu, logo, ricerca, profilo. SyncPlay/Trasmetti restano raggiungibili dal player. */
@@ -329,15 +251,9 @@ body:not(.dashboardDocument) .MuiDrawer-paper :is(.jellyfinEnhancedSection, [dat
   }
 }
 
-/* Su mobile la Watchlist è nella barra in basso: la navbar resta essenziale (niente sovrapposizioni a 320px). */
+/* Su mobile la Watchlist è nel menu laterale: la navbar resta essenziale (niente sovrapposizioni a 320px). */
 @media (width < 900px) {
-  html.nebula-has-bottomnav .nebula-nav-watchlist {
+  .nebula-nav-watchlist {
     display: none;
-  }
-
-  .nebula-bottomnav button.nebula-bottomnav__item {
-    border: 0;
-    background: transparent;
-    cursor: pointer;
   }
 }

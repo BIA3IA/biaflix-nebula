@@ -264,3 +264,152 @@ body:not(.dashboardDocument) :is(#kefinTweaks-breadcrumbs-wrapper, #kefinTweaks-
   display: none !important;
 }
 /* stylelint-enable declaration-no-important */
+
+/* --- Elenchi nativi a righe (playlist, album): #listChildrenCollapsible ----------------------
+ * KefinTweaks «optional includes» globali (Ultrachromic episodes_grid.css, ScyFlow-EpisodeGrid.css)
+ * trasformano ogni `.itemsContainer.padded-right.vertical-list` di #itemDetailPage in una griglia a
+ * 3–4 colonne pensata per gli episodi: sulle playlist i titoli finiscono in colonne da ~280px e spariscono.
+ * Qui l'elenco torna una lista verticale (2 id battono il loro `#itemDetailPage …` anche con !important).
+ */
+/* stylelint-disable declaration-no-important -- vincono su !important dei fogli KefinTweaks */
+html.nebula-active #itemDetailPage #listChildrenCollapsible .itemsContainer.vertical-list {
+  display: flex !important;
+  flex-direction: column;
+  gap: var(--nebula-space-2);
+  grid-template-columns: none;
+  max-width: 100%;
+  padding-right: 0;
+}
+
+html.nebula-active #itemDetailPage #listChildrenCollapsible .listItem {
+  display: flex;
+  align-items: center;
+  gap: var(--nebula-space-3);
+  height: auto;
+  min-width: 0;
+  margin: 0;
+  padding: var(--nebula-space-2) var(--nebula-space-3);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-md);
+  background: var(--nebula-glass-bg);
+  box-shadow: var(--nebula-inner-light);
+  transition:
+    background-color var(--nebula-fast) var(--nebula-ease),
+    border-color var(--nebula-fast) var(--nebula-ease);
+}
+
+html.nebula-active #itemDetailPage #listChildrenCollapsible .listItem:is(:hover, :focus-within) {
+  border-color: var(--nebula-glass-border-strong);
+  background: var(--nebula-surface-hover);
+}
+
+/* Elemento trascinato (Sortable): segnaposto leggibile */
+html.nebula-active #itemDetailPage #listChildrenCollapsible .listItem.sortable-ghost {
+  border-style: dashed;
+  border-color: rgb(var(--nebula-primary-rgb) / 60%);
+  opacity: 0.55;
+}
+
+html.nebula-active #itemDetailPage #listChildrenCollapsible .listViewDragHandle {
+  flex: none;
+  color: var(--nebula-text-subtle);
+  cursor: grab;
+  touch-action: none;
+}
+
+html.nebula-active #itemDetailPage #listChildrenCollapsible .listItemImage {
+  position: relative;
+  top: auto;
+  left: auto;
+  flex: none;
+  width: 96px !important;
+  height: 54px !important;
+  margin: 0;
+  border-radius: var(--nebula-radius-sm) !important;
+  transform: none;
+  background-size: cover;
+  background-position: center;
+}
+
+html.nebula-active #itemDetailPage #listChildrenCollapsible .listItemBody {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+}
+
+html.nebula-active #itemDetailPage #listChildrenCollapsible .listItemBodyText {
+  max-width: none;
+  overflow: hidden;
+  margin: 0;
+  color: var(--nebula-text);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html.nebula-active #itemDetailPage #listChildrenCollapsible .listItemBodyText.secondary {
+  margin-top: 2px;
+  color: var(--nebula-text-muted);
+  font-size: 0.9em;
+  font-weight: 400;
+}
+
+html.nebula-active #itemDetailPage #listChildrenCollapsible .listItemMediaInfo {
+  display: flex;
+  flex: none;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--nebula-space-2);
+  margin: 0;
+  color: var(--nebula-text-muted);
+  white-space: nowrap;
+}
+
+html.nebula-active #itemDetailPage #listChildrenCollapsible .listViewUserDataButtons {
+  position: static;
+  display: flex;
+  padding: 0;
+  flex: none;
+  align-items: center;
+}
+
+@media (width <= 720px) {
+  html.nebula-active #itemDetailPage #listChildrenCollapsible .itemsContainer.vertical-list {
+    gap: var(--nebula-space-1);
+  }
+
+  html.nebula-active #itemDetailPage #listChildrenCollapsible .listItem {
+    gap: var(--nebula-space-2);
+    padding: var(--nebula-space-2);
+  }
+
+  html.nebula-active #itemDetailPage #listChildrenCollapsible .listItemImage {
+    width: 72px !important;
+    height: 40px !important;
+  }
+
+  /* Su telefono restano titolo, Riproduci e «…»: visto/preferito/metadati sono nel menu «…». */
+  html.nebula-active #itemDetailPage #listChildrenCollapsible
+    :is(.listItemMediaInfo, .listViewUserDataButtons > .listItemButton:not([data-action='menu'])) {
+    display: none;
+  }
+}
+
+@media (width <= 400px) {
+  html.nebula-active #itemDetailPage #listChildrenCollapsible .listItem {
+    gap: 6px;
+    padding: 6px;
+  }
+
+  html.nebula-active #itemDetailPage #listChildrenCollapsible .listItemImage {
+    width: 56px !important;
+    height: 32px !important;
+  }
+
+  html.nebula-active #itemDetailPage #listChildrenCollapsible .listViewUserDataButtons .listItemButton {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+  }
+}
+/* stylelint-enable declaration-no-important */
