@@ -1,0 +1,5 @@
+dist/
+dev/.data/
+pnpm-lock.yaml
+docs/SPEC.md
+test-results/

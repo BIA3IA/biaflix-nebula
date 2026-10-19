@@ -1,0 +1,207 @@
+/*
+ * Cinematic Hero: 72–80svh desktop, 55–65svh mobile. Backdrop nitido (niente blur sull'artwork),
+ * sfumatura sinistra #080b16 90%→0% e verso il basso, testo a sinistra, destra visibile.
+ */
+.nebula-hero {
+  position: relative;
+  isolation: isolate;
+  height: clamp(460px, 76svh, 900px);
+
+  /* Sale sotto la navbar flottante: l'hero è il primo piano visivo della home. */
+  margin: calc(-1 * (var(--nebula-nav-height) + var(--nebula-nav-top) + 8px)) 0 var(--nebula-section-gap);
+  overflow: hidden;
+  background: var(--nebula-bg);
+}
+
+.nebula-hero__track,
+.nebula-hero__slide {
+  position: absolute;
+  inset: 0;
+}
+
+.nebula-hero__slide {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 650ms var(--nebula-ease),
+    visibility 0s linear 650ms;
+}
+
+.nebula-hero__slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 650ms var(--nebula-ease);
+}
+
+.nebula-hero__backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 70% 25%;
+  transform: scale(1.04);
+  transition: transform 7s var(--nebula-ease);
+}
+
+.nebula-hero__slide.is-active .nebula-hero__backdrop {
+  transform: scale(1);
+}
+
+/* Nessun backdrop: gradiente lievissimo + poster come accento, mai sfondo vuoto. */
+.nebula-hero__backdrop--fallback {
+  display: grid;
+  place-items: center end;
+  padding-right: 10vw;
+  background:
+    radial-gradient(60% 80% at 75% 40%, rgb(var(--nebula-primary-rgb) / 35%), transparent 70%),
+    radial-gradient(50% 60% at 90% 80%, rgb(var(--nebula-cyan-rgb) / 18%), transparent 70%), var(--nebula-bg-elevated);
+}
+
+.nebula-hero__accent {
+  width: clamp(160px, 18vw, 280px);
+  aspect-ratio: 2 / 3;
+  border-radius: var(--nebula-radius-lg);
+  object-fit: cover;
+  box-shadow: var(--nebula-shadow-strong);
+}
+
+.nebula-hero__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(var(--nebula-bg-rgb) / 90%) 0%,
+      rgb(var(--nebula-bg-rgb) / 72%) 30%,
+      rgb(var(--nebula-bg-rgb) / 18%) 62%,
+      rgb(var(--nebula-bg-rgb) / 0%) 100%
+    ),
+    linear-gradient(0deg, var(--nebula-bg) 0%, rgb(var(--nebula-bg-rgb) / 55%) 22%, rgb(var(--nebula-bg-rgb) / 0%) 48%),
+    linear-gradient(180deg, rgb(var(--nebula-bg-rgb) / 55%) 0%, rgb(var(--nebula-bg-rgb) / 0%) 22%);
+}
+
+.nebula-hero__content {
+  position: absolute;
+  bottom: clamp(56px, 11svh, 120px);
+  left: var(--nebula-content-gutter);
+  display: grid;
+  gap: var(--nebula-space-4);
+  justify-items: start;
+  width: min(640px, calc(100% - 2 * var(--nebula-content-gutter)));
+}
+
+.nebula-hero__title {
+  margin: 0;
+  font: 800 var(--nebula-text-hero) / 1.05 var(--nebula-font-display);
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 24px rgb(0 0 0 / 45%);
+  overflow-wrap: anywhere;
+}
+
+.nebula-hero__title--logo {
+  line-height: 0;
+}
+
+.nebula-hero__logo {
+  max-width: min(460px, 80vw);
+  max-height: clamp(90px, 16svh, 170px);
+  object-fit: contain;
+  object-position: left bottom;
+  filter: drop-shadow(0 4px 20px rgb(0 0 0 / 55%));
+}
+
+.nebula-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0;
+  color: var(--nebula-text-muted);
+  font-size: var(--nebula-text-md);
+  font-weight: 500;
+}
+
+.nebula-hero__meta span + span::before {
+  margin-right: 14px;
+  color: rgb(var(--nebula-primary-rgb) / 90%);
+  content: '•';
+}
+
+.nebula-hero__overview {
+  display: -webkit-box;
+  max-width: 60ch;
+  margin: 0;
+  overflow: hidden;
+  color: rgb(246 246 255 / 88%);
+  font-size: clamp(14px, 1.05vw, 17px);
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* Il contenitore emby-itemscontainer non deve avere lo stile delle righe native. */
+.nebula-hero__actions.itemsContainer {
+  display: block;
+  margin: var(--nebula-space-2) 0 0;
+  padding: 0;
+}
+
+.nebula-hero__action-host {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nebula-space-3);
+}
+
+.nebula-hero__controls {
+  position: absolute;
+  right: var(--nebula-content-gutter);
+  bottom: clamp(56px, 11svh, 120px);
+  display: flex;
+  align-items: center;
+  gap: var(--nebula-space-2);
+}
+
+.nebula-hero__dots {
+  display: flex;
+  gap: 2px;
+}
+
+.nebula-hero__dot {
+  position: relative;
+  width: 28px;
+  height: var(--nebula-touch-target);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nebula-hero__dot::before {
+  position: absolute;
+  inset: 50% 4px auto;
+  height: 4px;
+  border-radius: var(--nebula-radius-pill);
+  background: rgb(255 255 255 / 30%);
+  transform: translateY(-50%);
+  transition: background-color var(--nebula-fast) var(--nebula-ease);
+  content: '';
+}
+
+.nebula-hero__dot[aria-current='true']::before {
+  background: var(--nebula-gradient);
+}
+
+.nebula-hero__dot:focus-visible {
+  outline: none;
+}
+
+.nebula-hero__dot:focus-visible::before {
+  box-shadow: var(--nebula-focus-ring);
+}
+
+/* La pagina home con hero: niente padding superiore che spinga l'hero sotto la barra. */
+#indexPage.nebula-has-hero #homeTab {
+  padding-top: 0;
+}

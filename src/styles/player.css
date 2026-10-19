@@ -1,0 +1,54 @@
+/*
+ * Player: solo restyling dei controlli. Il video non viene mai sfocato o coperto da decorazioni;
+ * motore di playback, sottotitoli, Intro Skipper, JE (pause screen, bookmark, PiP) intatti.
+ */
+body:not(.dashboardDocument) #videoOsdPage .videoOsdBottom {
+  background: linear-gradient(0deg, rgb(var(--nebula-bg-rgb) / 88%) 0%, rgb(var(--nebula-bg-rgb) / 55%) 55%, transparent 100%);
+}
+
+body:not(.dashboardDocument) #videoOsdPage .osdHeader {
+  background: linear-gradient(180deg, rgb(var(--nebula-bg-rgb) / 75%) 0%, transparent 100%);
+  backdrop-filter: none;
+}
+
+/* Barra di avanzamento 4px viola→ciano, più spessa al hover per lo scrubbing. */
+body:not(.dashboardDocument) #videoOsdPage .sliderContainer .emby-slider-background {
+  height: 4px;
+  border-radius: var(--nebula-radius-pill);
+  background: rgb(255 255 255 / 22%);
+  transition: height var(--nebula-fast) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument) #videoOsdPage .sliderContainer:hover .emby-slider-background {
+  height: 6px;
+}
+
+body:not(.dashboardDocument) #videoOsdPage .emby-slider-background-lower {
+  background: var(--nebula-gradient-progress);
+}
+
+body:not(.dashboardDocument) #videoOsdPage .emby-slider-background-upper {
+  background: rgb(255 255 255 / 30%);
+}
+
+body:not(.dashboardDocument) #videoOsdPage .osdControls .paper-icon-button-light:hover {
+  background: rgb(var(--nebula-primary-rgb) / 28%);
+}
+
+body:not(.dashboardDocument) #videoOsdPage .osdControls .paper-icon-button-light:focus-visible {
+  outline: none;
+  box-shadow: var(--nebula-focus-ring);
+}
+
+/* Pulsante Skip Intro (Intro Skipper / skip segment nativo): stile coerente, posizione invariata. */
+body:not(.dashboardDocument) :is(.skip-button, .skipIntro, #skipIntro) {
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-glass-strong);
+  color: var(--nebula-text);
+}
+
+/* Pause screen di Jellyfin Enhanced: solo variabili colore, layout loro. */
+:root {
+  --pause-screen-overlay-bg: rgb(var(--nebula-bg-rgb) / 72%);
+}

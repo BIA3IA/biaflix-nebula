@@ -1,0 +1,37 @@
+/* Accessibilità: movimento ridotto, trasparenza ridotta, fallback senza backdrop-filter. */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --nebula-hover-lift: 0;
+    --nebula-hover-scale: 1;
+  }
+
+  .nebula-root *,
+  .nebula-root,
+  body:not(.dashboardDocument) .card .cardScalable,
+  body:not(.dashboardDocument) header.MuiAppBar-root {
+    transition-duration: 1ms !important;
+    animation: none !important;
+  }
+
+  .nebula-hero__backdrop,
+  .nebula-hero__slide.is-active .nebula-hero__backdrop {
+    transform: none;
+  }
+}
+
+/* Trasparenza ridotta o dispositivi senza backdrop-filter: superfici opache, stesso contrasto. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --nebula-glass-bg: var(--nebula-glass-solid);
+    --nebula-glass-strong: var(--nebula-glass-solid);
+    --nebula-glass-filter: none;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --nebula-glass-bg: var(--nebula-glass-solid);
+    --nebula-glass-strong: var(--nebula-glass-solid);
+  }
+}

@@ -1,0 +1,344 @@
+/*
+ * Card: priorità assoluta. Poster 2:3, landscape 16:9, raccolte editoriali.
+ * Hover/focus: lift -4px, scale ≤ 1.045, bordo glass, glow viola tenue. Nessun testo stampato
+ * al centro dell'artwork; nessun gradient permanente pesante sulle thumbnail.
+ */
+
+/* --- Card native e KefinTweaks (cardBuilder) ------------------------------ */
+body:not(.dashboardDocument) .card .cardScalable {
+  border-radius: var(--nebula-radius-md);
+  background: var(--nebula-surface);
+  box-shadow: var(--nebula-shadow-soft);
+  overflow: hidden;
+  transition:
+    transform var(--nebula-normal) var(--nebula-ease),
+    box-shadow var(--nebula-normal) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument) .card .cardScalable::after {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgb(213 218 255 / 8%);
+  border-radius: inherit;
+  pointer-events: none;
+  transition: border-color var(--nebula-normal) var(--nebula-ease);
+  content: '';
+}
+
+body:not(.dashboardDocument) .card :is(.cardImageContainer, .cardContent, .blurhash-canvas) {
+  border-radius: var(--nebula-radius-md);
+}
+
+body:not(.dashboardDocument) .card-hoverable:hover .cardScalable,
+body:not(.dashboardDocument) .card:focus-within .cardScalable {
+  box-shadow: var(--nebula-shadow-strong), var(--nebula-glow);
+  transform: translateY(var(--nebula-hover-lift)) scale(var(--nebula-hover-scale));
+}
+
+body:not(.dashboardDocument) .card-hoverable:hover .cardScalable::after,
+body:not(.dashboardDocument) .card:focus-within .cardScalable::after {
+  border-color: rgb(var(--nebula-primary-rgb) / 55%);
+}
+
+/* Overlay hover nativo: sfumatura solo in basso, azioni glass. */
+body:not(.dashboardDocument) .cardOverlayContainer {
+  border-radius: var(--nebula-radius-md);
+  background: linear-gradient(0deg, rgb(var(--nebula-bg-rgb) / 78%) 0%, rgb(var(--nebula-bg-rgb) / 0%) 46%);
+}
+
+body:not(.dashboardDocument) .cardOverlayButton {
+  border-radius: 50%;
+  color: var(--nebula-text);
+}
+
+body:not(.dashboardDocument) .cardOverlayButton:hover {
+  background: rgb(var(--nebula-primary-rgb) / 35%);
+}
+
+body:not(.dashboardDocument) .cardOverlayFab-primary {
+  background: var(--nebula-gradient);
+  color: #fff;
+  box-shadow: var(--nebula-glow);
+}
+
+/* Testi sotto il poster */
+body:not(.dashboardDocument) .cardText {
+  color: var(--nebula-text-muted);
+  font-size: var(--nebula-text-sm);
+}
+
+body:not(.dashboardDocument) .cardText-first {
+  color: var(--nebula-text);
+  font-weight: 600;
+}
+
+/* Progress: 4px viola→ciano */
+body:not(.dashboardDocument) .itemProgressBar {
+  height: 4px;
+  background: rgb(255 255 255 / 18%);
+}
+
+body:not(.dashboardDocument) .itemProgressBarForeground {
+  background: var(--nebula-gradient-progress);
+}
+
+/* Indicatori (visto, conteggio) */
+body:not(.dashboardDocument) .playedIndicator {
+  background: rgb(var(--nebula-primary-rgb) / 92%);
+}
+
+body:not(.dashboardDocument) .countIndicator {
+  background: var(--nebula-gradient);
+}
+
+/* Placeholder Nebula per poster assenti */
+body:not(.dashboardDocument) :is(.defaultCardBackground1, .defaultCardBackground2, .defaultCardBackground3, .defaultCardBackground4, .defaultCardBackground5) {
+  background:
+    radial-gradient(70% 60% at 30% 20%, rgb(var(--nebula-primary-rgb) / 35%), transparent 70%),
+    radial-gradient(60% 50% at 80% 90%, rgb(var(--nebula-cyan-rgb) / 18%), transparent 70%), var(--nebula-surface);
+}
+
+/* Persone: ritratti circolari */
+body:not(.dashboardDocument) .personCard .cardScalable,
+body:not(.dashboardDocument) .personCard :is(.cardImageContainer, .cardContent) {
+  border-radius: 50%;
+}
+
+/* --- Quick action Nebula (watchlist, Aggiungi a…) --------------------------- */
+.nebula-card-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity var(--nebula-fast) var(--nebula-ease),
+    transform var(--nebula-fast) var(--nebula-ease);
+}
+
+.nebula-card-actions .nebula-icon-btn {
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+}
+
+:is(.card, .nebula-card):is(:hover, :focus-within) .nebula-card-actions {
+  opacity: 1;
+  transform: none;
+}
+
+/* Dispositivi touch: azioni sempre visibili sulle card Nebula, con target 44px. */
+@media (hover: none) {
+  .nebula-card .nebula-card-actions {
+    opacity: 1;
+    transform: none;
+  }
+
+  .nebula-card-actions .nebula-icon-btn {
+    width: var(--nebula-touch-target);
+    height: var(--nebula-touch-target);
+  }
+}
+
+/* --- Card Nebula ------------------------------------------------------------- */
+.nebula-card {
+  position: relative;
+  display: grid;
+  gap: var(--nebula-space-2);
+  align-content: start;
+  min-width: 0;
+}
+
+.nebula-card__media {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--nebula-radius-md);
+  background: var(--nebula-surface);
+  box-shadow: var(--nebula-shadow-soft);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform var(--nebula-normal) var(--nebula-ease),
+    box-shadow var(--nebula-normal) var(--nebula-ease);
+}
+
+.nebula-card__media::after {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgb(213 218 255 / 8%);
+  border-radius: inherit;
+  pointer-events: none;
+  content: '';
+}
+
+.nebula-card--poster .nebula-card__media {
+  aspect-ratio: 2 / 3;
+}
+
+.nebula-card--wide .nebula-card__media,
+.nebula-card--collection .nebula-card__media {
+  aspect-ratio: 16 / 9;
+}
+
+.nebula-card__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nebula-card__placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(70% 60% at 30% 20%, rgb(var(--nebula-primary-rgb) / 30%), transparent 70%), var(--nebula-surface);
+  color: rgb(213 218 255 / 40%);
+  font-size: 34px;
+}
+
+.nebula-card:not(.nebula-skeleton):is(:hover, :focus-within) .nebula-card__media {
+  box-shadow: var(--nebula-shadow-strong), var(--nebula-glow);
+  transform: translateY(var(--nebula-hover-lift)) scale(var(--nebula-hover-scale));
+}
+
+.nebula-card:not(.nebula-skeleton):is(:hover, :focus-within) .nebula-card__media::after {
+  border-color: rgb(var(--nebula-primary-rgb) / 55%);
+}
+
+.nebula-card__media:focus-visible {
+  outline: none;
+  box-shadow: var(--nebula-focus-ring);
+}
+
+.nebula-card__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nebula-card__title {
+  overflow: hidden;
+  color: var(--nebula-text);
+  font-size: var(--nebula-text-md);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nebula-card__meta {
+  overflow: hidden;
+  color: var(--nebula-text-subtle);
+  font-size: var(--nebula-text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nebula-progress {
+  position: absolute;
+  inset: auto 0 0;
+  height: 4px;
+  background: rgb(255 255 255 / 18%);
+}
+
+.nebula-progress__bar {
+  display: block;
+  height: 100%;
+  background: var(--nebula-gradient-progress);
+}
+
+.nebula-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+.nebula-badge--played {
+  background: rgb(var(--nebula-primary-rgb) / 92%);
+  color: #fff;
+}
+
+/* --- Card raccolta editoriale -------------------------------------------------- */
+.nebula-collage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  gap: 2px;
+  background: var(--nebula-bg);
+}
+
+.nebula-collage--2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.nebula-collage--3 {
+  grid-template-columns: 1.4fr 1fr 1fr;
+}
+
+.nebula-collage--4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.nebula-collage .nebula-card__img,
+.nebula-collage .nebula-card__placeholder {
+  height: 100%;
+}
+
+.nebula-collage__empty {
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(80% 70% at 20% 10%, rgb(var(--nebula-primary-rgb) / 40%), transparent 70%),
+    radial-gradient(60% 60% at 90% 90%, rgb(var(--nebula-cyan-rgb) / 22%), transparent 70%), var(--nebula-surface);
+  color: rgb(255 255 255 / 55%);
+  font-size: 42px;
+}
+
+.nebula-collection__veil {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  padding: 40px var(--nebula-space-4) var(--nebula-space-4);
+  background: linear-gradient(0deg, rgb(var(--nebula-bg-rgb) / 92%) 0%, rgb(var(--nebula-bg-rgb) / 70%) 55%, rgb(var(--nebula-bg-rgb) / 0%) 100%);
+}
+
+.nebula-collection__name {
+  max-width: 100%;
+  overflow: hidden;
+  font: 700 clamp(16px, 1.3vw, 20px) / 1.2 var(--nebula-font-display);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nebula-collection__count {
+  color: var(--nebula-text-muted);
+  font-size: var(--nebula-text-sm);
+}
+
+/* Raccolte tematiche vs playlist ordinate: distinte visivamente. */
+.nebula-card--collection .nebula-chip--kind {
+  border-color: rgb(var(--nebula-primary-rgb) / 50%);
+}
+
+.nebula-card--playlist .nebula-chip--kind {
+  border-color: rgb(var(--nebula-cyan-rgb) / 50%);
+  color: var(--nebula-cyan);
+}
+
+.nebula-card--playlist .nebula-card__media {
+  box-shadow:
+    var(--nebula-shadow-soft),
+    8px -8px 0 -2px rgb(var(--nebula-cyan-rgb) / 18%);
+}

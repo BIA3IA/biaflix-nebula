@@ -1,0 +1,19 @@
+/*
+ * Biaflix Nebula — foglio principale. Ordine di cascata deliberato.
+ * Caricato come skin dello Skin Manager KefinTweaks: è attivo solo quando la skin è selezionata.
+ * Le pagine admin (body.dashboardDocument) restano con lo stile Jellyfin standard.
+ */
+@import './tokens.css';
+@import './base.css';
+@import './navbar.css';
+@import './components.css';
+@import './hero.css';
+@import './rails.css';
+@import './cards.css';
+@import './details.css';
+@import './collections.css';
+@import './search.css';
+@import './player.css';
+@import './plugin-compat.css';
+@import './responsive.css';
+@import './reduced-motion.css';

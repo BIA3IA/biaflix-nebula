@@ -1,0 +1,113 @@
+/* Responsive: 1366×768, tablet ~768, mobile 390/360. Safe area per notch. */
+
+@media (width <= 1366px) {
+  :root {
+    --nebula-nav-height: 60px;
+  }
+}
+
+/* Sotto 900px MUI usa il drawer: navbar compatta. */
+@media (width <= 900px) {
+  :root {
+    --nebula-nav-top: 8px;
+    --nebula-nav-height: 56px;
+    --nebula-radius-xl: 22px;
+  }
+
+  .nebula-hero {
+    height: clamp(380px, 60svh, 620px);
+  }
+
+  /* Header compatto: il ServerButton è nascosto da MUI, il logo Biaflix resta centrato. */
+  body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root:first-child::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 34px;
+    height: 34px;
+    background: image-set(url('assets/biaflix-logo-128.png') 1x, url('assets/biaflix-logo-256.png') 2x) center / contain no-repeat;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    content: '';
+  }
+
+  .nebula-hero__content {
+    bottom: var(--nebula-space-6);
+    gap: var(--nebula-space-3);
+  }
+
+  .nebula-hero__controls {
+    top: calc(var(--nebula-nav-height) + var(--nebula-nav-top) + var(--nebula-space-6));
+    bottom: auto;
+  }
+
+  .nebula-hero__nav {
+    display: none;
+  }
+
+  .nebula-hero__scrim {
+    background:
+      linear-gradient(0deg, var(--nebula-bg) 0%, rgb(var(--nebula-bg-rgb) / 82%) 32%, rgb(var(--nebula-bg-rgb) / 15%) 70%),
+      linear-gradient(180deg, rgb(var(--nebula-bg-rgb) / 60%) 0%, transparent 25%);
+  }
+}
+
+@media (width <= 600px) {
+  :root {
+    --nebula-poster-width: clamp(118px, 34vw, 150px);
+    --nebula-thumb-width: clamp(220px, 72vw, 280px);
+    --nebula-section-gap: 28px;
+  }
+
+  body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) {
+    inset-inline: max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-right));
+  }
+
+  .nebula-hero__overview {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  /* Massimo 2 CTA su mobile: watchlist resta sulle card/dettagli. */
+  .nebula-hero .nebula-watchlist-btn {
+    display: none;
+  }
+
+  .nebula-hero .nebula-btn--lg {
+    min-height: 48px;
+    padding-inline: var(--nebula-space-5);
+    font-size: var(--nebula-text-md);
+  }
+
+  .nebula-rail__navs {
+    display: none;
+  }
+
+  .nebula-rail__track--collection.itemsContainer {
+    grid-auto-columns: 82vw;
+  }
+
+  .nebula-dialog-backdrop {
+    place-items: end center;
+    padding: 0;
+  }
+
+  .nebula-dialog {
+    width: 100%;
+    max-height: 92svh;
+    border-radius: var(--nebula-radius-xl) var(--nebula-radius-xl) 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nebula-hub__header {
+    align-items: flex-start;
+  }
+
+  .nebula-picker__label {
+    grid-template-columns: auto 40px minmax(0, 1fr);
+  }
+
+  .nebula-picker__meta {
+    grid-column: 3;
+  }
+}

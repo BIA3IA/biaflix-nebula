@@ -1,0 +1,194 @@
+/* Base: firma della skin, palette Jellyfin/MUI, sfondo, tipografia, focus. */
+
+/* Firma letta da nebula.js per sapere che il CSS è applicato. */
+:root {
+  --biaflix-nebula: 1;
+}
+
+/*
+ * Palette MUI del layout Modern (cssVarPrefix "jf", vedi themes/_base/_theme.scss in jellyfin-web 12.2).
+ * Ogni colore ha anche la variante *Channel "R G B" usata da MUI per le trasparenze.
+ * Esclusa la dashboard: l'amministrazione resta con il tema nativo.
+ */
+html[data-theme]:not(:has(> body.dashboardDocument)) {
+  --jf-palette-primary-main: var(--nebula-primary);
+  --jf-palette-primary-mainChannel: var(--nebula-primary-rgb);
+  --jf-palette-primary-light: var(--nebula-primary-light);
+  --jf-palette-primary-dark: #6a35d9;
+  --jf-palette-primary-contrastText: #fff;
+  --jf-palette-secondary-main: var(--nebula-cyan);
+  --jf-palette-secondary-mainChannel: var(--nebula-cyan-rgb);
+  --jf-palette-background-default: var(--nebula-bg);
+  --jf-palette-background-defaultChannel: var(--nebula-bg-rgb);
+  --jf-palette-background-defaultImage: none;
+  --jf-palette-background-paper: var(--nebula-bg-elevated);
+  --jf-palette-background-paperChannel: 17 22 41;
+  --jf-palette-text-primary: var(--nebula-text);
+  --jf-palette-text-secondary: var(--nebula-text-muted);
+  --jf-palette-divider: rgb(213 218 255 / 12%);
+  --jf-palette-AppBar-defaultBg: var(--nebula-glass-strong);
+  --jf-palette-AppBar-transparentBg: var(--nebula-glass-bg);
+  --jf-palette-AppBar-gradient: none;
+  --jf-card-borderRadius: var(--nebula-radius-md);
+
+  /* Variabili lette da Jellyfin Enhanced e KefinTweaks (non definite da loro). */
+  --primary-accent-color: var(--nebula-primary);
+  --theme-primary-color: var(--nebula-primary);
+  --je-as-accent: var(--nebula-cyan);
+  --je-activity-accent: var(--nebula-primary-light);
+  --je-catchup-accent: var(--nebula-primary);
+  --je-catchup-panel: var(--nebula-glass-strong);
+  --je-hc-accent: var(--nebula-primary);
+  --je-sticky-top: calc(var(--nebula-nav-height) + var(--nebula-nav-top) + 8px);
+  --kefin-card-radius: var(--nebula-radius-md);
+  --theme-roundness: var(--nebula-radius-md);
+
+  background-color: var(--nebula-bg);
+  color-scheme: dark;
+}
+
+body:not(.dashboardDocument) {
+  background-color: var(--nebula-bg);
+
+  /* Cosmic haze statica e debolissima, solo nelle aree neutre (sotto a backdrop e contenuti). */
+  background-image:
+    radial-gradient(1200px 700px at 100% -10%, rgb(var(--nebula-blue-rgb) / 9%), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgb(var(--nebula-primary-rgb) / 8%), transparent 60%);
+  background-attachment: fixed;
+  color: var(--nebula-text);
+  font-family: var(--nebula-font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizelegibility;
+  scrollbar-color: rgb(213 218 255 / 22%) transparent;
+  scrollbar-width: thin;
+}
+
+body:not(.dashboardDocument) ::selection {
+  background: rgb(var(--nebula-primary-rgb) / 45%);
+  color: #fff;
+}
+
+/* Backdrop di pagina Jellyfin: sempre scurito per la leggibilità del testo sopra. */
+body:not(.dashboardDocument) .backgroundContainer {
+  background-color: var(--nebula-bg);
+}
+
+body:not(.dashboardDocument) .backgroundContainer.withBackdrop {
+  background: linear-gradient(180deg, rgb(var(--nebula-bg-rgb) / 72%) 0%, rgb(var(--nebula-bg-rgb) / 92%) 55%, var(--nebula-bg) 100%);
+}
+
+body:not(.dashboardDocument) .backdropImage {
+  filter: saturate(110%);
+}
+
+/* Titoli */
+body:not(.dashboardDocument) :is(h1, h2, h3, .sectionTitle, .pageTitle) {
+  font-family: var(--nebula-font-display);
+  letter-spacing: -0.01em;
+}
+
+/* Focus: anello viola/ciano netto, solo da tastiera. */
+body:not(.dashboardDocument) :focus-visible {
+  outline: 2px solid var(--nebula-cyan);
+  outline-offset: 2px;
+}
+
+body:not(.dashboardDocument) :is(a, button, [role='button'], input, select, textarea):focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Scrollbar sobrie (WebKit; Firefox usa scrollbar-color sul body) */
+body:not(.dashboardDocument) ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+body:not(.dashboardDocument) ::-webkit-scrollbar-thumb {
+  background: rgb(213 218 255 / 18%);
+  border: 3px solid transparent;
+  border-radius: var(--nebula-radius-pill);
+  background-clip: padding-box;
+}
+
+/* Link e pulsanti nativi */
+body:not(.dashboardDocument) .button-link,
+body:not(.dashboardDocument) a.button-link {
+  color: var(--nebula-primary-light);
+}
+
+body:not(.dashboardDocument) .raised.button-submit,
+body:not(.dashboardDocument) .button-submit:not(.emby-button-flat) {
+  background: var(--nebula-gradient);
+  color: #fff;
+  border-radius: var(--nebula-radius-pill);
+  box-shadow: var(--nebula-glow);
+}
+
+/* Campi dei form nativi: leggibili, senza toccare la dashboard. */
+body:not(.dashboardDocument) :is(.emby-input, .emby-textarea, .emby-select-withcolor) {
+  background: var(--nebula-surface);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-sm);
+  color: var(--nebula-text);
+}
+
+body:not(.dashboardDocument) :is(.emby-input, .emby-textarea, .emby-select-withcolor):focus {
+  border-color: var(--nebula-primary);
+  box-shadow: 0 0 0 3px rgb(var(--nebula-primary-rgb) / 30%);
+}
+
+/* Dialog nativi (menu contestuali, editor raccolte/playlist): vetro scuro leggibile. */
+body:not(.dashboardDocument) .dialog:not(.nebula-dialog) {
+  background: var(--nebula-glass-solid);
+  color: var(--nebula-text);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-lg);
+  box-shadow: var(--nebula-shadow-strong), var(--nebula-inner-light);
+}
+
+body:not(.dashboardDocument) .dialog.actionSheet .actionSheetMenuItem:hover,
+body:not(.dashboardDocument) .dialog.actionSheet .actionSheetMenuItem:focus-visible {
+  background: rgb(var(--nebula-primary-rgb) / 16%);
+}
+
+/* Login: logo Biaflix e card glass (dove il web client lo consente). */
+body:not(.dashboardDocument) #loginPage .padded-left.padded-right,
+body:not(.dashboardDocument) .manualLoginForm {
+  max-width: 440px;
+}
+
+body:not(.dashboardDocument) #loginPage .manualLoginForm,
+body:not(.dashboardDocument) #loginPage .visualLoginForm {
+  padding: var(--nebula-space-6);
+  background: var(--nebula-glass-bg);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-xl);
+  box-shadow: var(--nebula-shadow-strong), var(--nebula-inner-light);
+  backdrop-filter: var(--nebula-glass-filter);
+}
+
+/* MUI Paper/Menu (menu utente, overflow, drawer) */
+body:not(.dashboardDocument) .MuiPaper-root.MuiMenu-paper,
+body:not(.dashboardDocument) .MuiPaper-root.MuiPopover-paper {
+  background: var(--nebula-glass-strong);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-md);
+  box-shadow: var(--nebula-shadow-strong), var(--nebula-inner-light);
+  backdrop-filter: var(--nebula-glass-filter);
+}
+
+body:not(.dashboardDocument) .MuiDrawer-paper {
+  background: var(--nebula-glass-strong);
+  border-right: 1px solid var(--nebula-glass-border);
+  backdrop-filter: var(--nebula-glass-filter);
+}
+
+body:not(.dashboardDocument) .MuiMenuItem-root:hover,
+body:not(.dashboardDocument) .MuiListItemButton-root:hover {
+  background: rgb(var(--nebula-primary-rgb) / 14%);
+}
+
+body:not(.dashboardDocument) .MuiListItemButton-root.Mui-selected {
+  background: rgb(var(--nebula-primary-rgb) / 22%);
+}

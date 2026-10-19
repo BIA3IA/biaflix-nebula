@@ -1,0 +1,103 @@
+/*
+ * Biaflix Nebula — design tokens.
+ * Unica fonte di colori, raggi, spaziature e tempi: i componenti non usano valori hard-coded.
+ */
+:root {
+  /* Superfici */
+  --nebula-bg: #080b16;
+  --nebula-bg-rgb: 8 11 22;
+  --nebula-bg-elevated: #111629;
+  --nebula-surface: #171c31;
+  --nebula-surface-hover: #1f2542;
+
+  /* Testo */
+  --nebula-text: #f6f6ff;
+  --nebula-text-muted: #a8aec3;
+  --nebula-text-subtle: #7f86a0;
+
+  /* Brand (derivati dal logo Biaflix) */
+  --nebula-primary: #854bff;
+  --nebula-primary-rgb: 133 75 255;
+  --nebula-primary-light: #b16dff;
+  --nebula-blue: #476dff;
+  --nebula-blue-rgb: 71 109 255;
+  --nebula-cyan: #39d4e8;
+  --nebula-cyan-rgb: 57 212 232;
+  --nebula-danger: #ff657f;
+  --nebula-success: #53d8a3;
+  --nebula-warning: #ffc46b;
+  --nebula-gradient: linear-gradient(120deg, #854bff 0%, #476dff 54%, #39d4e8 100%);
+  --nebula-gradient-progress: linear-gradient(90deg, #854bff 0%, #476dff 60%, #39d4e8 100%);
+
+  /* Vetro */
+  --nebula-glass-bg: rgb(14 19 37 / 62%);
+  --nebula-glass-strong: rgb(10 14 28 / 82%);
+  --nebula-glass-solid: rgb(13 17 33 / 97%);
+  --nebula-glass-border: rgb(213 218 255 / 18%);
+  --nebula-glass-border-strong: rgb(213 218 255 / 28%);
+  --nebula-glass-highlight: rgb(255 255 255 / 9%);
+  --nebula-blur: 26px;
+  --nebula-saturate: 140%;
+  --nebula-glass-filter: blur(var(--nebula-blur)) saturate(var(--nebula-saturate));
+
+  /* Ombre e luce */
+  --nebula-shadow-soft: 0 10px 30px rgb(0 0 0 / 35%);
+  --nebula-shadow-strong: 0 18px 48px rgb(0 0 0 / 55%);
+  --nebula-glow: 0 10px 34px rgb(var(--nebula-primary-rgb) / 28%);
+  --nebula-inner-light: inset 0 1px 0 var(--nebula-glass-highlight);
+
+  /* Focus */
+  --nebula-focus-ring: 0 0 0 2px var(--nebula-bg), 0 0 0 4px var(--nebula-cyan);
+
+  /* Raggi */
+  --nebula-radius-sm: 10px;
+  --nebula-radius-md: 16px;
+  --nebula-radius-lg: 22px;
+  --nebula-radius-xl: 28px;
+  --nebula-radius-pill: 999px;
+
+  /* Spaziature (scala 4/8) */
+  --nebula-space-1: 4px;
+  --nebula-space-2: 8px;
+  --nebula-space-3: 12px;
+  --nebula-space-4: 16px;
+  --nebula-space-5: 24px;
+  --nebula-space-6: 32px;
+  --nebula-space-7: 48px;
+  --nebula-space-8: 64px;
+
+  /* Layout */
+  --nebula-nav-height: 68px;
+  --nebula-nav-top: clamp(10px, 1.4vw, 18px);
+  --nebula-content-max: 1680px;
+  --nebula-content-gutter: clamp(16px, 4.5vw, 72px);
+  --nebula-section-gap: clamp(28px, 3.4vw, 52px);
+  --nebula-poster-width: clamp(132px, 13vw, 214px);
+  --nebula-thumb-width: clamp(232px, 21vw, 320px);
+  --nebula-touch-target: 44px;
+
+  /* Tipografia (system-first, nessun font esterno obbligatorio) */
+  --nebula-font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  --nebula-font-display: 'Inter Display', 'SF Pro Display', system-ui, -apple-system, 'Segoe UI Variable Display', 'Segoe UI', Roboto, sans-serif;
+  --nebula-text-xs: 12px;
+  --nebula-text-sm: 13px;
+  --nebula-text-md: 15px;
+  --nebula-text-lg: 18px;
+  --nebula-text-section: clamp(20px, 1.6vw, 26px);
+  --nebula-text-hero: clamp(32px, 4.6vw, 68px);
+
+  /* Movimento */
+  --nebula-fast: 160ms;
+  --nebula-normal: 240ms;
+  --nebula-slow: 520ms;
+  --nebula-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --nebula-hover-lift: -4px;
+  --nebula-hover-scale: 1.035;
+
+  /* Z-index: sopra hero, sotto modali/dialog Jellyfin (che partono da 1000+) */
+  --nebula-z-nav: 900;
+  --nebula-z-overlay: 1100;
+  --nebula-z-toast: 1200;
+
+  color-scheme: dark;
+}

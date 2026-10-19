@@ -1,0 +1,132 @@
+/*
+ * Rail: sia le sezioni native/KefinTweaks (.verticalSection) sia le rail Nebula.
+ * Titoli 20–26px, margini uguali, scroll-snap naturale.
+ */
+
+/* --- Sezioni native e KefinTweaks ----------------------------------------- */
+body:not(.dashboardDocument) #indexPage .homeSectionsContainer > .verticalSection,
+body:not(.dashboardDocument) #indexPage .sections > .verticalSection {
+  margin-bottom: var(--nebula-section-gap);
+}
+
+body:not(.dashboardDocument) .sectionTitle.sectionTitle-cards,
+body:not(.dashboardDocument) .sectionTitleContainer .sectionTitle {
+  color: var(--nebula-text);
+  font: 700 var(--nebula-text-section) / 1.2 var(--nebula-font-display);
+}
+
+body:not(.dashboardDocument) .sectionTitleTextButton,
+body:not(.dashboardDocument) .sectionTitle-link {
+  color: var(--nebula-text);
+}
+
+body:not(.dashboardDocument) .sectionTitleTextButton .material-icons,
+body:not(.dashboardDocument) .sectionTitle-link .material-icons {
+  color: var(--nebula-primary-light);
+  transition: transform var(--nebula-fast) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument) .sectionTitleTextButton:hover .material-icons {
+  transform: translateX(3px);
+}
+
+/* Righe scorrevoli: snapping e respiro per il lift delle card al hover. */
+body:not(.dashboardDocument) .emby-scroller .itemsContainer.scrollSlider {
+  padding-block: 10px 6px;
+}
+
+body:not(.dashboardDocument) .emby-scroller {
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--nebula-content-gutter);
+}
+
+body:not(.dashboardDocument) .emby-scroller .card {
+  scroll-snap-align: start;
+}
+
+/* Frecce di scorrimento native */
+body:not(.dashboardDocument) .emby-scrollbuttons .emby-scrollbuttons-button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: 50%;
+  background: var(--nebula-glass-strong);
+  color: var(--nebula-text);
+  backdrop-filter: var(--nebula-glass-filter);
+}
+
+/* --- Rail Nebula ------------------------------------------------------------ */
+.nebula-rail {
+  margin: 0 0 var(--nebula-section-gap);
+  padding-inline: var(--nebula-content-gutter);
+}
+
+.nebula-rail__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--nebula-space-2) var(--nebula-space-4);
+  margin-bottom: var(--nebula-space-3);
+}
+
+.nebula-rail__title {
+  margin: 0;
+  font: 700 var(--nebula-text-section) / 1.2 var(--nebula-font-display);
+}
+
+.nebula-rail__subtitle {
+  margin: 4px 0 0;
+  color: var(--nebula-text-subtle);
+  font-size: var(--nebula-text-sm);
+}
+
+.nebula-rail__actions,
+.nebula-rail__navs {
+  display: flex;
+  align-items: center;
+  gap: var(--nebula-space-2);
+}
+
+.nebula-rail__nav {
+  width: 40px;
+  height: 40px;
+}
+
+.nebula-rail.is-empty .nebula-rail__navs {
+  display: none;
+}
+
+.nebula-rail__track.itemsContainer {
+  display: grid;
+  grid-auto-columns: var(--nebula-poster-width);
+  grid-auto-flow: column;
+  gap: var(--nebula-space-4);
+  margin: 0 calc(-1 * var(--nebula-content-gutter));
+  padding: 10px var(--nebula-content-gutter) 14px;
+  overflow: auto hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--nebula-content-gutter);
+  scrollbar-width: none;
+}
+
+.nebula-rail__track::-webkit-scrollbar {
+  display: none;
+}
+
+.nebula-rail__track--wide.itemsContainer {
+  grid-auto-columns: var(--nebula-thumb-width);
+}
+
+.nebula-rail__track--collection.itemsContainer {
+  grid-auto-columns: clamp(268px, 26vw, 420px);
+}
+
+.nebula-rail.is-empty .nebula-rail__track {
+  display: none;
+}
+
+.nebula-rail__empty {
+  max-width: 760px;
+}

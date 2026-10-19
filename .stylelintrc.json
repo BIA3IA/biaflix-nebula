@@ -1,0 +1,15 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "selector-class-pattern": null,
+    "selector-id-pattern": null,
+    "no-descending-specificity": null,
+    "declaration-no-important": true,
+    "property-no-vendor-prefix": null,
+    "value-keyword-case": null,
+    "custom-property-pattern": null,
+    "keyframes-name-pattern": null,
+    "import-notation": "string"
+  },
+  "overrides": [{ "files": ["src/styles/reduced-motion.css"], "rules": { "declaration-no-important": null } }]
+}

@@ -1,0 +1,137 @@
+/*
+ * Compatibilità plugin: Jellyfin Enhanced 12.12, KefinTweaks 0.5.1, CustomTabs, Plugin Pages.
+ * Regola: solo stile dei loro elementi, nessuna seconda UI. Nessun cambio di posizione dei tag JE.
+ */
+
+/* --- Jellyfin Enhanced: tray pulsanti header, launcher, pannello impostazioni ------ */
+body:not(.dashboardDocument) #je-header-buttons-group .headerButton {
+  border-radius: 50%;
+  color: var(--nebula-text);
+}
+
+body:not(.dashboardDocument) #je-header-buttons-group .headerButton:hover {
+  background: var(--nebula-glass-highlight);
+}
+
+body:not(.dashboardDocument) :is(#je-header-launcher-panel, .je-launcher-panel) {
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-lg);
+  background: var(--nebula-glass-strong);
+  color: var(--nebula-text);
+  box-shadow: var(--nebula-shadow-strong), var(--nebula-inner-light);
+  backdrop-filter: var(--nebula-glass-filter);
+}
+
+body:not(.dashboardDocument) .je-launcher-action:hover {
+  background: rgb(var(--nebula-primary-rgb) / 16%);
+}
+
+/* Tag sulle card: leggermente arrotondati, senza toccare colori/posizioni scelti in JE. */
+body:not(.dashboardDocument) .je-tag-host :is(.quality-overlay-label, .rating-tag, .age-rating-tag, .genre-tag) {
+  border-radius: 6px;
+}
+
+/* Le quick action Nebula stanno in alto a destra: la colonna JE top-right scende quando sono visibili. */
+body:not(.dashboardDocument) .card:is(:hover, :focus-within) .je-tag-host [data-je-corner='top-right'] {
+  opacity: 0;
+}
+
+/* Seerr: card e pulsanti richiesta coerenti con i token */
+body:not(.dashboardDocument) .jellyseerr-card .cardScalable {
+  border-radius: var(--nebula-radius-md);
+}
+
+body:not(.dashboardDocument) .jellyseerr-request-button {
+  border-radius: var(--nebula-radius-pill);
+}
+
+body:not(.dashboardDocument) .jellyseerr-button-request {
+  background: var(--nebula-gradient);
+  color: #fff;
+}
+
+/* Titolo raccomandazioni JE: non fisso, niente sfondo sovrapposto (era nel Custom CSS del server). */
+body:not(.dashboardDocument) .je-recommendations-title {
+  position: static;
+  top: auto;
+  z-index: auto;
+}
+
+body:not(.dashboardDocument) .je-recommendations-title::before {
+  display: none;
+}
+
+/* Pagine JE (richieste, calendario, bookmark…): superfici glass */
+body:not(.dashboardDocument) :is(#je-downloads-page, #je-calendar-page, #je-bookmarks-standalone-page, #je-recommendations-page) {
+  padding-inline: var(--nebula-content-gutter);
+}
+
+/* --- KefinTweaks ------------------------------------------------------------------- */
+
+/* Hamburger desktop (unico drawer: Nebula non ne aggiunge un secondo) */
+body:not(.dashboardDocument) [data-kefin-desktop-hamburger] {
+  top: calc(var(--nebula-nav-top) + (var(--nebula-nav-height) - 44px) / 2);
+  left: calc(var(--nebula-content-gutter) + 8px);
+  z-index: calc(var(--nebula-z-nav) + 1);
+  border-radius: 50%;
+  color: var(--nebula-text);
+}
+
+body:not(.dashboardDocument) [data-kefin-desktop-drawer] .MuiDrawer-paper {
+  background: var(--nebula-glass-strong);
+  border-right: 1px solid var(--nebula-glass-border);
+  backdrop-filter: var(--nebula-glass-filter);
+}
+
+/* Barra categorie home */
+body:not(.dashboardDocument) .kefin-home-category-rail {
+  background: transparent;
+}
+
+body:not(.dashboardDocument) .kefin-home-category-btn {
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-glass-bg);
+  color: var(--nebula-text-muted);
+}
+
+body:not(.dashboardDocument) .kefin-home-category-item.is-active .kefin-home-category-btn {
+  border-color: rgb(var(--nebula-primary-rgb) / 60%);
+  background: rgb(var(--nebula-primary-rgb) / 28%);
+  color: var(--nebula-text);
+}
+
+/* Spotlight KefinTweaks (sezioni editoriali sotto l'hero Nebula): bordi e overlay coerenti */
+body:not(.dashboardDocument) .spotlight-section .spotlight-items-container {
+  border-radius: var(--nebula-radius-xl);
+  overflow: hidden;
+}
+
+body:not(.dashboardDocument) .spotlight-section .spotlight-overlay {
+  background: linear-gradient(90deg, rgb(var(--nebula-bg-rgb) / 88%) 0%, rgb(var(--nebula-bg-rgb) / 30%) 55%, transparent 100%);
+}
+
+body:not(.dashboardDocument) .spotlight-section .spotlight-dot.active {
+  background: var(--nebula-gradient);
+}
+
+/* Modali e toast KefinTweaks */
+body:not(.dashboardDocument) [data-name='kefin-modal'] {
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-lg);
+  background: var(--nebula-glass-solid);
+}
+
+/* Breadcrumb */
+body:not(.dashboardDocument) .breadcrumb-nav a {
+  color: var(--nebula-text-muted);
+}
+
+body:not(.dashboardDocument) .breadcrumb-nav a:hover {
+  color: var(--nebula-text);
+}
+
+/* --- CustomTabs / Plugin Pages: voci clonate dalla navbar MUI ereditano lo stile dei link. */
+body:not(.dashboardDocument) [id^='customTabButton_'][aria-current='page'] {
+  background: transparent;
+}

@@ -1,0 +1,46 @@
+/*
+ * Ricerca: campo glass e gruppi risultati. La logica resta a KefinTweaks (smart search)
+ * e a Jellyfin Enhanced (risultati Seerr): qui solo stile, nessun presenter duplicato.
+ */
+body:not(.dashboardDocument) #searchPage .searchFields .inputContainer input,
+body:not(.dashboardDocument) #searchPage #searchTextInput {
+  min-height: 52px;
+  padding-inline: 48px var(--nebula-space-4);
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-glass-strong);
+  color: var(--nebula-text);
+  font-size: var(--nebula-text-lg);
+  box-shadow: var(--nebula-inner-light);
+}
+
+body:not(.dashboardDocument) #searchPage :is(.searchFields .inputContainer input, #searchTextInput):focus {
+  border-color: var(--nebula-primary);
+  box-shadow: 0 0 0 3px rgb(var(--nebula-primary-rgb) / 30%);
+}
+
+body:not(.dashboardDocument) #searchPage .searchfields-icon {
+  color: var(--nebula-text-subtle);
+}
+
+/* Filtri KefinTweaks */
+body:not(.dashboardDocument) .smart-search-buttons .smart-search-btn {
+  min-height: 40px;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-glass-bg);
+  color: var(--nebula-text-muted);
+}
+
+body:not(.dashboardDocument) .smart-search-buttons .smart-search-btn.active {
+  border-color: rgb(var(--nebula-primary-rgb) / 60%);
+  background: rgb(var(--nebula-primary-rgb) / 28%);
+  color: var(--nebula-text);
+}
+
+/* Gruppo Seerr (JE): separato visivamente dai risultati della libreria. */
+body:not(.dashboardDocument) #searchPage .jellyseerr-section {
+  margin-top: var(--nebula-space-6);
+  padding-top: var(--nebula-space-5);
+  border-top: 1px solid var(--nebula-glass-border);
+}

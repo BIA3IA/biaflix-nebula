@@ -1,0 +1,120 @@
+/*
+ * Pagina dettagli film/serie/episodio (view legacy #itemDetailPage dentro il layout Modern).
+ * Backdrop cinematografico leggibile, azioni glass, Riproduci primario.
+ */
+body:not(.dashboardDocument) #itemDetailPage .itemBackdrop {
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+}
+
+body:not(.dashboardDocument) #itemDetailPage .itemBackdrop::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(var(--nebula-bg-rgb) / 75%) 0%, rgb(var(--nebula-bg-rgb) / 15%) 55%, transparent 100%);
+  pointer-events: none;
+  content: '';
+}
+
+body:not(.dashboardDocument) #itemDetailPage .detailPagePrimaryContainer {
+  background: transparent;
+}
+
+body:not(.dashboardDocument) #itemDetailPage .nameContainer .itemName,
+body:not(.dashboardDocument) #itemDetailPage .parentName {
+  font-family: var(--nebula-font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 18px rgb(0 0 0 / 45%);
+}
+
+body:not(.dashboardDocument) #itemDetailPage .itemMiscInfo,
+body:not(.dashboardDocument) #itemDetailPage .itemGenres,
+body:not(.dashboardDocument) #itemDetailPage .tagline {
+  color: var(--nebula-text-muted);
+}
+
+body:not(.dashboardDocument) #itemDetailPage .overview {
+  max-width: 75ch;
+  color: rgb(246 246 255 / 88%);
+  line-height: 1.6;
+}
+
+/* Pulsanti: cerchi glass 48px, Riproduci in gradiente. */
+body:not(.dashboardDocument) #itemDetailPage .mainDetailButtons {
+  gap: var(--nebula-space-2);
+  align-items: center;
+}
+
+body:not(.dashboardDocument) #itemDetailPage .mainDetailButtons .detailButton {
+  min-width: 48px;
+  min-height: 48px;
+  margin: 0;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-glass-bg);
+  color: var(--nebula-text);
+  box-shadow: var(--nebula-inner-light);
+  backdrop-filter: var(--nebula-glass-filter);
+  transition:
+    background-color var(--nebula-fast) var(--nebula-ease),
+    border-color var(--nebula-fast) var(--nebula-ease),
+    transform var(--nebula-fast) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument) #itemDetailPage .mainDetailButtons .detailButton:hover {
+  border-color: rgb(var(--nebula-primary-rgb) / 60%);
+  background: rgb(var(--nebula-primary-rgb) / 26%);
+}
+
+body:not(.dashboardDocument) #itemDetailPage .mainDetailButtons .detailButton:is(.btnPlay, .btnResume):not(.hide) {
+  padding-inline: var(--nebula-space-4);
+  border-color: transparent;
+  background: var(--nebula-gradient);
+  color: #fff;
+  box-shadow: var(--nebula-glow);
+}
+
+body:not(.dashboardDocument) #itemDetailPage .nebula-watchlist-btn[aria-pressed='true'] {
+  color: var(--nebula-cyan);
+  border-color: rgb(var(--nebula-cyan-rgb) / 55%);
+}
+
+/* Pannelli informativi compatti */
+body:not(.dashboardDocument) #itemDetailPage :is(.itemDetailsGroup, .mediaInfoContent) {
+  color: var(--nebula-text-muted);
+}
+
+body:not(.dashboardDocument) #itemDetailPage .detailSectionContent :is(.selectContainer select, .emby-select-withcolor) {
+  border-radius: var(--nebula-radius-sm);
+}
+
+body:not(.dashboardDocument) #itemDetailPage .detailImageContainer .card .cardScalable {
+  box-shadow: var(--nebula-shadow-strong);
+}
+
+/* Episodi e stagioni: thumbnail 16:9 nitide, testo spoiler-safe gestito da JE. */
+body:not(.dashboardDocument) #itemDetailPage .listItem {
+  border-radius: var(--nebula-radius-md);
+}
+
+body:not(.dashboardDocument) #itemDetailPage .listItem:hover {
+  background: rgb(255 255 255 / 4%);
+}
+
+body:not(.dashboardDocument) #itemDetailPage .listItemImage {
+  border-radius: var(--nebula-radius-sm);
+}
+
+/* --- Pagina raccolta --------------------------------------------------------- */
+.nebula-collection-filter {
+  margin: var(--nebula-space-4) 0 var(--nebula-space-2);
+}
+
+#itemDetailPage.nebula-collection-page .nebula-notice--inline {
+  margin-bottom: var(--nebula-space-4);
+}
+
+#itemDetailPage[data-nebula-filter='Movie'] #childrenCollapsible .card[data-type]:not([data-type='Movie']),
+#itemDetailPage[data-nebula-filter='Series'] #childrenCollapsible .card[data-type]:not([data-type='Series']) {
+  display: none;
+}

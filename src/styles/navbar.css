@@ -1,0 +1,162 @@
+/*
+ * Floating navbar glass (layout Modern, MUI AppBar di jellyfin-web 12.2).
+ * Selettori stabili: header.MuiAppBar-root, .MuiToolbar-root, link a.MuiButton-root[href].
+ * Stato scroll: MUI passa da .MuiAppBar-colorTransparent a .MuiAppBar-colorDefault (useScrollTrigger),
+ * quindi niente JS: solo transizioni di colore/ombra, nessun layout shift.
+ */
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) {
+  inset: var(--nebula-nav-top) var(--nebula-content-gutter) auto;
+  width: auto;
+  max-width: var(--nebula-content-max);
+  margin-inline: auto;
+  border: 1px solid var(--nebula-glass-border);
+  border-radius: var(--nebula-radius-xl);
+  background: var(--nebula-glass-bg);
+  color: var(--nebula-text);
+  box-shadow: var(--nebula-shadow-soft), var(--nebula-inner-light);
+  backdrop-filter: var(--nebula-glass-filter);
+  transition:
+    background-color var(--nebula-normal) var(--nebula-ease),
+    box-shadow var(--nebula-normal) var(--nebula-ease),
+    border-color var(--nebula-normal) var(--nebula-ease);
+  z-index: var(--nebula-z-nav);
+}
+
+/* Sopra l'hero: vetro più leggero ma con contrasto sufficiente per testo e logo. */
+body:not(.dashboardDocument) header.MuiAppBar-root.MuiAppBar-colorTransparent:not(.dashboard-appBar) {
+  background: linear-gradient(180deg, rgb(10 14 28 / 58%), rgb(10 14 28 / 42%));
+}
+
+/* In scroll: più scuro e ombra più solida. */
+body:not(.dashboardDocument) header.MuiAppBar-root.MuiAppBar-colorDefault:not(.dashboard-appBar) {
+  background: var(--nebula-glass-strong);
+  border-color: var(--nebula-glass-border-strong);
+  box-shadow: var(--nebula-shadow-strong), var(--nebula-inner-light);
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root {
+  min-height: var(--nebula-nav-height);
+  padding-inline: var(--nebula-space-4);
+  gap: var(--nebula-space-2);
+}
+
+/* Logo/nome server (ServerButton di jellyfin-web 12.2: link a "#/" con icona Jellyfin nello startIcon) */
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) a.MuiButton-root[href='#/'] {
+  min-height: var(--nebula-touch-target);
+  border-radius: var(--nebula-radius-pill);
+  font-family: var(--nebula-font-display);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  text-transform: none;
+}
+
+/* Link di navigazione (librerie, preferiti) */
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) .MuiToolbar-root .MuiStack-root > a.MuiButton-root:not([href='#/']) {
+  position: relative;
+  min-height: var(--nebula-touch-target);
+  padding-inline: var(--nebula-space-3);
+  border-radius: var(--nebula-radius-pill);
+  color: var(--nebula-text-muted);
+  font-weight: 600;
+  text-transform: none;
+  transition:
+    color var(--nebula-fast) var(--nebula-ease),
+    background-color var(--nebula-fast) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) .MuiToolbar-root .MuiStack-root > a.MuiButton-root:not([href='#/']):hover {
+  color: var(--nebula-text);
+  background: var(--nebula-glass-highlight);
+}
+
+/* Voce attiva: testo pieno + indicatore viola→ciano */
+body:not(.dashboardDocument)
+  header.MuiAppBar-root:not(.dashboard-appBar)
+  .MuiToolbar-root
+  .MuiStack-root
+  > a.MuiButton-root:not([href='#/']):is(.MuiButton-textPrimary, [aria-current='page']) {
+  color: var(--nebula-text);
+}
+
+body:not(.dashboardDocument)
+  header.MuiAppBar-root:not(.dashboard-appBar)
+  .MuiToolbar-root
+  .MuiStack-root
+  > a.MuiButton-root:not([href='#/']):is(.MuiButton-textPrimary, [aria-current='page'])::after {
+  position: absolute;
+  inset: auto 22% 4px;
+  height: 3px;
+  border-radius: var(--nebula-radius-pill);
+  background: var(--nebula-gradient);
+  content: '';
+}
+
+/* Icone a destra (ricerca, SyncPlay, cast, avatar): target 44px */
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) .MuiIconButton-root {
+  min-width: var(--nebula-touch-target);
+  min-height: var(--nebula-touch-target);
+  color: var(--nebula-text);
+  transition: background-color var(--nebula-fast) var(--nebula-ease);
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) .MuiIconButton-root:hover {
+  background: var(--nebula-glass-highlight);
+}
+
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) .MuiAvatar-root {
+  box-shadow:
+    0 0 0 2px var(--nebula-bg),
+    0 0 0 3px rgb(var(--nebula-primary-rgb) / 70%);
+}
+
+/* La toolbar di libreria (filtri/ordinamento) sotto la navbar: glass coerente. */
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) .MuiToolbar-root + .MuiToolbar-root {
+  border-top: 1px solid var(--nebula-glass-border);
+}
+
+/* Lo spacer MUI dopo l'AppBar include il margine superiore della barra flottante. */
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) + div[aria-hidden='true'] {
+  min-height: calc(var(--nebula-nav-height) + var(--nebula-nav-top) + 8px);
+}
+
+/* Layout legacy (best effort): stessa barra glass sull'header storico. */
+.nebula-layout-legacy body:not(.dashboardDocument) .skinHeader:not(.osdHeader) {
+  background: var(--nebula-glass-strong);
+  border-bottom: 1px solid var(--nebula-glass-border);
+  backdrop-filter: var(--nebula-glass-filter);
+}
+
+/*
+ * Logo Biaflix originale (singola fonte: assets/biaflix-logo-*.png, relativo a questo foglio).
+ * Affiancato al nome server nel ServerButton, senza ritagli o deformazioni.
+ */
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) a.MuiButton-root[href='#/'] .MuiButton-startIcon {
+  width: 34px;
+  height: 34px;
+  margin-right: var(--nebula-space-2);
+  background: image-set(url('assets/biaflix-logo-128.png') 1x, url('assets/biaflix-logo-256.png') 2x) center / contain no-repeat;
+  filter: drop-shadow(0 2px 10px rgb(var(--nebula-primary-rgb) / 45%));
+}
+
+/* L'icona Jellyfin nativa resta nel DOM (accessibilità invariata, è aria-hidden) ma non si vede. */
+body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) a.MuiButton-root[href='#/'] .MuiButton-startIcon > img {
+  opacity: 0;
+}
+
+/* Splash e login */
+body:not(.dashboardDocument) .splashLogo {
+  background-image: image-set(url('assets/biaflix-logo-256.png') 1x, url('assets/biaflix-logo.png') 2x);
+  background-size: contain;
+}
+
+body:not(.dashboardDocument) #loginPage :is(.manualLoginForm, .visualLoginForm)::before {
+  display: block;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto var(--nebula-space-4);
+  background: image-set(url('assets/biaflix-logo-256.png') 1x, url('assets/biaflix-logo.png') 2x) center / contain no-repeat;
+  filter: drop-shadow(0 6px 24px rgb(var(--nebula-primary-rgb) / 45%));
+  content: '';
+}

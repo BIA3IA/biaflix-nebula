@@ -1,0 +1,40 @@
+# Compatibilità e limiti
+
+## Client
+
+| Client                                                           | Supporto                | Note                                                                                                                                                                                                                  |
+| ---------------------------------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Jellyfin Web 12.2, layout **Modern**, Firefox/Chromium desktop   | ✅ completo             | testato E2E (Firefox 1920×1080, Chromium 1366×768)                                                                                                                                                                    |
+| Jellyfin Web 12.2, mobile (browser)                              | ✅ completo             | testato E2E 390×844; header compatto, hero 60svh, dialog a foglio dal basso                                                                                                                                           |
+| Jellyfin Web, layout **Legacy** (desktop-legacy/mobile-legacy)   | ⚠️ best effort          | palette, card, dettagli e player stilizzati; navbar glass sull'header storico; le route `#/boxsets`/`#/playlists` non esistono in legacy, quindi niente hub (raccolte comunque gestibili da dettagli e «Aggiungi a…») |
+| Jellyfin Media Player / client desktop che caricano Jellyfin Web | ⚠️ probabile            | caricano gli stessi CSS/JS del server; non testato                                                                                                                                                                    |
+| App Android/iOS che incorporano Jellyfin Web                     | ⚠️ probabile            | come sopra; la scelta della skin è per dispositivo                                                                                                                                                                    |
+| App native (Android TV, Roku, Swiftfin, Findroid, Infuse, TV)    | ❌ non applicabile      | non caricano Jellyfin Web: nessuna skin, ma media, raccolte, playlist e watchlist funzionano perché sono dati server                                                                                                  |
+| Dashboard amministrazione                                        | ⛔ esclusa di proposito | `body.dashboardDocument` non riceve palette né stili Nebula (verificato E2E)                                                                                                                                          |
+
+## Plugin
+
+| Plugin                                | Versione  | Integrazione                                                                                                                                                                                          |
+| ------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| KefinTweaks                           | 0.5.1     | Skin Manager (attivazione), sezioni home (ordinamento `order`), hamburger, ricerca, modali: solo stile. **Non** fissare Nebula a selettori interni oltre a quelli documentati in `plugin-compat.css`. |
+| Jellyfin Enhanced                     | 12.12.0.0 | watchlist condivisa (`Likes`), Seerr search (unico presenter), header tray, pause screen, tag: solo stile, posizioni invariate                                                                        |
+| CustomTabs                            | —         | nessuna tab configurata; stile compatibile se aggiunte                                                                                                                                                |
+| Plugin Pages                          | 3.0.2.0   | pagine JE servite da Plugin Pages ereditano palette e superfici                                                                                                                                       |
+| Intro Skipper, InPlayerEpisodePreview | —         | player non modificato oltre ai colori dei controlli                                                                                                                                                   |
+
+## Limiti noti (non aggirabili lato client)
+
+1. **Le raccolte sono globali.** Jellyfin non ha raccolte private per account: una raccolta è visibile a tutti gli utenti che vedono i titoli contenuti. Nebula lo dichiara nei dialog. Per liste personali usa le **playlist** (private di default, pubblicabili). Una raccolta davvero privata richiederebbe un backend dedicato (spec §7), da approvare prima.
+2. **Creare e modificare raccolte richiede il permesso «Gestione raccolte».** Senza permesso, Nebula non mostra i controlli e il server risponde comunque 403.
+3. **Descrizione e cover caricata di una raccolta: solo admin** (`RequiresElevation` su 12.2). Per gli altri c'è il collage automatico dei poster, generato al volo e non salvato.
+4. **Playlist e serie:** aggiungere una serie a una playlist inserisce tutti i suoi episodi (comportamento server 12.2). Nebula lo avvisa nel dialog.
+5. **Skin per browser, non per utente:** KefinTweaks 0.5.1 salva la skin scelta in `localStorage`. Due utenti sullo stesso browser condividono la scelta.
+6. **Pagina hub raccolte** solo sul layout Modern (`#/boxsets`, `#/playlists`), che in Jellyfin esiste solo dopo la creazione della prima raccolta. Prima di allora la creazione parte dalla rail «Le mie raccolte» in home.
+7. **Hero:** usa la raccolta curata «In evidenza» se esiste (nome configurabile in `heroCollectionName`), altrimenti film in corso e ultimi aggiunti con backdrop. Lo Spotlight KefinTweaks, se configurato, resta come sezione editoriale sotto l'hero.
+8. **Font:** system-first, nessun font esterno.
+
+## Aggiornamenti futuri
+
+- **Jellyfin Web:** i selettori MUI usati sono le classi stabili (`MuiAppBar-root`, `MuiToolbar-root`, `MuiButton-root`) e le variabili `--jf-palette-*`; nessuna classe hash `css-*`. Dopo ogni aggiornamento rilanciare `pnpm test:e2e` contro un'istanza locale della nuova versione (`IMAGE` in `dev/up.sh`).
+- **KefinTweaks:** fissare il tag in JS Injector. Le API usate sono il `<link data-kefin-skin data-skin>` e l'evento implicito di ridisegno della home (gestito con un observer circoscritto).
+- **Jellyfin Enhanced:** Nebula non dipende dal suo JS; solo da classi CSS documentate in `plugin-compat.css`.
