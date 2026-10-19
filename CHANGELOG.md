@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.1.0 (non rilasciata)
+## 0.1.1
+
+- Pubblicazione: `dist/` ora è incluso nel repository (era escluso da una regola `dist` nel gitignore globale), così jsDelivr serve `nebula.css`, `nebula.js` e il logo.
+- Snippet JS Injector già puntato a `BIA3IA/biaflix-nebula`.
+
+## 0.1.0
 
 Prima versione funzionante, verificata su Jellyfin 12.2 locale.
 

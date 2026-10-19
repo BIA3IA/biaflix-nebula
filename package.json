@@ -1,6 +1,6 @@
 {
   "name": "biaflix-nebula",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Biaflix Nebula: skin cinematografica dark-only per Jellyfin Web 12 con raccolte miste film+serie.",
   "license": "MIT",

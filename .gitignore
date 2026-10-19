@@ -4,3 +4,6 @@ test-results/
 playwright-report/
 *.log
 .DS_Store
+
+# dist/ è il pacchetto pubblicato (jsDelivr): va versionato anche se ~/.gitignore_global esclude "dist".
+!dist/

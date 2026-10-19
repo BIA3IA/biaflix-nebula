@@ -25,7 +25,7 @@
   };
 
   // Sostituire con l'URL versionato (tag fisso, mai @latest) dove è pubblicato dist/nebula.js.
-  var NEBULA_JS_URL = 'https://cdn.jsdelivr.net/gh/OWNER/biaflix-nebula@v__NEBULA_VERSION__/dist/nebula.js';
+  var NEBULA_JS_URL = 'https://cdn.jsdelivr.net/gh/BIA3IA/biaflix-nebula@v__NEBULA_VERSION__/dist/nebula.js';
 
   var s = document.createElement('script');
   s.id = 'biaflix-nebula-js';
