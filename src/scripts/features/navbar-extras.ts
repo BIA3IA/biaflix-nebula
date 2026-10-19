@@ -1,6 +1,7 @@
 /** Link Nebula nella navbar Modern, ripristinati quando React ricostruisce la toolbar. */
 import type { NebulaContext } from '../context';
 import { currentRoute } from '../env';
+import { ROUTE_CHANGED } from '../route-events';
 import { t } from '../i18n';
 import { WATCHLIST_HREF, isWatchlistRoute } from '../watchlist';
 import { h, icon } from '../ui/dom';
@@ -55,6 +56,7 @@ export function installNavbarExtras(_ctx: NebulaContext): () => void {
     frame = requestAnimationFrame(ensure);
   };
   window.addEventListener('hashchange', onRoute);
+  window.addEventListener(ROUTE_CHANGED, onRoute);
   document.addEventListener('viewshow', onRoute);
   ensure();
   document.addEventListener('kefinTweaksHomePainted', onRoute);
@@ -62,6 +64,7 @@ export function installNavbarExtras(_ctx: NebulaContext): () => void {
   return () => {
     cancelAnimationFrame(frame);
     window.removeEventListener('hashchange', onRoute);
+    window.removeEventListener(ROUTE_CHANGED, onRoute);
     document.removeEventListener('viewshow', onRoute);
     document.removeEventListener('kefinTweaksHomePainted', onRoute);
     toolbarObserver?.disconnect();

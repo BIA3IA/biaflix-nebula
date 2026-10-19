@@ -402,7 +402,7 @@ body:not(.dashboardDocument) .jellyseerr-season-checkbox:focus-visible {
 /* --- Menu glass («Altre azioni») ---------------------------------------------------------------- */
 .nebula-menu {
   position: fixed;
-  z-index: var(--nebula-z-toast);
+  z-index: var(--nebula-z-popover);
   box-sizing: border-box;
   min-width: 220px;
   max-width: min(360px, calc(100vw - 16px));

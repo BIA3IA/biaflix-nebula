@@ -6,6 +6,7 @@
  * diretti di <body> e, a drawer presente, la sua lista.
  */
 import { currentRoute } from '../env';
+import { ROUTE_CHANGED } from '../route-events';
 import { t } from '../i18n';
 import { icon } from '../ui/dom';
 import { isWatchlistRoute, WATCHLIST_HREF } from '../watchlist';
@@ -65,11 +66,13 @@ export function installDrawerExtras(): () => void {
   const bodyObserver = new MutationObserver(ensure);
   bodyObserver.observe(document.body, { childList: true });
   window.addEventListener('hashchange', ensure);
+  window.addEventListener(ROUTE_CHANGED, ensure);
   ensure();
   return () => {
     bodyObserver.disconnect();
     listObserver?.disconnect();
     window.removeEventListener('hashchange', ensure);
+    window.removeEventListener(ROUTE_CHANGED, ensure);
     document.querySelectorAll(`.${ITEM_CLASS}`).forEach((el) => el.remove());
   };
 }

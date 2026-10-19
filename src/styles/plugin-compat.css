@@ -120,50 +120,11 @@ body:not(.dashboardDocument) [id^='customTabButton_'][aria-current='page'] {
 
 /*
  * KefinTweaks: controlli accanto ai titoli delle sezioni home (aggiorna, vedi tutto, configura, altro).
- * Glass e discreti: compaiono al passaggio sulla sezione o con il focus da tastiera; su touch restano visibili.
+ * Nascosti del tutto, anche al passaggio: «vedi tutto» resta sul titolo della sezione (link con ›),
+ * l'aggiornamento avviene da solo e la configurazione è nella dashboard di KefinTweaks.
  */
 body:not(.dashboardDocument) .section-controls :is(.section-refresh-button, button.show-all-button, .section-configure-button, .section-controls-more) {
-  width: 34px;
-  min-width: 34px;
-  height: 34px;
-  padding: 0;
-  border: 1px solid var(--nebula-glass-border);
-  border-radius: 50%;
-  background: var(--nebula-glass-bg);
-  color: var(--nebula-text-muted);
-  font-size: 18px;
-  backdrop-filter: var(--nebula-glass-filter);
-  transition:
-    opacity var(--nebula-normal) var(--nebula-ease),
-    color var(--nebula-fast) var(--nebula-ease),
-    border-color var(--nebula-fast) var(--nebula-ease);
-}
-
-body:not(.dashboardDocument)
-  .section-controls
-  :is(.section-refresh-button, button.show-all-button, .section-configure-button, .section-controls-more):is(:hover, :focus-visible) {
-  border-color: rgb(var(--nebula-primary-rgb) / 60%);
-  color: var(--nebula-text);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  body:not(.dashboardDocument) .section-controls :is(.section-refresh-button, button.show-all-button, .section-configure-button, .section-controls-more) {
-    opacity: 0;
-    visibility: visible;
-  }
-
-  body:not(.dashboardDocument)
-    :is(.verticalSection, .spotlight-section):is(:hover, :focus-within)
-    .section-controls
-    :is(.section-refresh-button, button.show-all-button, .section-configure-button, .section-controls-more) {
-    opacity: 1;
-  }
-}
-
-@media (hover: none) {
-  body:not(.dashboardDocument) .section-controls :is(.section-refresh-button, button.show-all-button, .section-configure-button) {
-    opacity: 0.7;
-  }
+  display: none;
 }
 
 /* La navigazione Home/Discover di KefinTweaks è superflua nella navbar Nebula.
@@ -254,6 +215,17 @@ body:not(.dashboardDocument) :is(.fldSkin, .fldColorSchemes) {
    necessario qui, con selettori circoscritti ai soli controlli Active Streams. */
 /* stylelint-disable declaration-no-important */
 body:not(.dashboardDocument) :is(#je-active-streams, #je-active-streams-panel) {
+  display: none !important;
+}
+/* stylelint-enable declaration-no-important */
+
+/*
+ * «Watch Together» di KefinTweaks (icona `group` accanto a SyncPlay, in navbar e nel player): copia lo
+ * stato visto/in corso su altri account, ma accanto a SyncPlay sembra un secondo «guarda insieme».
+ * Resta solo SyncPlay. Per spegnerlo alla fonte: KefinTweaks → «watchTogether».
+ */
+/* stylelint-disable declaration-no-important */
+body:not(.dashboardDocument) :is(.btnWatchTogether, button[title='Watch Together']) {
   display: none !important;
 }
 /* stylelint-enable declaration-no-important */
@@ -389,8 +361,7 @@ html.nebula-active #itemDetailPage #listChildrenCollapsible .listViewUserDataBut
   }
 
   /* Su telefono restano titolo, Riproduci e «…»: visto/preferito/metadati sono nel menu «…». */
-  html.nebula-active #itemDetailPage #listChildrenCollapsible
-    :is(.listItemMediaInfo, .listViewUserDataButtons > .listItemButton:not([data-action='menu'])) {
+  html.nebula-active #itemDetailPage #listChildrenCollapsible :is(.listItemMediaInfo, .listViewUserDataButtons > .listItemButton:not([data-action='menu'])) {
     display: none;
   }
 }

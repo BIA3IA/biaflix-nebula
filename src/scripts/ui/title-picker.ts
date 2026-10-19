@@ -171,7 +171,10 @@ export function createTitlePicker(ctx: NebulaContext, opts: TitlePickerOptions =
     }
   };
 
-  input.addEventListener('input', debounce(() => void load(true), 250));
+  input.addEventListener(
+    'input',
+    debounce(() => void load(true), 250),
+  );
   more.addEventListener('click', () => void load(false));
 
   renderSummary();

@@ -11,6 +11,7 @@ import { LOCAL_KILL_SWITCH_KEY, resolveFlags, type NebulaFlags } from './flags';
 import { setLocale } from './i18n';
 import { JellyfinApi } from './jellyfin-api';
 import { Lifecycle } from './lifecycle';
+import { installRouteEvents } from './route-events';
 import { PlaylistService } from './playlist';
 import { isSkinLinkPresent, watchSkin } from './skin-detect';
 import { WatchlistService } from './watchlist';
@@ -98,6 +99,8 @@ function boot(): void {
         ],
         (feature, err) => console.warn(PREFIX, `feature "${feature}"`, err),
       );
+      // Prima del Lifecycle: anche le navigazioni pushState del router React diventano un evento.
+      const stopRouteEvents = installRouteEvents();
       const cleanups = [applyShell(), installWatchlistSync(), installNativeCardActions(ctx), installGlassSelect(), installTooltips(), installJeIconTokenFix()];
       lifecycle.start();
       if (flags.disableScreensaver) disableScreensaver(user.Id);
@@ -118,6 +121,7 @@ function boot(): void {
         document.removeEventListener('viewshow', onView);
         lifecycle.stop();
         cleanups.forEach((fn) => fn());
+        stopRouteEvents();
         closeAllDialogs();
         removeToasts();
         document.querySelectorAll('.nebula-root').forEach((el) => el.remove());

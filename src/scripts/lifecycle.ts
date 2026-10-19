@@ -1,10 +1,12 @@
 /**
  * Ciclo di vita delle feature nella SPA Jellyfin.
  * Ogni feature dichiara su quali route è attiva; al cambio pagina (evento `viewshow`, emesso sia
- * dalle pagine React sia dalle view legacy, più `hashchange` di riserva) la feature viene smontata
+ * dalle pagine React sia dalle view legacy, più `hashchange` e ROUTE_CHANGED per le navigazioni del router
+ * React che restano nella stessa view, es. home → home?tab=1) la feature viene smontata
  * e rimontata in modo idempotente. Tutti i listener sono rimossi allo stop.
  */
 import { currentRoute } from './env';
+import { ROUTE_CHANGED } from './route-events';
 
 export interface RouteContext {
   path: string;
@@ -57,9 +59,11 @@ export class Lifecycle {
     const onHash = () => this.schedule(null, false);
     document.addEventListener('viewshow', onView);
     window.addEventListener('hashchange', onHash);
+    window.addEventListener(ROUTE_CHANGED, onHash);
     this.stopFns.push(
       () => document.removeEventListener('viewshow', onView),
       () => window.removeEventListener('hashchange', onHash),
+      () => window.removeEventListener(ROUTE_CHANGED, onHash),
     );
     this.schedule(null, true);
   }

@@ -59,6 +59,8 @@ test('Film, Serie TV e Preferiti: stessa pagina catalogo di Watchlist e Raccolte
       .toBe(true);
     await catalog.locator('a.nebula-card__media').first().click();
     await expect(page).toHaveURL(/#\/details\?/);
+    // Indietro solo a dettagli caricati: il view manager nativo non gestisce un «indietro» istantaneo.
+    await expect(page.locator('#itemDetailPage:not(.hide) .nebula-detail-hero')).toBeVisible();
     await page.goBack();
     await expect(catalog.locator('select')).toHaveValue('year');
     await catalog.getByRole('button', { name: 'Visti', exact: true }).click();
@@ -87,4 +89,22 @@ test('libreria: se il catalogo non si carica resta la vista nativa', async ({ pa
   await expect(page.locator('#moviesPage .card').first()).toBeVisible();
   await expect(page.locator('.nebula-catalog')).toHaveCount(0);
   await expect(page.locator(SECOND_TOOLBAR)).toBeVisible();
+});
+
+test('navbar: Watchlist ↔ Preferiti ↔ Home nella stessa view home (router React, niente hashchange)', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Su telefono i link sono nel menu laterale (mobile-layout.spec.ts)');
+  await installNebula(page, await sessionFor('viewer'));
+  await gotoHome(page);
+  const header = page.locator('header.MuiAppBar-root');
+  for (let i = 0; i < 2; i++) {
+    await header.locator('.nebula-nav-watchlist').click();
+    await expect(page.locator('#indexPage > .nebula-watchlist-page')).toBeVisible();
+    await expect(page.locator('.nebula-favorites-page')).toHaveCount(0);
+    await header.locator('a[href="#/home?tab=1"]').click();
+    await expect(page.locator('#indexPage > .nebula-favorites-page')).toBeVisible();
+    await expect(page.locator('.nebula-watchlist-page')).toHaveCount(0);
+  }
+  await header.locator('a[href="#/"]').first().click();
+  await expect(page.locator('.nebula-hero')).toBeVisible();
+  await expect(page.locator('.nebula-catalog')).toHaveCount(0);
 });

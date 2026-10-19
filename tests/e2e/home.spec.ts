@@ -55,3 +55,15 @@ test.describe('Homepage Nebula', () => {
     await expect(page.locator('.nebula-root')).toHaveCount(0);
   });
 });
+
+test('sezioni home: nessun controllo KefinTweaks (aggiorna, vedi tutto, configura) nemmeno al passaggio', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Il passaggio del mouse esiste solo su desktop');
+  await installNebula(page, await sessionFor('viewer'));
+  await gotoHome(page);
+  const section = page.locator('.verticalSection:has(.section-controls)').filter({ visible: true }).first();
+  await expect(section).toBeVisible();
+  await section.hover();
+  await expect(section.locator('.section-controls button').filter({ visible: true })).toHaveCount(0);
+  // Il titolo della sezione resta (dove è un link, › porta a «vedi tutto»).
+  await expect(section.getByRole('heading').first()).toBeVisible();
+});

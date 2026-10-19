@@ -320,7 +320,7 @@ interface Feature {
 ### 7.2 Come gira
 
 ```
-eventi:  'viewshow' (Jellyfin mostra una view)   'hashchange' (l'URL cambia)
+eventi:  'viewshow' (Jellyfin mostra una view)   'hashchange' / ROUTE_CHANGED (l'URL cambia)
              │                                        │
              └──────────────► schedule() ◄────────────┘
                                  │  fonde le richieste dello stesso frame
@@ -343,6 +343,11 @@ eventi:  'viewshow' (Jellyfin mostra una view)   'hashchange' (l'URL cambia)
 
 Punti chiave:
 
+- **Navigazioni del router React.** jellyfin-web 12 cambia route con `history.pushState`: niente
+  `hashchange` e, se la view resta la stessa (Watchlist → Preferiti, entrambe su `#/home`), nemmeno
+  `viewshow`. [route-events.ts](../src/scripts/route-events.ts) avvolge `pushState`/`replaceState` ed emette
+  `ROUTE_CHANGED`; il Lifecycle, la navbar e il drawer lo ascoltano. Allo stop gli originali tornano al loro
+  posto (o il wrapper diventa trasparente se un altro script l'ha avvolto a sua volta).
 - **Fusione degli eventi.** `hashchange` e `viewshow` arrivano spesso nello stesso frame. Invece di
   scartare il secondo, il Lifecycle li fonde: vince l'ultima pagina nota, e basta che uno dei due chieda
   `force` perché il rimontaggio avvenga. Senza questo, a volte si montava la feature sulla pagina
@@ -671,6 +676,7 @@ Piccoli interventi su difetti di terzi, ognuno isolato in un file e documentato 
 | Playlist (e album): due CSS opzionali di KefinTweaks per le griglie episodi (Ultrachromic `episodes_grid.css`, ScyFlow `EpisodeGrid.css`) rendevano ogni lista della pagina dettagli una griglia a 3–4 colonne senza titoli | `plugin-compat.css`: `#listChildrenCollapsible` torna lista verticale glass (2 id battono i loro `!important`).   |
 | Menu del player (sottotitoli, audio, velocità): jellyfin-web impone `border-radius: .1em !important` → riquadro squadrato con bordo glass                                                                                   | `base.css`: raggio Nebula sugli `.actionSheet`.                                                                   |
 | Popup glass delle select e tooltip sotto i dialog nativi (`.dialogContainer`, z-index 999999)                                                                                                                               | Token `--nebula-z-popover` sopra i dialog nativi.                                                                 |
+| «Watch Together» di KefinTweaks accanto a SyncPlay: due icone «gruppo» (navbar e player), funzioni diverse ma percepite come doppione                                                                                       | `plugin-compat.css`: nascosto `.btnWatchTogether`; resta SyncPlay. Alla fonte: KefinTweaks → `watchTogether`.     |
 
 Errori noti **non nostri** (compaiono anche senza Nebula): `seriesEpisodes.js:760` di KefinTweaks e
 `emby-scrollbuttons scrollHandler` di jellyfin-web. I test E2E li ignorano esplicitamente

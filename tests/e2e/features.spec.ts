@@ -75,10 +75,8 @@ test.describe('Card native', () => {
     test.skip(isMobile, 'Su touch si usa il menu contestuale nativo');
     const s = await sessionFor('curator');
     await installNebula(page, s);
-    // Pagina libreria Film: card native in qualunque configurazione della home (anche KefinTweaks).
-    const views = await apiCall<{ Items: { Id: string; CollectionType?: string }[] }>(s, 'GET', `/UserViews?userId=${s.userId}`);
-    const movies = views.Items.find((v) => v.CollectionType === 'movies')!;
-    await page.goto(`/web/#/movies?topParentId=${movies.Id}&collectionType=movies`);
+    // Ricerca nativa: card native in qualunque configurazione (Film/Serie usano ora il catalogo Nebula).
+    await page.goto('/web/#/search?query=Comfort');
     await expect(page.locator('html.nebula-active')).toHaveCount(1, { timeout: 20_000 });
     const card = page.locator('.page:not(.hide) .card[data-type="Movie"]').filter({ visible: true }).first();
     await card.scrollIntoViewIfNeeded();
@@ -123,9 +121,8 @@ test.describe('Layout', () => {
     test.skip(isMobile, 'Hover solo desktop');
     const s = await sessionFor('viewer');
     await installNebula(page, s, { reducedMotion: true });
-    const views = await apiCall<{ Items: { Id: string; CollectionType?: string }[] }>(s, 'GET', `/UserViews?userId=${s.userId}`);
-    const movies = views.Items.find((v) => v.CollectionType === 'movies')!;
-    await page.goto(`/web/#/movies?topParentId=${movies.Id}&collectionType=movies`);
+    // Ricerca nativa: card native (Film/Serie usano il catalogo Nebula).
+    await page.goto('/web/#/search?query=Comfort');
     await expect(page.locator('html.nebula-active')).toHaveCount(1, { timeout: 20_000 });
     const card = page.locator('.page:not(.hide) .card[data-type="Movie"]').filter({ visible: true }).first();
     await card.scrollIntoViewIfNeeded();
@@ -143,25 +140,24 @@ test.describe('Layout', () => {
     expect(bg.toLowerCase()).not.toBe('#854bff');
   });
 
-  test('mobile: barra in basso, header essenziale, drawer glass fluttuante', async ({ page, isMobile }, info) => {
+  test('mobile: nessuna barra in basso, header essenziale, drawer glass fluttuante', async ({ page, isMobile }, info) => {
     test.skip(!isMobile, 'Solo mobile');
     const s = await sessionFor('viewer');
     await installNebula(page, s);
     await gotoHome(page);
-    const nav = page.getByRole('navigation', { name: 'Navigazione principale' });
-    await expect(nav).toBeVisible();
-    await expect(nav.getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('.nebula-bottomnav')).toHaveCount(0);
     // Header mobile: menu, logo, ricerca, profilo (SyncPlay/Trasmetti nascosti, raggiungibili dal player).
     const bar = page.locator('header.MuiAppBar-root').first();
     await expect(bar.locator('a[href^="#/search"]')).toBeVisible();
     await expect(bar.locator('[aria-controls="app-sync-play-menu"]')).toBeHidden();
-    // Navigazione reale verso la libreria Film.
-    await nav.getByRole('link', { name: 'Film' }).click();
-    await expect(page).toHaveURL(/#\/movies\?topParentId=/);
-    await expect(nav.getByRole('link', { name: 'Film' })).toHaveAttribute('aria-current', 'page');
-    // Drawer: pannello staccato dai bordi e arrotondato.
+    // Navigazione reale verso la libreria Film dal menu laterale.
     await bar.locator('button').first().click();
     const paper = page.locator('.MuiDrawer-paper').first();
+    await paper.locator('a[href*="collectionType=movies"]').click();
+    await expect(page).toHaveURL(/#\/movies\?topParentId=/);
+    await expect(paper).toBeHidden();
+    // Drawer: pannello staccato dai bordi e arrotondato.
+    await bar.locator('button').first().click();
     await expect(paper).toBeVisible();
     // Attende la fine dello slide-in, poi verifica che il pannello sia staccato dai bordi.
     await expect.poll(async () => (await paper.boundingBox())?.x ?? -1).toBeGreaterThanOrEqual(8);
