@@ -166,80 +166,13 @@ body:not(.dashboardDocument)
   }
 }
 
-/*
- * KefinTweaks: categorie della home (Home / Scopri / Fissati). Da colonna fissa semi-trasparente sul bordo
- * sinistro a pillola glass orizzontale in alto a sinistra, sopra l'hero, che scorre con la pagina.
- */
-
-/* Il contenitore esterno è `display: contents` (KefinTweaks): si posiziona la pillola interna. */
-
-/*
- * KefinTweaks copia sulla pillola le classi MUI dell'AppBar (MuiAppBar-positionFixed…), che la tengono
- * `position: fixed` sul bordo sinistro con una dichiarazione non sovrascrivibile per specificità:
- * qui serve !important, limitato alle proprietà di posizionamento e di layout (display/direzione).
- */
+/* La navigazione Home/Discover di KefinTweaks è superflua nella navbar Nebula.
+   Il wrapper ha display: contents inline: serve !important per nascondere l'intero controllo. */
 /* stylelint-disable declaration-no-important */
-body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-rail {
-  position: absolute !important;
-  inset: calc(var(--nebula-nav-top) + var(--nebula-nav-height) + 16px) auto auto var(--nebula-content-gutter) !important;
-  z-index: 5 !important;
-  display: inline-flex !important;
-  flex-direction: row !important;
-  gap: 4px;
-  width: auto;
-  height: auto;
-  padding: 4px;
-  border: 1px solid var(--nebula-glass-border);
-  border-radius: var(--nebula-radius-pill);
-  background: var(--nebula-glass-strong);
-  box-shadow: var(--nebula-shadow-soft), var(--nebula-inner-light);
-  opacity: 1;
-  transform: none;
-  backdrop-filter: var(--nebula-glass-filter);
+body:not(.dashboardDocument) #kefin-home-category-rail {
+  display: none !important;
 }
 /* stylelint-enable declaration-no-important */
-
-body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-item {
-  margin: 0;
-}
-
-body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  width: auto;
-  min-width: 40px;
-  height: 36px;
-  margin: 0;
-  padding: 0 12px;
-  border: 0;
-  border-radius: var(--nebula-radius-pill);
-  background: transparent;
-  color: var(--nebula-text-muted);
-  font: 600 var(--nebula-text-sm) / 1 var(--nebula-font-body);
-}
-
-body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-btn .material-icons {
-  font-size: 19px;
-}
-
-body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-btn:is(:hover, :focus-visible) {
-  color: var(--nebula-text);
-  background: var(--nebula-glass-highlight);
-}
-
-body:not(.dashboardDocument) #kefin-home-category-rail .kefin-home-category-item.is-active .kefin-home-category-btn {
-  background: var(--nebula-gradient);
-  color: #fff;
-  box-shadow: 0 4px 16px rgb(var(--nebula-primary-rgb) / 35%);
-}
-
-/* Sotto i 900px l'hero mobile parte più in basso per lasciare spazio alla pillola. */
-@media (width < 900px) {
-  html:has(#kefin-home-category-rail:not(.hide)) .nebula-hero__content {
-    top: calc(var(--nebula-nav-height) + var(--nebula-nav-top) + 72px);
-  }
-}
 
 /*
  * Jellyfin Enhanced — righe di raccomandazioni/studi/network (recommendations-render.js, 12.12).
@@ -316,9 +249,14 @@ body:not(.dashboardDocument) :is(.fldSkin, .fldColorSchemes) {
  * - pulsante «Active Streams» di Jellyfin Enhanced (chi sta guardando cosa): tolto dalla barra.
  * Per spegnerli alla fonte: KefinTweaks → script «breadcrumbs»; JE → «Active Streams».
  */
+
+/* Il bridge MUI forza display con !important sui pulsanti header: stesso livello
+   necessario qui, con selettori circoscritti ai soli controlli Active Streams. */
+/* stylelint-disable declaration-no-important */
 body:not(.dashboardDocument) :is(#je-active-streams, #je-active-streams-panel) {
-  display: none;
+  display: none !important;
 }
+/* stylelint-enable declaration-no-important */
 
 /* I breadcrumb ricevono `style.display = 'block'` inline da breadcrumbs.js: serve !important. */
 /* stylelint-disable declaration-no-important */

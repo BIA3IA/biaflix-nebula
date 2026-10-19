@@ -1,5 +1,26 @@
 # QA
 
+## Navbar essenziale (19/10/2026)
+
+Rimosso il controllo Home/Discover creato da Nebula e nascosto quello nativo di KefinTweaks. La home standard viene ripristinata con il pulsante nativo `data-category-id="none"` all'ingresso nella route home: una precedente selezione Scopri non lascia un filtro nascosto. La watchlist conserva il suo pannello; il ritorno alla home passa dal logo su desktop e dalla barra inferiore su mobile.
+
+**Active Streams, causa verificata:** con il widget realmente abilitato nella configurazione intercettata dal browser, il bridge MUI applica `.MuiToolbar-root .headerButton.paper-icon-button-light { display: inline-flex !important; }`. La vecchia regola Nebula `display: none` perdeva. Il test di regressione falliva con `display: flex` invece di `none`; l'override è ora `!important`, limitato agli ID del widget e del suo pannello. Il test abilita anche la visibilità per il viewer, verifica che il pulsante esista e controlla il display effettivo, evitando il falso positivo del vecchio test su un widget disabilitato o già in overflow.
+
+**Verifica finale mirata:** `pnpm exec playwright test tests/e2e/navbar.spec.ts tests/e2e/responsive.spec.ts --grep 'navbar essenziale|Navbar responsive'`: **5 superati, 1 saltato per profilo, 0 falliti**. La matrice 320/390/600/768/1024/1366/1920px della navbar passa su Firefox e Chromium: risolta la sovrapposizione Home/Discover–launcher documentata sotto come preesistente. Le prove homepage, tooltip e tema unico sono passate nella precedente esecuzione; il nuovo test navbar verifica logo desktop, Home e Watchlist nella barra inferiore mobile.
+
+`pnpm check`: typecheck, lint CSS, **55 unit test** e build superati. I test dedicati controllano anche ritorno da Scopri alla home, assenza del selettore originale, apertura/chiusura della watchlist e assenza del comando Active Streams nel launcher JE. I dati delle sessioni sono sintetici, senza modifiche alla configurazione server.
+
+## Pagina Attività Nebula (19/10/2026)
+
+**Ambiente:** Jellyfin 12.2 locale con JE 12.12 e KefinTweaks 0.5.1. Il Native Tab Attività è abilitato esclusivamente nelle risposte intercettate dal browser; nessuna impostazione server viene modificata. Attività, recensioni e stream sintetici; miniature dei media locali.
+
+- `pnpm check`: typecheck, lint CSS, **55 unit test** e build superati.
+- `tests/e2e/activity.spec.ts`: **9/9 superati** su Firefox 1920×1080, Chromium 1366×768 e mobile 390×844. Include matrice 320/390/600/768/1024/1366/1920px, titoli lunghi, immagini caricate e fallback senza immagine, recensione con stelle, avanzamento parziale/completo, refresh, stati vuoti, errore 503 e recupero, rimozione stream su 403, navigazione ai dettagli, focus da tastiera e movimento ridotto.
+- Regressioni calendario e homepage: **22 E2E superati, 2 saltati per profilo, 0 falliti**, con `pnpm exec playwright test tests/e2e/calendar.spec.ts tests/e2e/home.spec.ts`.
+- Prettier sui sorgenti modificati e `git diff HEAD --check` superati. Screenshot desktop/mobile e stati vuoti esaminati in `test-results/screenshots/activity-{populated,empty}-*.png`.
+
+**Limiti:** testata la navigazione Native Tab reale; host Plugin Pages, Safari/iOS e dispositivi fisici non verificati. Il test 403 verifica la reazione del renderer; le autorizzazioni backend restano di Jellyfin Enhanced.
+
 ## Calendario Nebula (19/10/2026)
 
 Restyling CSS di Jellyfin Enhanced 12.12 verificato contro il plugin installato nel container locale. Eventi e user-data sono sintetici, intercettati da Playwright; nessuna istanza Sonarr/Radarr o dato di produzione viene consultato dalla suite.

@@ -28,6 +28,12 @@ Il controller nativo di jellyfin-web resta il proprietario della pagina: Nebula 
 
 Tipi gestiti: Film, Serie, Stagione, Episodio, Raccolta. Le altre pagine (persone, musica, live TV) restano native con lo stile Nebula.
 
+## Navbar
+
+Home/Discover di KefinTweaks non viene più duplicato nella navbar e il selettore originale resta nascosto. All'ingresso in home Nebula richiama la categoria standard `none` tramite il pulsante nativo, per evitare selezioni Scopri nascoste. Il ritorno alla home resta sul logo desktop e nella barra inferiore mobile; la watchlist conserva il proprio pannello.
+
+Il widget Active Streams (`#je-active-streams` e `#je-active-streams-panel`) è nascosto con un override `!important` circoscritto: il bridge MUI usa `display: inline-flex !important` sui pulsanti JE e prevaleva sulla vecchia regola. La sezione Stream attivi della pagina Attività mantiene la propria configurazione e i propri permessi.
+
 ## Calendario Jellyfin Enhanced
 
 `src/styles/calendar.css` uniforma il calendario JE 12.12 ai token Nebula: toolbar su due righe senza posizionamento assoluto, controlli da almeno 44px, stati attivi con gradiente, filtri glass e agenda raggruppata per data. Le viste giorno/settimana/mese mantengono i renderer e i colori semantici degli eventi del plugin. La dashboard resta esclusa.
@@ -36,6 +42,14 @@ Selettori verificati sui moduli locali `calendar-page-styles.js`, `calendar-page
 
 I test usano la pagina dedicata e il renderer reale con risposte sintetiche per calendario/user-data/richieste; non richiedono Sonarr/Radarr. Native Tab e Plugin Pages condividono le classi stilizzate, ma i loro percorsi di navigazione non sono coperti dalla nuova suite. Safari/iOS e touch fisico restano da verificare.
 
+## Attività Jellyfin Enhanced
+
+`src/styles/activity.css` stilizza il renderer condiviso `extras/activity-page.js` di JE 12.12: pannelli glass, titoli allineati agli hub Nebula, miniature vicine al contenuto, avatar e barre di avanzamento con gradiente. A partire da 1100px, quando sono presenti tutte e tre le sezioni, gli stream occupano la prima riga e cronologia/recensioni sono affiancate. Il selettore posizionale corrisponde al DOM verificato: topbar, stream, cronologia, recensioni. Se manca una sezione, il layout torna in colonna; sotto 600px artwork e avatar condividono una colonna compatta accanto al testo.
+
+Solo CSS, circoscritto alle classi `je-activity-*` fuori dalla dashboard. Le impostazioni JE, le autorizzazioni, il polling, l'aggiornamento e i collegamenti ai titoli restano quelli del plugin. Nessun `!important` necessario; l'accento JE viene ridefinito sul feed, senza toccare la variabile inline del documento.
+
+La suite E2E abilita il Native Tab intercettando la configurazione nel browser, usa risposte sintetiche per attività/stream e immagini dei media locali. Verifica anche risposta stream 403, errori del feed e recupero con Aggiorna. Il contenitore Plugin Pages condivide il renderer, ma la sua navigazione non è stata verificata; Safari e dispositivi fisici restano da verificare.
+
 ## Correttivi per difetti di plugin terzi (da rimuovere quando corretti a monte)
 
 | Plugin                  | Difetto                                                                                                        | Correttivo Nebula                                                                                                               |
@@ -43,7 +57,7 @@ I test usano la pagina dedicata e il renderer reale con risposte sintetiche per 
 | Jellyfin Enhanced 12.12 | Con «Use Icons» spento `JE.icon()` restituisce '' e `JE.t()` rimette il segnaposto `{{icon:…}}` nei testi      | `src/scripts/compat/je-icon-tokens.ts` avvolge `JE.t` e toglie i token rimasti; in alternativa basta attivare «Use Icons» in JE |
 | Jellyfin Enhanced 12.12 | Righe Studi/Network: doppie frecce, quelle di JE usano `scrollBy` su uno scroller a transform e non funzionano | `plugin-compat.css` nasconde solo le frecce JE quando la riga ha quelle native                                                  |
 | jellyfin-web 12.2       | Scroller a transform senza ritaglio su desktop → scroll orizzontale del documento                              | `rails.css`: ritaglio come nel layout TV                                                                                        |
-| KefinTweaks 0.5.1       | Pillola categorie con classi MUI dell'AppBar (fissa sul bordo)                                                 | `plugin-compat.css`: posizionamento con `!important` limitato                                                                   |
+| KefinTweaks 0.5.1       | Pillola categorie con classi MUI dell'AppBar (fissa sul bordo)                                                 | `plugin-compat.css`: selettore Home/Discover nascosto; duplicato Nebula rimosso                                                                   |
 
 ## Limiti noti (non aggirabili lato client)
 

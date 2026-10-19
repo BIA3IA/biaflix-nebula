@@ -66,7 +66,7 @@ test.describe('Controlli glass', () => {
 });
 
 test.describe('Tooltip e controlli KefinTweaks', () => {
-  test('tooltip glass al posto di quello di sistema; categorie home in alto, non sul bordo', async ({ page, isMobile }) => {
+  test('tooltip glass al posto di quello di sistema; categorie home nascoste', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Hover solo con puntatore');
     const s = await sessionFor('curator');
     await installNebula(page, s);
@@ -86,13 +86,8 @@ test.describe('Tooltip e controlli KefinTweaks', () => {
     await target.hover();
     await expect(page.locator('.nebula-tooltip.is-visible')).toHaveText(text!);
     await expect(target).not.toHaveAttribute('title', /.+/);
-    // Categorie KefinTweaks (visibili solo se ce n'è più di una): pillola sotto la navbar, non fissa sul bordo.
-    const pill = page.locator('#kefin-home-category-rail .kefin-home-category-rail').filter({ visible: true });
-    if (await pill.count()) {
-      expect(await pill.evaluate((el) => getComputedStyle(el).position)).toBe('absolute');
-      const bar = (await page.locator('header.MuiAppBar-root').filter({ visible: true }).first().boundingBox())!;
-      await expect.poll(async () => (await pill.boundingBox())?.y ?? 0).toBeGreaterThan(bar.y + bar.height);
-    }
+    await expect(page.locator('.nebula-navcats')).toHaveCount(0);
+    await expect(page.locator('#kefin-home-category-rail')).toBeHidden();
   });
 });
 
