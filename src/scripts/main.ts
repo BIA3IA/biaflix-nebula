@@ -18,6 +18,7 @@ import { WatchlistService } from './watchlist';
 import { installDrawerExtras } from './features/drawer-extras';
 import { favoritesPageFeature, libraryPagesFeature } from './features/catalog-pages';
 import { watchlistPageFeature } from './features/watchlist-page';
+import { playlistPageFeature } from './features/playlist-page';
 import { installNavbarExtras } from './features/navbar-extras';
 import { installNativeCardActions } from './features/card-actions';
 import { collectionsHubFeature } from './features/collections-hub';
@@ -92,6 +93,7 @@ function boot(): void {
           heroFeature(ctx),
           homeRailsFeature(ctx),
           detailsFeature(ctx),
+          playlistPageFeature(ctx),
           collectionsHubFeature(ctx),
           watchlistPageFeature(ctx),
           favoritesPageFeature(ctx),

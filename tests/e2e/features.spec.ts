@@ -146,9 +146,10 @@ test.describe('Layout', () => {
     await installNebula(page, s);
     await gotoHome(page);
     await expect(page.locator('.nebula-bottomnav')).toHaveCount(0);
-    // Header mobile: menu, logo, ricerca, profilo (SyncPlay/Trasmetti nascosti, raggiungibili dal player).
+    // Header mobile: menu, logo, Trasmetti, ricerca, profilo (SyncPlay nascosto, raggiungibile dal player).
     const bar = page.locator('header.MuiAppBar-root').first();
     await expect(bar.locator('a[href^="#/search"]')).toBeVisible();
+    await expect(bar.locator('[aria-controls="app-remote-play-menu"]')).toBeVisible();
     await expect(bar.locator('[aria-controls="app-sync-play-menu"]')).toBeHidden();
     // Navigazione reale verso la libreria Film dal menu laterale.
     await bar.locator('button').first().click();

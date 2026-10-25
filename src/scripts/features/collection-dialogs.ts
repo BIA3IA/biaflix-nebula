@@ -270,6 +270,38 @@ export async function openAddTo(ctx: NebulaContext, item: BaseItem): Promise<voi
 }
 
 /** Gestione di una raccolta: aggiungi titoli, rimuovi (con conferma), descrizione (admin), elimina. */
+/** Aggiunge titoli a una playlist esistente dalla sua pagina (selettore a locandine, episodi inclusi). */
+export async function openAddToPlaylist(ctx: NebulaContext, playlist: BaseItem, onChanged: () => void): Promise<void> {
+  const dlg = openDialog({ title: `${t('addTitles')}: ${playlist.Name}`, className: 'nebula-dialog--wide' });
+  const existing = await ctx.api
+    .getPlaylistItems(playlist.Id)
+    .then((r) => new Set(r.Items.map((i) => i.Id)))
+    .catch(() => new Set<string>());
+  const picker = createTitlePicker(ctx, { exclude: existing, includeEpisodes: true });
+  dlg.body.append(h('p', { class: 'nebula-notice' }, icon('info'), t('playlistSeriesNotice')), picker.root);
+  const cancel = h('button', { type: 'button', class: 'nebula-btn nebula-btn--glass' }, t('cancel'));
+  const add = h('button', { type: 'button', class: 'nebula-btn nebula-btn--primary', disabled: true }, icon('playlist_add'), t('addTitles'));
+  picker.onChange(() => {
+    add.disabled = picker.selected().length === 0;
+  });
+  cancel.addEventListener('click', () => dlg.close());
+  add.addEventListener('click', async () => {
+    const ids = picker.selected().map((i) => i.Id);
+    if (!ids.length) return;
+    dlg.setBusy(true);
+    try {
+      await ctx.playlists.add(playlist.Id, ids);
+      toast(t('addedTo', { name: playlist.Name }));
+      dlg.close();
+      onChanged();
+    } catch (err) {
+      reportError(ctx, err);
+      dlg.setBusy(false);
+    }
+  });
+  dlg.footer.append(cancel, add);
+}
+
 export async function openManageCollection(ctx: NebulaContext, collection: BaseItem, onChanged: () => void): Promise<void> {
   let dirty = false;
   const dlg = openDialog({

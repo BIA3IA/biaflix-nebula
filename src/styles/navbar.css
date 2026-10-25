@@ -179,9 +179,10 @@ body:not(.dashboardDocument) #loginPage :is(.manualLoginForm, .visualLoginForm):
  * MUI (UserViewNav) mostra già 3/5/8 librerie per breakpoint con il menu «Altro» per le restanti:
  * qui si compattano progressivamente logo, etichette e azioni secondarie per non comprimere tutto.
  *   ≥ 1280px  desktop: logo + nome, link con icona ed etichetta, tutte le azioni
- *   1100–1279 desktop stretto: solo logo, link più compatti, SyncPlay/Trasmetti nascosti (raggiungibili dal player)
+ *   1100–1279 desktop stretto: solo logo, link più compatti, SyncPlay nascosto (raggiungibile dal player);
+ *             Trasmetti (Chromecast) resta sempre visibile, a ogni larghezza
  *   900–1099  tablet: link solo icona (nome accessibile invariato), spaziature ridotte
- *   < 900     mobile: hamburger + drawer glass nativo, logo, ricerca, profilo (mobile.css)
+ *   < 900     mobile: hamburger + drawer glass nativo, logo, Trasmetti, ricerca, profilo (mobile.css)
  */
 body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .MuiToolbar-root > .MuiStack-root {
   min-width: 0;
@@ -202,7 +203,7 @@ body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) > .Mui
     padding-inline: 10px;
   }
 
-  body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) :is([aria-controls='app-sync-play-menu'], [aria-controls='app-remote-play-menu']) {
+  body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) [aria-controls='app-sync-play-menu'] {
     display: none;
   }
 }

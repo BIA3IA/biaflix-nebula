@@ -19,23 +19,24 @@ export class PlaylistService {
     this.events.dispatchEvent(new CustomEvent(PLAYLISTS_CHANGED, { detail: { playlistId } }));
   }
 
-  /** Playlist su cui l'utente corrente può scrivere (stesso criterio dell'editor nativo). */
+  /** L'utente corrente può modificare la playlist? (stesso criterio dell'editor nativo) */
+  async canEdit(playlistId: string): Promise<boolean> {
+    try {
+      const perm = await this.api.request<{ CanEdit: boolean }>(
+        'GET',
+        `/Playlists/${encodeURIComponent(playlistId)}/Users/${encodeURIComponent(this.api.userId)}`,
+      );
+      return perm.CanEdit === true;
+    } catch (err) {
+      if (err instanceof ApiError && (err.status === 404 || err.isForbidden)) return false;
+      throw err;
+    }
+  }
+
+  /** Playlist su cui l'utente corrente può scrivere. */
   async editable(): Promise<BaseItem[]> {
     const { Items } = await this.api.getPlaylists();
-    const checks = await Promise.all(
-      Items.map(async (p) => {
-        try {
-          const perm = await this.api.request<{ CanEdit: boolean }>(
-            'GET',
-            `/Playlists/${encodeURIComponent(p.Id)}/Users/${encodeURIComponent(this.api.userId)}`,
-          );
-          return perm.CanEdit ? p : null;
-        } catch (err) {
-          if (err instanceof ApiError && (err.status === 404 || err.isForbidden)) return null;
-          throw err;
-        }
-      }),
-    );
+    const checks = await Promise.all(Items.map(async (p) => ((await this.canEdit(p.Id)) ? p : null)));
     return checks.filter((p): p is BaseItem => p !== null);
   }
 

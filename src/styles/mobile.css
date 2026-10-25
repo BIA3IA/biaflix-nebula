@@ -135,8 +135,11 @@ body:not(.dashboardDocument) .MuiDrawer-paper :is(.jellyfinEnhancedSection, [dat
 @media (width < 900px) {
   /* --- Header essenziale ---------------------------------------------------------- */
 
-  /* Header mobile: menu, logo, ricerca, profilo. SyncPlay/Trasmetti restano raggiungibili dal player. */
-  body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) :is([aria-controls='app-sync-play-menu'], [aria-controls='app-remote-play-menu']) {
+  /*
+   * Header mobile: menu, logo, Trasmetti (Chromecast), ricerca, profilo. SyncPlay resta nel player.
+   * Trasmetti compare solo se il browser supporta il Cast (es. Chrome su Android), come in Jellyfin.
+   */
+  body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) [aria-controls='app-sync-play-menu'] {
     display: none;
   }
 
@@ -149,6 +152,28 @@ body:not(.dashboardDocument) .MuiDrawer-paper :is(.jellyfinEnhancedSection, [dat
     margin-inline: var(--nebula-space-1) var(--nebula-space-2);
     border-radius: var(--nebula-radius-sm);
     background: image-set(url('assets/biaflix-logo-128.png') 1x, url('assets/biaflix-logo-256.png') 2x) center / 32px 32px no-repeat;
+  }
+
+  /*
+   * Telefoni stretti (320–399px): menu, logo, tray JE, Trasmetti, ricerca e profilo devono stare tutti.
+   * Pulsanti a 40px (bersaglio tattile ancora comodo) e margini del logo ridotti: niente sovrapposizioni.
+   */
+  @media (width < 400px) {
+    body:not(.dashboardDocument) header.MuiAppBar-root:not(.dashboard-appBar) :is(.MuiIconButton-root, #je-header-buttons-group button) {
+      width: 40px;
+      min-width: 40px;
+      height: 40px;
+      min-height: 40px;
+      padding: 8px;
+    }
+
+    .nebula-nav-home {
+      flex-basis: 40px;
+      width: 40px;
+      height: 40px;
+      margin-inline: 2px 4px;
+      background-size: 28px 28px;
+    }
   }
 
   /* --- Hero mobile ---------------------------------------------------------------- */

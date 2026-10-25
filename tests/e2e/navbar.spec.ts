@@ -44,3 +44,14 @@ test('navbar essenziale: senza Home/Discover né il pulsante Active Streams', as
   await expect(page.locator('.nebula-hero')).toBeVisible();
   await page.screenshot({ path: `test-results/screenshots/navbar-simple-${info.project.name}.png` });
 });
+
+test('Trasmetti (Chromecast) sempre raggiungibile nella barra, a ogni larghezza', async ({ page }) => {
+  await installNebula(page, await sessionFor('viewer'));
+  await gotoHome(page);
+  const cast = page.locator('header.MuiAppBar-root [aria-controls="app-remote-play-menu"]');
+  for (const width of [320, 360, 390, 600, 768, 900, 1024, 1100, 1279, 1366, 1920]) {
+    await page.setViewportSize({ width, height: 800 });
+    await expect(cast, `${width}px`).toBeVisible();
+    await expect(cast, `${width}px`).toBeInViewport({ ratio: 1 });
+  }
+});

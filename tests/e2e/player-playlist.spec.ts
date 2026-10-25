@@ -45,3 +45,35 @@ test('playlist: elenco verticale leggibile nonostante le griglie episodi dei plu
     await apiCall(s, 'DELETE', `/Items/${Id}`);
   }
 });
+
+test('playlist esistente: «Aggiungi titoli» dalla sua pagina, salvato sul server', async ({ page }, info) => {
+  const s = await sessionFor('viewer');
+  const episodes = (await apiCall<{ Items: { Id: string }[] }>(s, 'GET', `/Items?userId=${s.userId}&recursive=true&includeItemTypes=Episode&limit=2`)).Items;
+  const { Id } = await apiCall<{ Id: string }>(s, 'POST', '/Playlists', {
+    Name: 'zzE2E add',
+    Ids: episodes.map((e) => e.Id),
+    UserId: s.userId,
+    MediaType: 'Video',
+  });
+  try {
+    await installNebula(page, s);
+    await page.goto(`/web/#/details?id=${Id}&serverId=${s.serverId}`);
+    await expect(page.locator('#listChildrenCollapsible .listItem')).toHaveCount(2);
+    await page.locator('#itemDetailPage:not(.hide) .nebula-playlist-add').click();
+    const dialog = page.getByRole('dialog', { name: /Aggiungi titoli/ });
+    await expect(dialog).toBeVisible();
+    const add = dialog.getByRole('button', { name: 'Aggiungi titoli', exact: true });
+    await expect(add).toBeDisabled();
+    await dialog.getByRole('button', { name: 'Film', exact: true }).click();
+    await dialog.locator('.nebula-picker__label').first().click();
+    await expect(add).toBeEnabled();
+    await page.screenshot({ path: `test-results/screenshots/playlist-add-${info.project.name}.png` });
+    await add.click();
+    await expect
+      .poll(async () => (await apiCall<{ TotalRecordCount: number }>(s, 'GET', `/Playlists/${Id}/Items?userId=${s.userId}`)).TotalRecordCount)
+      .toBe(3);
+    await expect(page.locator('#listChildrenCollapsible .listItem')).toHaveCount(3);
+  } finally {
+    await apiCall(s, 'DELETE', `/Items/${Id}`);
+  }
+});
